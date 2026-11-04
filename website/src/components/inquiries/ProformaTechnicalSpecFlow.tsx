@@ -1,9 +1,9 @@
 "use client";
 
 import { useEffect, useMemo, useRef, useState } from "react";
-import { createCustomerCutLayout, parseCustomerCutListFile, type CutLayoutResult, type ImportedCutListRow } from "@/lib/customer-cutlist";
-import { createCsv, createXlsx } from "@/lib/export-formats";
-import type { ExportSheet, OperationsExportBundle } from "@/lib/operations-exports";
+import type { ClipboardEvent, KeyboardEvent } from "react";
+import { calculateWpfPanelSqm, calculateWpfTotalSqm, parseCustomerCutListFile, type ImportedCutListRow } from "@/lib/customer-cutlist";
+import { deriveCustomerPiProcessingSuggestions } from "@/lib/customer-pi-processing";
 
 type GlassKind = "SGU" | "DGU" | "LAM" | "DGU + LAM";
 type Pane = { thickness: string; colour: string; treatment: string; sheetWidth: string; sheetHeight: string };
@@ -23,10 +23,9 @@ type GlassSpec = {
   fabricationNotes: string;
 };
 type GridRow = { reference: string; specId: string; width1: string; height1: string; width2: string; height2: string; quantity: string };
-type LayoutState = { specId: string; paneIndex: number; mode: "quick" | "optimize"; result: CutLayoutResult };
-type ExportFormat = "csv" | "xlsx" | "pdf";
 
-const MAX_ROWS = 250;
+const MAX_ROWS_PER_GENERATION = 10_000;
+const MAX_ROWS = MAX_ROWS_PER_GENERATION * 12;
 const kinds: GlassKind[] = ["SGU", "DGU", "LAM", "DGU + LAM"];
 const thicknesses = ["3mm", "4mm", "5mm", "6mm", "8mm", "10mm", "12mm", "15mm", "16mm", "19mm"];
 const treatments = ["FT", "Annealed", "Heat Strengthened", "Heat Soaked"];
@@ -46,32 +45,23 @@ function blankSpec(id: string): GlassSpec {
 }
 const blankRow = (number: number, specId: string): GridRow => ({ reference: `A${number}`, specId, width1: "", height1: "", width2: "", height2: "", quantity: "1" });
 
-function makeSpecText(specs: GlassSpec[], rows: GridRow[], specNotes: string) {
-  const details = ["CUSTOMER PI TECHNICAL SPECIFICATION — NO PRICING"];
-  for (const [index, spec] of specs.entries()) {
-    details.push(`Spec Group ${index + 1}: ${spec.kind}${spec.specName.trim() ? ` · ${spec.specName.trim()}` : ""}`);
-    paneNames[spec.kind].forEach((name, paneIndex) => {
-      const pane = spec.panes[paneIndex]!;
-      const sheet = pane.sheetWidth && pane.sheetHeight ? `${pane.sheetWidth} × ${pane.sheetHeight} mm` : "not specified";
-      details.push(`- ${name}: ${pane.thickness}, ${pane.colour}, ${pane.treatment}; stock sheet ${sheet}`);
-    });
-    if (spec.kind === "DGU" || spec.kind === "DGU + LAM") details.push(`- Spacer: ${spec.spacerWidth || "not specified"} / ${spec.spacerMaterial || "not specified"}`);
-    if (spec.kind === "LAM" || spec.kind === "DGU + LAM") details.push(`- Interlayer: ${spec.interlayerType} ${spec.interlayerThickness}, ${spec.interlayerColour}`);
-    details.push(`- Panel extra / overlap: ${spec.panelExtra}`, ...(spec.kind === "DGU" || spec.kind === "DGU + LAM" ? [`- Spacer extra: ${spec.spacerExtra}`] : []), `- Edge finish: ${spec.edgeFinish}`);
-    if (spec.fabricationNotes.trim()) details.push(`- Fabrication details: ${spec.fabricationNotes.trim()}`);
-  }
-  details.push("Cutting list (dimensions in mm):");
-  for (const [index, row] of rows.entries()) {
-    const groupNumber = Math.max(1, specs.findIndex((spec) => spec.id === row.specId) + 1);
-    details.push(`- ${row.reference.trim() || `Item ${index + 1}`} [Spec Group ${groupNumber}]: ${row.width1 || "?"} × ${row.height1 || "?"}${row.width2 || row.height2 ? `; secondary ${row.width2 || "?"} × ${row.height2 || "?"}` : ""} mm; quantity ${row.quantity || "?"}`);
-  }
-  if (specNotes.trim()) details.push(`Additional technical notes: ${specNotes.trim()}`);
-  return details.join("\n");
-}
 
 function positive(value: string) {
   const number = Number(value);
   return Number.isFinite(number) && number > 0 && number <= 100_000;
+}
+function positiveMillimetres(value: string) {
+  const number = Number(value);
+  return Number.isInteger(number) && number > 0 && number <= 100_000;
+}
+function rowPanelSqm(row: GridRow): number | null {
+  return calculateWpfPanelSqm(row.width1, row.height1);
+}
+function rowTotalSqm(row: GridRow): number | null {
+  return calculateWpfTotalSqm(row.width1, row.height1, row.quantity);
+}
+function formatSqm(value: number | null) {
+  return value === null ? "—" : value.toFixed(3);
 }
 function specIsValid(spec: GlassSpec) {
   return paneNames[spec.kind].every((_, index) => {
@@ -83,9 +73,9 @@ function specIsValid(spec: GlassSpec) {
 }
 function rowIsValid(row: GridRow, specIds: Set<string>) {
   const secondPairStarted = Boolean(row.width2 || row.height2);
-  return specIds.has(row.specId) && positive(row.width1) && positive(row.height1)
+  return specIds.has(row.specId) && positiveMillimetres(row.width1) && positiveMillimetres(row.height1)
     && Number.isInteger(Number(row.quantity)) && Number(row.quantity) > 0 && Number(row.quantity) <= 10_000
-    && (!secondPairStarted || (positive(row.width2) && positive(row.height2)));
+    && (!secondPairStarted || (positiveMillimetres(row.width2) && positiveMillimetres(row.height2)));
 }
 function normalizeImportedKind(raw: string): GlassKind | null {
   const value = raw.toLocaleLowerCase().replace(/[\s_+-]/g, "");
@@ -95,7 +85,6 @@ function normalizeImportedKind(raw: string): GlassKind | null {
   if (["dgulam", "laminateddgu", "doublelaminated"].includes(value)) return "DGU + LAM";
   return null;
 }
-function inputValue(formData: FormData, name: string) { return String(formData.get(name) ?? "").trim(); }
 
 /** WPF Steps 4–7 translated into a customer-facing, technical-only PI intake. */
 export function ProformaTechnicalSpecFlow({ onCompleteChange }: { onCompleteChange?: (complete: boolean) => void }) {
@@ -107,8 +96,9 @@ export function ProformaTechnicalSpecFlow({ onCompleteChange }: { onCompleteChan
   const [rows, setRows] = useState<GridRow[]>([blankRow(1, "spec-1")]);
   const [validation, setValidation] = useState("");
   const [ioStatus, setIoStatus] = useState("");
-  const [layoutState, setLayoutState] = useState<LayoutState | null>(null);
-  const [layoutRunning, setLayoutRunning] = useState("");
+  const [bulkRowCounts, setBulkRowCounts] = useState<Record<string, string>>({});
+  const [reviewConfirmed, setReviewConfirmed] = useState(false);
+  const [previewProject, setPreviewProject] = useState<Record<string, string>>({});
   const fileInputRef = useRef<HTMLInputElement>(null);
   const rootRef = useRef<HTMLDivElement>(null);
   const stepHeadingRef = useRef<HTMLHeadingElement>(null);
@@ -127,30 +117,39 @@ export function ProformaTechnicalSpecFlow({ onCompleteChange }: { onCompleteChan
 
   const activeSpec = specs.find((spec) => spec.id === activeSpecId) ?? specs[0]!;
   const activePanes = paneNames[activeSpec.kind];
-  const technicalText = useMemo(() => makeSpecText(specs, rows, specNotes), [specs, rows, specNotes]);
+  const activeProcessingSuggestions = deriveCustomerPiProcessingSuggestions(activeSpec);
   const specificationJson = useMemo(() => JSON.stringify({ specs, rows, specNotes }), [specs, rows, specNotes]);
   const validSpecifications = specs.length > 0 && specs.every(specIsValid);
   const validRows = rows.length > 0 && rows.every((row) => rowIsValid(row, new Set(specs.map((spec) => spec.id))));
-  const completed = step === 3 && validSpecifications && validRows;
+  const completed = step === 3 && validSpecifications && validRows && reviewConfirmed;
 
   useEffect(() => {
     const timer = window.setTimeout(() => onCompleteChange?.(completed), 0);
     return () => window.clearTimeout(timer);
   }, [completed, onCompleteChange]);
 
+  function invalidateReview() { setReviewConfirmed(false); }
+
   function updateSpec(patch: Partial<GlassSpec>) {
     setSpecs((current) => current.map((spec) => spec.id === activeSpec.id ? { ...spec, ...patch } : spec));
+    invalidateReview();
   }
   function updatePane(index: number, key: keyof Pane, value: string) {
     setSpecs((current) => current.map((spec) => spec.id === activeSpec.id ? { ...spec, panes: spec.panes.map((pane, paneIndex) => paneIndex === index ? { ...pane, [key]: value } : pane) } : spec));
+    invalidateReview();
+  }
+  function updateSpecNotes(value: string) {
+    setSpecNotes(value);
+    invalidateReview();
   }
   function addSpec() {
     if (specs.length >= 12) return;
     const id = `spec-${nextSpecNumber}`;
-    setSpecs((current) => [...current, { ...activeSpec, id, panes: activeSpec.panes.map((pane) => ({ ...pane })) }]);
+    setSpecs((current) => [...current, { ...activeSpec, id, specName: "", panes: activeSpec.panes.map((pane) => ({ ...pane })) }]);
     setNextSpecNumber((current) => current + 1);
     setActiveSpecId(id);
     setValidation("");
+    invalidateReview();
   }
   function removeSpec(specId = activeSpec.id) {
     if (specs.length <= 1) return;
@@ -159,17 +158,97 @@ export function ProformaTechnicalSpecFlow({ onCompleteChange }: { onCompleteChan
     setSpecs(retained);
     if (activeSpecId === specId) setActiveSpecId(replacement.id);
     setRows((current) => current.map((row) => row.specId === specId ? { ...row, specId: replacement.id } : row));
-    setLayoutState(null);
+    invalidateReview();
   }
   function updateRow(index: number, key: keyof GridRow, value: string) {
     setRows((current) => current.map((row, rowIndex) => rowIndex === index ? { ...row, [key]: value } : row));
-    setLayoutState(null);
+    invalidateReview();
   }
   function addRow(specId: string) {
     if (rows.length >= MAX_ROWS) return;
     setRows((current) => [...current, blankRow(current.length + 1, specId)]);
     setValidation("");
+    invalidateReview();
   }
+  function generateRows(specId: string) {
+    const requested = Number(bulkRowCounts[specId]);
+    const remaining = MAX_ROWS - rows.length;
+    if (!Number.isInteger(requested) || requested < 1) {
+      setIoStatus("Enter a positive whole number of rows to generate.");
+      return;
+    }
+    if (requested > MAX_ROWS_PER_GENERATION) {
+      setIoStatus(`Generate up to ${MAX_ROWS_PER_GENERATION.toLocaleString()} rows at a time; use import for larger cutting lists.`);
+      return;
+    }
+    if (remaining <= 0) {
+      setIoStatus(`The customer grid is at its ${MAX_ROWS.toLocaleString()}-row limit.`);
+      return;
+    }
+    const count = Math.min(requested, remaining);
+    setRows((current) => [...current, ...Array.from({ length: count }, (_, offset) => blankRow(current.length + offset + 1, specId))]);
+    setBulkRowCounts((current) => ({ ...current, [specId]: "" }));
+    setIoStatus(count < requested ? `Added ${count.toLocaleString()} rows; the ${MAX_ROWS.toLocaleString()}-row limit was reached.` : `Generated ${count.toLocaleString()} rows in Spec Group ${specs.findIndex((spec) => spec.id === specId) + 1}.`);
+    invalidateReview();
+  }
+  function removeRow(globalIndex: number, specId: string) {
+    const groupIndices = rows.map((row, index) => row.specId === specId ? index : -1).filter((index) => index >= 0);
+    if (groupIndices.length <= 1) {
+      const row = rows[globalIndex];
+      if (row) setRows((current) => current.map((item, index) => index === globalIndex ? { ...item, reference: "", width1: "", height1: "", width2: "", height2: "", quantity: "1" } : item));
+    } else {
+      setRows((current) => current.filter((_, index) => index !== globalIndex));
+    }
+    invalidateReview();
+  }
+  function pasteGridData(event: ClipboardEvent<HTMLDivElement>, specId: string, startLocalRow: number, startColumn: number) {
+    const text = event.clipboardData.getData("text/plain");
+    if (!text.includes("\t") && !text.includes("\n")) return;
+    event.preventDefault();
+    const pasted = text.replace(/\r/g, "").split("\n").filter((line, index, all) => line !== "" || index < all.length - 1).map((line) => line.split("\t"));
+    const fields: Array<keyof GridRow> = ["reference", "width1", "height1", "width2", "height2", "quantity"];
+    const existingGroupRows = rows.filter((row) => row.specId === specId).length;
+    const neededRows = Math.max(0, startLocalRow + pasted.length - existingGroupRows);
+    const clipped = neededRows > MAX_ROWS - rows.length;
+    setRows((current) => {
+      const groupRows = current.map((row, index) => ({ row, index })).filter(({ row }) => row.specId === specId);
+      const next = [...current];
+      pasted.forEach((cells, rowOffset) => {
+        const localIndex = startLocalRow + rowOffset;
+        let globalIndex = groupRows[localIndex]?.index;
+        if (globalIndex === undefined) {
+          if (next.length >= MAX_ROWS) return;
+          globalIndex = next.length;
+          next.push(blankRow(globalIndex + 1, specId));
+          groupRows.push({ row: next[globalIndex]!, index: globalIndex });
+        }
+        const updated = { ...next[globalIndex]! };
+        cells.forEach((cell, columnOffset) => {
+          const field = fields[startColumn + columnOffset];
+          if (field) updated[field] = cell.trim();
+        });
+        next[globalIndex] = updated;
+      });
+      return next;
+    });
+    setIoStatus(clipped ? `Pasted rows up to the ${MAX_ROWS.toLocaleString()}-row limit; remaining clipboard rows were not added.` : `Pasted ${pasted.length.toLocaleString()} spreadsheet row${pasted.length === 1 ? "" : "s"} into Spec Group ${specs.findIndex((spec) => spec.id === specId) + 1}.`);
+    invalidateReview();
+  }
+  function navigateGrid(event: KeyboardEvent<HTMLDivElement>, specId: string) {
+    const target = event.target as HTMLInputElement;
+    const currentRow = Number(target.dataset.gridRow);
+    const currentColumn = Number(target.dataset.gridCol);
+    if (!Number.isInteger(currentRow) || !Number.isInteger(currentColumn)) return;
+    const moves: Record<string, [number, number]> = { ArrowUp: [-1, 0], ArrowDown: [1, 0], ArrowLeft: [0, -1], ArrowRight: [0, 1] };
+    const move = moves[event.key];
+    if (!move) return;
+    const totalGroupRows = rows.filter((row) => row.specId === specId).length;
+    const nextRow = Math.max(0, Math.min(totalGroupRows - 1, currentRow + move[0]));
+    const nextColumn = Math.max(0, Math.min(5, currentColumn + move[1]));
+    const nextInput = event.currentTarget.querySelector<HTMLInputElement>(`input[data-grid-row="${nextRow}"][data-grid-col="${nextColumn}"]`);
+    if (nextInput) { event.preventDefault(); nextInput.focus(); nextInput.select(); }
+  }
+
   function next() {
     setValidation("");
     if (step === 0) {
@@ -181,15 +260,26 @@ export function ProformaTechnicalSpecFlow({ onCompleteChange }: { onCompleteChan
       const invalid = rows.findIndex((row) => !rowIsValid(row, specIds));
       if (invalid >= 0) { setValidation(`Enter a spec group, positive width, height, and whole-number quantity for ${rows[invalid]?.reference || `item ${invalid + 1}`}. If W2 or H2 is used, enter both dimensions.`); return; }
     }
+    if (step === 2) {
+      const form = rootRef.current?.closest("form");
+      if (form instanceof HTMLFormElement) {
+        const data = new FormData(form);
+        const keys = ["company_name", "contact_name", "email", "phone", "customer_reference", "project_name", "project_location", "description"];
+        setPreviewProject(Object.fromEntries(keys.map((key) => [key, String(data.get(key) ?? "").trim()])));
+      }
+      setReviewConfirmed(false);
+    }
     setStep((current) => Math.min(3, current + 1));
   }
-  function previous() { setValidation(""); setStep((current) => Math.max(0, current - 1)); }
+  function previous() { setValidation(""); setReviewConfirmed(false); setStep((current) => Math.max(0, current - 1)); }
 
   async function importCutList(file: File) {
     setIoStatus("Reading cutting list…");
     try {
       const imported = await parseCustomerCutListFile(file);
-      const accepted = imported.rows.slice(0, Math.max(0, MAX_ROWS - rows.length));
+      const replacePlaceholder = rows.length === 1 && !rows[0]!.reference.trim() && !rows[0]!.width1 && !rows[0]!.height1 && !rows[0]!.width2 && !rows[0]!.height2;
+      const baseRows = replacePlaceholder ? [] : rows;
+      const accepted = imported.rows.slice(0, Math.max(0, MAX_ROWS - baseRows.length));
       if (!accepted.length) throw new Error(`The cutting list already has ${MAX_ROWS} rows, or the import contains no available rows.`);
       const updatedSpecs = [...specs];
       let nextNumber = nextSpecNumber;
@@ -227,11 +317,14 @@ export function ProformaTechnicalSpecFlow({ onCompleteChange }: { onCompleteChan
       });
       setSpecs(updatedSpecs);
       setNextSpecNumber(nextNumber);
-      setRows((current) => [...current, ...mappedRows]);
+      setRows((current) => {
+        const stillPlaceholder = current.length === 1 && !current[0]!.reference.trim() && !current[0]!.width1 && !current[0]!.height1 && !current[0]!.width2 && !current[0]!.height2;
+        return [...(replacePlaceholder && stillPlaceholder ? [] : current), ...mappedRows];
+      });
       setStep(1);
       setIoStatus(`Imported ${mappedRows.length} cutting-list line${mappedRows.length === 1 ? "" : "s"}${imported.skipped ? ` · skipped ${imported.skipped} invalid row${imported.skipped === 1 ? "" : "s"}` : ""}. Spreadsheet pricing fields, if present, were ignored.`);
       setValidation("");
-      setLayoutState(null);
+        invalidateReview();
     } catch (reason) {
       setIoStatus(reason instanceof Error ? reason.message : "Could not import the cutting list.");
     } finally {
@@ -239,87 +332,8 @@ export function ProformaTechnicalSpecFlow({ onCompleteChange }: { onCompleteChan
     }
   }
 
-  function download(file: Blob, name: string) {
-    const url = URL.createObjectURL(file);
-    const anchor = document.createElement("a");
-    anchor.href = url;
-    anchor.download = name;
-    anchor.click();
-    URL.revokeObjectURL(url);
-  }
-
-  async function exportCutList(format: ExportFormat) {
-    setIoStatus("Preparing technical export…");
-    try {
-      if (format === "pdf") {
-        const form = rootRef.current?.closest("form");
-        if (!(form instanceof HTMLFormElement)) throw new Error("Open this request inside the PI form before exporting PDF.");
-        const formData = new FormData(form);
-        const { generateCustomerPiCutListPdf } = await import("@/lib/customer-pi-attachments");
-        const pdfFile = await generateCustomerPiCutListPdf({
-          companyName: inputValue(formData, "company_name"),
-          contactName: inputValue(formData, "contact_name"),
-          customerReference: inputValue(formData, "customer_reference"),
-          projectName: inputValue(formData, "project_name"),
-          projectLocation: inputValue(formData, "project_location"),
-          projectRequirements: inputValue(formData, "description"),
-          technicalSpecification: technicalText,
-          technicalSpecificationJson: specificationJson,
-        });
-        download(pdfFile, pdfFile.name);
-      } else {
-        const columns = [
-          { key: "specNumber", header: "Spec #" }, { key: "specName", header: "Spec Name" },
-          { key: "glassType", header: "Glass Type" }, { key: "reference", header: "Glass Ref" },
-          { key: "width1", header: "W1" }, { key: "height1", header: "H1" },
-          { key: "width2", header: "W2" }, { key: "height2", header: "H2" },
-          { key: "quantity", header: "Qty" },
-        ];
-        const flatRows = rows.map((row) => {
-          const index = specs.findIndex((spec) => spec.id === row.specId);
-          const spec = specs[index] ?? specs[0]!;
-          return { specNumber: Math.max(1, index + 1), specName: spec.specName.trim() || `Spec Group ${Math.max(1, index + 1)}`, glassType: spec.kind, reference: row.reference, width1: row.width1, height1: row.height1, width2: row.width2, height2: row.height2, quantity: row.quantity };
-        });
-        const sheet: ExportSheet = { name: "Customer Cut List", columns, rows: flatRows };
-        const generatedAt = new Date().toISOString();
-        const bundle: OperationsExportBundle = { schemaVersion: 1, report: "proformas", title: "Customer PI Cutting List — Technical Only", generatedAt, rowCount: flatRows.length, filters: {}, summary: { "Cut list lines": flatRows.length }, sheets: [sheet], csvSheet: sheet };
-        const bytes = format === "csv" ? createCsv(sheet) : createXlsx(bundle);
-        const mime = format === "csv" ? "text/csv;charset=utf-8" : "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet";
-        download(new Blob([bytes], { type: mime }), `ProGlass_Customer_Cut_List.${format}`);
-      }
-      setIoStatus(`Technical ${format.toUpperCase()} export is ready. No pricing, costs, yield, margins, or P&L are included.`);
-    } catch (reason) {
-      setIoStatus(reason instanceof Error ? reason.message : "Could not export the technical cut list.");
-    }
-  }
-
-  async function runLayout(spec: GlassSpec, paneIndex: number, mode: "quick" | "optimize") {
-    const paneName = paneNames[spec.kind][paneIndex] ?? `Pane ${paneIndex + 1}`;
-    setLayoutRunning(`${spec.id}:${paneIndex}:${mode}`);
-    setIoStatus("");
-    try {
-      await new Promise<void>((resolve) => window.setTimeout(resolve, 0));
-      const pane = spec.panes[paneIndex]!;
-      const selectedRows = rows.filter((row) => row.specId === spec.id);
-      const layoutRows = selectedRows.map((row) => {
-        const hasSecondary = positive(row.width2) && positive(row.height2);
-        const useSecondary = paneIndex > 0 && hasSecondary;
-        return { reference: row.reference, width: Number(useSecondary ? row.width2 : row.width1), height: Number(useSecondary ? row.height2 : row.height1), quantity: Number(row.quantity) };
-      });
-      const result = createCustomerCutLayout(layoutRows, { width: Number(pane.sheetWidth), height: Number(pane.sheetHeight), label: paneName }, mode);
-      setLayoutState({ specId: spec.id, paneIndex, mode, result });
-      setIoStatus(`${mode === "quick" ? "Quick layout" : "Optimized layout preview"} ready for ${paneName}: ${result.pieceCount} pieces across ${result.sheets.length} stock sheet${result.sheets.length === 1 ? "" : "s"}. This browser estimate is for planning only; ProGlass confirms production layouts in WPF.`);
-    } catch (reason) {
-      setLayoutState(null);
-      setIoStatus(reason instanceof Error ? reason.message : "Could not build the layout preview.");
-    } finally {
-      setLayoutRunning("");
-    }
-  }
-
   return (
     <div ref={rootRef} data-intake-complete={completed ? "true" : "false"} data-no-intake-advance className="space-y-5" aria-label="Proforma technical specification generator">
-      <input type="hidden" name="pi_specification" value={technicalText} />
       <input type="hidden" name="pi_specification_json" value={specificationJson} />
       <input type="hidden" name="pi_spec_complete" value={completed ? "true" : "false"} />
       <input ref={fileInputRef} type="file" accept=".csv,.txt,.xlsx" className="sr-only" aria-label="Import cutting list CSV or Excel file" onChange={(event) => { const file = event.target.files?.[0]; if (file) void importCutList(file); }} />
@@ -340,43 +354,71 @@ export function ProformaTechnicalSpecFlow({ onCompleteChange }: { onCompleteChan
       </div>}
 
       {step === 1 && <div className="space-y-4 animate-[intake-prompt-in_.26s_cubic-bezier(.2,.8,.2,1)] motion-reduce:animate-none">
-        <div className="flex flex-wrap items-end justify-between gap-3"><div><p className="text-xs leading-5 text-text-muted">WPF Step 5 workflows: import a CSV/Excel cut list, add or remove specification groups and lines, run a quick or optimized layout preview, and export technical CSV, Excel, or PDF. Dimensions are in millimetres. Cost, yield, margin, and P&amp;L are not shown.</p><div className="mt-2 flex flex-wrap gap-2"><button type="button" onClick={() => fileInputRef.current?.click()} className="rounded-lg border border-brand-300/30 px-3 py-2 text-xs font-bold text-brand-200">Import CSV / Excel</button><button type="button" onClick={() => void exportCutList("xlsx")} className="rounded-lg border border-line-strong px-3 py-2 text-xs font-semibold text-text-secondary">Export Excel</button><button type="button" onClick={() => void exportCutList("csv")} className="rounded-lg border border-line-strong px-3 py-2 text-xs font-semibold text-text-secondary">Export CSV</button><button type="button" onClick={() => void exportCutList("pdf")} className="rounded-lg border border-line-strong px-3 py-2 text-xs font-semibold text-text-secondary">Export PDF</button><button type="button" onClick={addSpec} disabled={specs.length >= 12} className="rounded-lg border border-brand-300/30 px-3 py-2 text-xs font-bold text-brand-200 disabled:opacity-40">+ Add specification</button></div></div></div>
+        <div className="space-y-3">
+          <p className="max-w-4xl text-xs leading-5 text-text-muted">WPF Step 5 · enter or import technical cutting-list rows, add specification groups, and edit lines in a spreadsheet-style grid. Dimensions are whole millimetres. SQM is calculated from W1 × H1 using WPF’s 0.5 m² minimum; Total SQM multiplies by quantity. No rates or financial figures are shown.</p>
+          <div className="flex flex-wrap gap-2">
+            <button type="button" onClick={() => fileInputRef.current?.click()} className="rounded-lg border border-brand-300/30 px-3 py-2 text-xs font-bold text-brand-200">Import CSV / Excel</button>
+            <button type="button" onClick={addSpec} disabled={specs.length >= 12} className="rounded-lg border border-brand-300/30 px-3 py-2 text-xs font-bold text-brand-200 disabled:opacity-40">+ Add specification</button>
+          </div>
+        </div>
         {ioStatus && <p role="status" aria-live="polite" className="rounded-lg border border-line-strong bg-ink-950/70 p-3 text-xs leading-relaxed text-text-muted">{ioStatus}</p>}
-        <div className="space-y-4">{specs.map((spec) => {
-          const specIndex = specs.findIndex((item) => item.id === spec.id);
-          const groupRows = rows.map((row, index) => ({ row, index })).filter(({ row }) => row.specId === spec.id);
-          const currentPaneNames = paneNames[spec.kind];
-          return <section key={spec.id} aria-label={`Step 4 specification group ${specIndex + 1} and Step 5 cutting list`} className="rounded-2xl border border-brand-300/25 bg-ink-900/65 p-4">
-            <div className="flex flex-wrap items-start justify-between gap-3 border-b border-line-strong/70 pb-3"><div><p className="text-[.62rem] font-bold uppercase tracking-[.15em] text-brand-200">Step 4 specification generator · associated Step 5 cutting list</p><h4 className="mt-1 text-base font-bold text-text-primary">Spec Group {specIndex + 1} · {spec.kind}{spec.specName.trim() ? ` · ${spec.specName.trim()}` : ""}</h4><p className="mt-1 text-xs text-text-muted">{currentPaneNames.map((name, index) => `${name}: ${spec.panes[index]?.thickness ?? "—"} ${spec.panes[index]?.colour ?? ""}`).join(" · ")}</p></div><div className="flex flex-wrap gap-2"><button type="button" onClick={() => { setActiveSpecId(spec.id); setStep(0); }} className="rounded-lg border border-line-strong px-3 py-2 text-xs font-semibold text-brand-200">Edit Step 4 generator</button>{specs.length > 1 && <button type="button" onClick={() => removeSpec(spec.id)} className="rounded-lg border border-line-strong px-3 py-2 text-xs font-semibold text-state-danger">Remove specification</button>}<button type="button" onClick={() => addRow(spec.id)} disabled={rows.length >= MAX_ROWS} className="rounded-lg bg-brand-400 px-3 py-2 text-xs font-bold text-ink-950 disabled:opacity-40">+ Add line</button></div></div>
-            {currentPaneNames.map((paneName, paneIndex) => {
-              const key = `${spec.id}:${paneIndex}`;
-              const currentLayout = layoutState?.specId === spec.id && layoutState.paneIndex === paneIndex ? layoutState : null;
-              return <div key={paneName} className="mt-4 rounded-xl border border-line-strong/70 bg-ink-950/55 p-3"><div className="flex flex-wrap items-center justify-between gap-3"><div><h5 className="text-sm font-bold text-text-primary">{paneName}</h5><p className="mt-1 text-[.68rem] text-text-faint">Stock: {spec.panes[paneIndex]?.sheetWidth || "not set"} × {spec.panes[paneIndex]?.sheetHeight || "not set"} mm · browser layout preview</p></div><div className="flex flex-wrap gap-2"><button type="button" onClick={() => void runLayout(spec, paneIndex, "quick")} disabled={Boolean(layoutRunning) || groupRows.length === 0} className="rounded-lg border border-line-strong px-3 py-2 text-xs font-semibold text-text-secondary disabled:opacity-40">{layoutRunning === `${key}:quick` ? "Running…" : "Run quick"}</button><button type="button" onClick={() => void runLayout(spec, paneIndex, "optimize")} disabled={Boolean(layoutRunning) || groupRows.length === 0} className="rounded-lg border border-brand-300/35 bg-brand-400/10 px-3 py-2 text-xs font-bold text-brand-100 disabled:opacity-40">{layoutRunning === `${key}:optimize` ? "Optimizing…" : "Optimize"}</button>{currentLayout && <button type="button" onClick={() => setLayoutState(null)} className="rounded-lg border border-line-strong px-3 py-2 text-xs font-semibold text-text-muted">Hide result</button>}</div></div>
-                {currentLayout && <div className="mt-3 rounded-lg border border-brand-300/20 bg-brand-400/[.05] p-3"><p className="text-xs font-semibold text-brand-100">{currentLayout.mode === "quick" ? "Quick layout" : "Optimized layout preview"}: {currentLayout.result.pieceCount} pieces · {currentLayout.result.sheets.length} stock sheet{currentLayout.result.sheets.length === 1 ? "" : "s"}</p><p className="mt-1 text-[.68rem] leading-relaxed text-text-muted">Planning estimate only; confirm dimensions, orientation, edge allowances, and production suitability in the ProGlass WPF workflow. No utilization or yield result is displayed.</p><div className="mt-3 grid gap-3 sm:grid-cols-2">{currentLayout.result.sheets.map((sheet, sheetIndex) => <div key={sheetIndex} className="rounded-lg border border-line-strong bg-ink-950 p-2"><div className="mb-2 flex justify-between gap-2 text-[.65rem] text-text-muted"><span>Stock sheet {sheetIndex + 1}</span><span>{sheet.width} × {sheet.height} mm</span></div><svg viewBox="0 0 1000 600" role="img" aria-label={`Cut layout preview for stock sheet ${sheetIndex + 1}`} className="w-full rounded border border-line-strong bg-white"><rect x="0" y="0" width="1000" height="600" fill="white" />{sheet.placements.map((placement, index) => <g key={`${placement.reference}-${index}`}><rect x={placement.x / sheet.width * 1000} y={placement.y / sheet.height * 600} width={placement.width / sheet.width * 1000} height={placement.height / sheet.height * 600} fill="rgba(37, 99, 235, .15)" stroke="#1d4ed8" strokeWidth="2" /><text x={placement.x / sheet.width * 1000 + 5} y={placement.y / sheet.height * 600 + 16} fill="#172554" fontSize="14">{placement.reference}</text></g>)}</svg></div>)}</div></div>}
-              </div>;
-            })}
-            <div className="mt-4 space-y-3" aria-label={`Cutting list for Spec Group ${specIndex + 1}`}>
-              {groupRows.length ? groupRows.map(({ row, index }) => <div key={`${spec.id}-${index}`} className="rounded-lg border border-line-strong/70 bg-ink-900/70 p-3"><div className="mb-3 flex items-center justify-between"><h5 className="text-sm font-bold text-text-primary">Line {index + 1}</h5>{rows.length > 1 && <button type="button" onClick={() => { setRows((current) => current.filter((_, rowIndex) => rowIndex !== index)); setLayoutState(null); }} className="text-xs font-semibold text-state-danger">Remove</button>}</div><div className="grid gap-3 sm:grid-cols-3"><TextField label="Glass ref" value={row.reference} onChange={(value) => updateRow(index, "reference", value)} placeholder="A1" /><TextField label="W1 (mm)" value={row.width1} onChange={(value) => updateRow(index, "width1", value)} inputMode="numeric" placeholder="e.g. 1200" /><TextField label="H1 (mm)" value={row.height1} onChange={(value) => updateRow(index, "height1", value)} inputMode="numeric" placeholder="e.g. 1800" /><TextField label="W2 (mm), optional" value={row.width2} onChange={(value) => updateRow(index, "width2", value)} inputMode="numeric" placeholder="Optional" /><TextField label="H2 (mm), optional" value={row.height2} onChange={(value) => updateRow(index, "height2", value)} inputMode="numeric" placeholder="Optional" /><TextField label="Quantity" value={row.quantity} onChange={(value) => updateRow(index, "quantity", value)} inputMode="numeric" placeholder="1" /></div></div>) : <p className="rounded-lg border border-dashed border-line-strong px-3 py-4 text-xs text-text-faint">No cutting-list rows for this specification yet. Add a line above or import a file.</p>}
-            </div>
-          </section>;
-        })}</div>
-        <p className="text-[.68rem] leading-relaxed text-text-faint">Imported Excel and CSV pricing columns are ignored. Exports and automatically attached PI documents contain technical request data only, not a priced invoice or P&amp;L.</p>
-      </div>}
+        <div className="space-y-4">
+          {specs.map((spec, specIndex) => {
+            const groupRows = rows.map((row, index) => ({ row, index })).filter(({ row }) => row.specId === spec.id);
+            return <section key={spec.id} aria-label={`Cutting list for Spec Group ${specIndex + 1}`} className="overflow-hidden rounded-2xl border border-brand-300/25 bg-ink-900/65">
+              <header className="flex flex-wrap items-center justify-between gap-3 border-b border-line-strong/70 bg-ink-950/45 px-4 py-3">
+                <div className="min-w-0"><p className="text-[.62rem] font-bold uppercase tracking-[.15em] text-brand-200">Specification / Step 4 type</p><h4 className="mt-1 text-base font-bold text-text-primary">Spec Group {specIndex + 1} · {spec.kind}{spec.specName.trim() ? ` · ${spec.specName.trim()}` : ""}</h4><p className="mt-1 text-xs text-text-muted">{paneNames[spec.kind].map((name, paneIndex) => `${name}: ${spec.panes[paneIndex]?.thickness ?? "—"} ${spec.panes[paneIndex]?.colour ?? ""}`).join(" · ")}</p></div>
+                <div className="flex flex-wrap gap-2"><button type="button" onClick={() => { setActiveSpecId(spec.id); setStep(0); invalidateReview(); }} className="rounded-lg border border-line-strong px-3 py-2 text-xs font-semibold text-brand-200">Edit specification</button>{specs.length > 1 && <button type="button" onClick={() => removeSpec(spec.id)} className="rounded-lg border border-line-strong px-3 py-2 text-xs font-semibold text-state-danger">Remove group</button>}<button type="button" onClick={() => addRow(spec.id)} disabled={rows.length >= MAX_ROWS} className="rounded-lg bg-brand-400 px-3 py-2 text-xs font-bold text-ink-950 disabled:opacity-40">+ Add row</button></div>
+              </header>
+              <div className="p-4">
+                {paneNames[spec.kind].map((paneName, paneIndex) => <p key={paneName} className="mb-1 text-[.68rem] text-text-faint">{paneName} stock: {spec.panes[paneIndex]?.sheetWidth || "not set"} × {spec.panes[paneIndex]?.sheetHeight || "not set"} mm</p>)}
+                <div className="mt-3 overflow-x-auto rounded-xl border border-line-strong/80" onPaste={(event) => { const target = event.target as HTMLInputElement; pasteGridData(event, spec.id, Number(target.dataset.gridRow ?? 0), Number(target.dataset.gridCol ?? 0)); }} onKeyDown={(event) => navigateGrid(event, spec.id)}>
+                  <table className="w-full min-w-[1120px] border-collapse text-left text-xs" aria-label={`Editable cutting list for Spec Group ${specIndex + 1}`}>
+                    <thead className="bg-ink-950 text-[.65rem] font-bold uppercase tracking-wide text-text-muted"><tr><th scope="col" className="px-3 py-2.5">#</th><th scope="col" className="px-2 py-2.5">Glass ref</th><th scope="col" className="px-2 py-2.5">W1 · mm</th><th scope="col" className="px-2 py-2.5">H1 · mm</th><th scope="col" className="px-2 py-2.5">W2 · mm</th><th scope="col" className="px-2 py-2.5">H2 · mm</th><th scope="col" className="px-2 py-2.5">Quantity</th><th scope="col" title="WPF billable panel area from W1 × H1; rounded to 3 decimals with a 0.5 m² minimum for valid dimensions" className="px-2 py-2.5">SQM</th><th scope="col" title="SQM multiplied by quantity" className="px-2 py-2.5">Total SQM</th><th scope="col" className="px-2 py-2.5">Row action</th></tr></thead>
+                    <tbody>{groupRows.map(({ row, index }, localIndex) => {
+                      const gridInput = (field: keyof GridRow, column: number, label: string, numeric = false) => <input value={row[field]} onChange={(event) => updateRow(index, field, event.target.value)} inputMode={numeric ? "numeric" : undefined} aria-label={`Row ${index + 1}, ${label}`} data-grid-row={localIndex} data-grid-col={column} data-grid-cell="true" className="min-h-10 w-full rounded-md border border-line-strong bg-ink-950 px-2 text-xs text-text-primary outline-none focus-visible:border-brand-400 focus-visible:ring-2 focus-visible:ring-brand-400/30" />;
+                      return <tr key={`${spec.id}-${index}`} className="border-t border-line-strong/60 bg-ink-900/40"><th scope="row" className="w-12 px-3 py-2 font-mono text-text-muted">{index + 1}</th><td className="min-w-32 px-2 py-2">{gridInput("reference", 0, "Glass reference")}</td><td className="min-w-28 px-2 py-2">{gridInput("width1", 1, "Width 1 in millimetres", true)}</td><td className="min-w-28 px-2 py-2">{gridInput("height1", 2, "Height 1 in millimetres", true)}</td><td className="min-w-28 px-2 py-2">{gridInput("width2", 3, "Width 2 in millimetres (optional)", true)}</td><td className="min-w-28 px-2 py-2">{gridInput("height2", 4, "Height 2 in millimetres (optional)", true)}</td><td className="min-w-24 px-2 py-2">{gridInput("quantity", 5, "Quantity", true)}</td><td aria-label={`Row ${index + 1}, SQM`} className="whitespace-nowrap px-2 py-2 font-mono tabular-nums text-text-secondary">{formatSqm(rowPanelSqm(row))}</td><td aria-label={`Row ${index + 1}, Total SQM`} className="whitespace-nowrap px-2 py-2 font-mono tabular-nums text-text-secondary">{formatSqm(rowTotalSqm(row))}</td><td className="px-2 py-2"><button type="button" onClick={() => removeRow(index, spec.id)} aria-label={`Remove row ${index + 1}`} className="rounded-md px-2 py-2 font-semibold text-state-danger hover:bg-state-danger/10">Remove</button></td></tr>;
+                    })}</tbody>
+                    <tfoot className="border-t border-line-strong bg-ink-950/70 text-xs"><tr><th scope="row" colSpan={8} className="px-3 py-2 text-right font-semibold text-text-muted">Group total SQM</th><td aria-label={`Spec Group ${specIndex + 1} total SQM`} className="whitespace-nowrap px-2 py-2 font-mono font-bold tabular-nums text-brand-100">{groupRows.reduce((total, { row }) => total + (rowTotalSqm(row) ?? 0), 0).toFixed(3)}</td><td /></tr></tfoot></table>
+                </div>
+                <div className="mt-3 flex flex-wrap items-end justify-between gap-3"><p className="text-[.68rem] text-text-faint">Global row numbering · paste tab-separated cells from a spreadsheet · arrow keys move between cells · {rows.length.toLocaleString()} / {MAX_ROWS.toLocaleString()} total rows</p><label className="block text-xs font-semibold text-text-secondary">Generate rows<input type="number" min={1} max={MAX_ROWS_PER_GENERATION} step={1} value={bulkRowCounts[spec.id] ?? ""} onChange={(event) => setBulkRowCounts((current) => ({ ...current, [spec.id]: event.target.value }))} className="ml-2 min-h-10 w-28 rounded-lg border border-line-strong bg-ink-950 px-2 text-sm text-text-primary" placeholder="Count" /></label><button type="button" onClick={() => generateRows(spec.id)} disabled={rows.length >= MAX_ROWS} className="rounded-lg border border-line-strong px-3 py-2 text-xs font-semibold text-text-secondary disabled:opacity-40">Add generated rows</button></div>
 
+              </div>
+            </section>;
+          })}
+        </div>
+        <p className="text-[.68rem] leading-relaxed text-text-faint">Imported spreadsheet pricing fields are ignored. Submitted customer files contain technical request information only; the generated PI document is one unpriced Inquiry PDF.</p>
+      </div>}
       {step === 2 && <div className="space-y-4 animate-[intake-prompt-in_.26s_cubic-bezier(.2,.8,.2,1)] motion-reduce:animate-none">
-        <p className="text-xs leading-5 text-text-muted">WPF Step 6 charge and wastage calculations are intentionally not exposed. Capture non-price fabrication instructions for each specification group here.</p>
+        <p className="text-xs leading-5 text-text-muted">WPF Step 6 helps identify applicable fabrication and processing requirements from the specification. This customer view contains technical requirements only: no rates, costs, margins, profit, or financial calculations.</p>
         <div className="flex flex-wrap gap-2" aria-label="Choose specification group for fabrication details">{specs.map((spec, index) => <button key={spec.id} type="button" onClick={() => setActiveSpecId(spec.id)} aria-pressed={spec.id === activeSpec.id} className={`rounded-lg border px-3 py-2 text-xs font-semibold ${spec.id === activeSpec.id ? "border-brand-300/50 bg-brand-400/10 text-brand-100" : "border-line-strong text-text-muted"}`}>Spec Group {index + 1} · {spec.kind}</button>)}</div>
         <div className="grid gap-3 sm:grid-cols-2"><SelectField label="Panel extra / overlap" value={activeSpec.panelExtra} options={panelExtras} onChange={(value) => updateSpec({ panelExtra: value })} /><SelectField label="Edge finish / polish" value={activeSpec.edgeFinish} options={edgeFinishes} onChange={(value) => updateSpec({ edgeFinish: value })} />{(activeSpec.kind === "DGU" || activeSpec.kind === "DGU + LAM") && <SelectField label="Spacer extra" value={activeSpec.spacerExtra} options={["None", "With U-Insert", "With U-Insert As Per DWG"]} onChange={(value) => updateSpec({ spacerExtra: value })} />}</div>
+        <section className="rounded-xl border border-brand-300/25 bg-brand-400/[.04] p-4" aria-label="Automatically suggested technical processing"><h4 className="text-sm font-bold text-text-primary">Suggested processing · {activeSpec.specName.trim() || activeSpec.kind}</h4><p className="mt-1 text-[.68rem] leading-relaxed text-text-muted">Suggestions update automatically from the selected panel extra, spacer extra, edge finish, and pane construction. The estimator confirms final requirements.</p>{activeProcessingSuggestions.length ? <ul className="mt-3 space-y-2">{activeProcessingSuggestions.map((item) => <li key={item.key} className="rounded-lg border border-line-strong/70 bg-ink-950/70 px-3 py-2"><p className="text-xs font-semibold text-text-primary">{item.label}</p><p className="mt-1 text-[.68rem] text-text-muted">{item.reason}</p></li>)}</ul> : <p className="mt-3 rounded-lg border border-dashed border-line-strong px-3 py-3 text-xs text-text-faint">No additional automatic processing suggestion for the current selections. Add details below if the drawing requires special fabrication.</p>}</section>
         <TextAreaField label="Fabrication details" value={activeSpec.fabricationNotes} onChange={(value) => updateSpec({ fabricationNotes: value })} placeholder="Examples: overlap as per drawing, fanhole location, cut-outs, holes, shutter bonding, or argon gas details." />
-        <TextAreaField label="Other technical notes" value={specNotes} onChange={setSpecNotes} placeholder="Optional: standards, tolerance, orientation, safety requirements, or delivery constraints. Do not add pricing." />
+        <TextAreaField label="Other technical notes" value={specNotes} onChange={updateSpecNotes} placeholder="Optional: standards, tolerance, orientation, safety requirements, or delivery constraints. Do not add pricing." />
       </div>}
 
-      {step === 3 && <div className="space-y-4 animate-[intake-prompt-in_.26s_cubic-bezier(.2,.8,.2,1)] motion-reduce:animate-none">
-        <div className="rounded-xl border border-emerald-300/20 bg-emerald-300/[.05] p-3"><p className="text-sm font-bold text-emerald-100">Technical review · no prices shown</p><p className="mt-1 text-xs leading-5 text-text-muted">This specification and the technical XLSX, CSV, and PDF request files will be included with the inquiry delivered to the ProGlass inbox. An estimator verifies the production layout and prepares any PI in the desktop workflow.</p></div>
+      {step === 3 && <div className="space-y-5 animate-[intake-prompt-in_.26s_cubic-bezier(.2,.8,.2,1)] motion-reduce:animate-none">
+        <div className="rounded-xl border border-emerald-300/20 bg-emerald-300/[.05] p-4"><p className="text-sm font-bold text-emerald-100">Review technical request · no prices shown</p><p className="mt-1 max-w-3xl text-xs leading-5 text-text-muted">Check the customer-facing specification below before sending. One unpriced Inquiry PDF and any supporting drawings you attach will be sent to the ProGlass inquiry inbox; an estimator confirms production suitability in the WPF workflow.</p></div>
         {!validRows && <p role="alert" className="rounded-lg border border-state-warning/40 bg-state-warning/10 p-3 text-xs text-state-warning">The cutting list needs valid dimensions and quantities before the request can be sent.</p>}
-        <pre className="max-h-[28rem] overflow-auto whitespace-pre-wrap break-words rounded-xl border border-line-strong bg-ink-950 p-4 font-sans text-xs leading-5 text-text-secondary">{technicalText}</pre>
+        <div className="grid items-start gap-4 xl:grid-cols-[minmax(17rem,.75fr)_minmax(0,1.25fr)]">
+          <aside className="space-y-3 rounded-xl border border-line-strong/70 bg-ink-950/55 p-4" aria-label="Technical request review checklist"><h4 className="text-sm font-bold text-text-primary">Review checklist</h4>
+            <div className="rounded-lg border border-line-strong/70 p-3"><p className="text-[.65rem] font-bold uppercase tracking-wide text-brand-200">Project</p><p className="mt-2 text-xs leading-5 text-text-secondary">{previewProject.project_name || "Project name not provided"}{previewProject.project_location ? ` · ${previewProject.project_location}` : ""}</p><p className="mt-1 text-xs text-text-muted">{previewProject.company_name || "Company not provided"}{previewProject.contact_name ? ` · ${previewProject.contact_name}` : ""}</p><p className="mt-1 text-[.68rem] text-text-faint">Customer reference: {previewProject.customer_reference || "Not provided"}</p></div>
+            <div className="space-y-2">{specs.map((spec, specIndex) => { const count = rows.filter((row) => row.specId === spec.id).length; const requirements = deriveCustomerPiProcessingSuggestions(spec); return <div key={spec.id} className="rounded-lg border border-line-strong/70 p-3"><p className="text-xs font-semibold text-text-primary">Spec Group {specIndex + 1} · {spec.kind}{spec.specName.trim() ? ` · ${spec.specName.trim()}` : ""}</p><p className="mt-1 text-[.68rem] text-text-muted">{count} cutting-list row{count === 1 ? "" : "s"} · {paneNames[spec.kind].length} pane build-up layer{paneNames[spec.kind].length === 1 ? "" : "s"}</p><p className="mt-1 text-[.68rem] text-text-muted">{requirements.length ? `${requirements.length} suggested processing requirement${requirements.length === 1 ? "" : "s"}` : "No extra processing suggestions"}</p></div>; })}</div>
+            <div className="rounded-lg border border-line-strong/70 p-3"><p className="text-[.65rem] font-bold uppercase tracking-wide text-brand-200">Cutting list</p><p className="mt-2 text-xs text-text-secondary">{rows.length.toLocaleString()} row{rows.length === 1 ? "" : "s"} · dimensions in mm · quantities included</p><p className="mt-1 text-[.68rem] text-text-muted">Rows with incomplete dimensions: {rows.filter((row) => !rowIsValid(row, new Set(specs.map((spec) => spec.id)))).length.toLocaleString()}</p></div>
+            {previewProject.description && <div className="rounded-lg border border-line-strong/70 p-3"><p className="text-[.65rem] font-bold uppercase tracking-wide text-brand-200">Project requirements</p><p className="mt-2 whitespace-pre-wrap text-xs leading-5 text-text-muted">{previewProject.description}</p></div>}
+          </aside>
+          <article id="pi-review-paper" className="mx-auto min-h-[1123px] w-full max-w-[794px] rounded-sm border border-slate-300 bg-white p-6 text-slate-900 shadow-xl sm:p-8" aria-label="Technical specification review preview"><header className="border-b-2 border-slate-800 pb-4"><p className="text-[.62rem] font-bold uppercase tracking-[.2em] text-slate-500">ProGlass · Customer technical request</p><h4 className="mt-2 text-2xl font-bold tracking-tight">Technical specification review</h4><div className="mt-3 grid gap-x-6 gap-y-1 text-xs text-slate-700 sm:grid-cols-2"><p><strong>Company:</strong> {previewProject.company_name || "—"}</p><p><strong>Contact:</strong> {previewProject.contact_name || "—"}</p><p><strong>Project:</strong> {previewProject.project_name || "—"}</p><p><strong>Location:</strong> {previewProject.project_location || "—"}</p><p><strong>Customer reference:</strong> {previewProject.customer_reference || "—"}</p><p><strong>Email:</strong> {previewProject.email || "—"}</p><p><strong>Phone:</strong> {previewProject.phone || "—"}</p></div></header>
+            <div className="mt-5 space-y-5">{specs.map((spec, specIndex) => { const specRows = rows.filter((row) => row.specId === spec.id); const suggestions = deriveCustomerPiProcessingSuggestions(spec); return <section key={spec.id} className="break-inside-avoid"><h5 className="border-b border-slate-300 pb-1 text-sm font-bold">Spec Group {specIndex + 1} · {spec.kind}{spec.specName.trim() ? ` · ${spec.specName.trim()}` : ""}</h5><div className="mt-2 grid gap-2 text-[.68rem] sm:grid-cols-2">{paneNames[spec.kind].map((paneName, paneIndex) => { const pane = spec.panes[paneIndex]!; return <p key={paneName}><strong>{paneName}:</strong> {pane.thickness} {pane.colour} · {pane.treatment} · stock {pane.sheetWidth || "—"} × {pane.sheetHeight || "—"} mm</p>; })}</div>{(spec.kind === "DGU" || spec.kind === "DGU + LAM") && <p className="mt-2 text-[.68rem]"><strong>Spacer:</strong> {spec.spacerWidth} · {spec.spacerMaterial} · {spec.spacerExtra}</p>}{(spec.kind === "LAM" || spec.kind === "DGU + LAM") && <p className="mt-1 text-[.68rem]"><strong>Interlayer:</strong> {spec.interlayerType} {spec.interlayerThickness} · {spec.interlayerColour}</p>}<p className="mt-1 text-[.68rem]"><strong>Panel extra:</strong> {spec.panelExtra} · <strong>Edge finish:</strong> {spec.edgeFinish}</p>{suggestions.length > 0 && <p className="mt-1 text-[.68rem]"><strong>Suggested processing:</strong> {suggestions.map((item) => item.label).join("; ")}</p>}{spec.fabricationNotes.trim() && <p className="mt-1 whitespace-pre-wrap text-[.68rem]"><strong>Fabrication notes:</strong> {spec.fabricationNotes}</p>}
+              <div className="mt-3 overflow-x-auto"><table className="w-full border-collapse text-left text-[.65rem]"><thead><tr className="border-y border-slate-400"><th className="py-1 pr-2">#</th><th className="py-1 pr-2">Reference</th><th className="py-1 pr-2">W1 × H1 · mm</th><th className="py-1 pr-2">W2 × H2 · mm</th><th className="py-1 pr-2">SQM</th><th className="py-1 pr-2">Total SQM</th><th className="py-1 pr-2">Qty</th></tr></thead><tbody>{specRows.map((row, rowIndex) => <tr key={`${spec.id}-print-${rowIndex}`} className="border-b border-slate-200"><td className="py-1 pr-2">{rows.findIndex((item) => item === row) + 1}</td><td className="py-1 pr-2">{row.reference || `Item ${rowIndex + 1}`}</td><td className="py-1 pr-2">{row.width1} × {row.height1}</td><td className="py-1 pr-2">{row.width2 || "—"} × {row.height2 || "—"}</td><td className="py-1 pr-2 tabular-nums">{formatSqm(rowPanelSqm(row))}</td><td className="py-1 pr-2 tabular-nums">{formatSqm(rowTotalSqm(row))}</td><td className="py-1 pr-2">{row.quantity}</td></tr>)}</tbody><tfoot><tr className="border-t border-slate-400 font-bold"><td colSpan={5} className="py-1 pr-2 text-right">Group total SQM</td><td className="py-1 pr-2 tabular-nums">{specRows.reduce((sum, row) => sum + (rowTotalSqm(row) ?? 0), 0).toFixed(3)}</td><td /></tr></tfoot></table></div></section>; })}
+              {specNotes.trim() && <section className="border-t border-slate-300 pt-3 text-xs"><h5 className="font-bold">Additional technical notes</h5><p className="mt-1 whitespace-pre-wrap">{specNotes}</p></section>}
+              {previewProject.description && <section className="border-t border-slate-300 pt-3 text-xs"><h5 className="font-bold">Project requirements</h5><p className="mt-1 whitespace-pre-wrap">{previewProject.description}</p></section>}
+              <footer className="border-t border-slate-300 pt-3 text-[.62rem] text-slate-500">Technical request only · no prices or financial calculations · production specifications subject to estimator confirmation</footer>
+            </div>
+          </article>
+        </div>
+        <label className="flex cursor-pointer items-start gap-3 rounded-xl border border-brand-300/30 bg-brand-400/[.05] p-4 text-xs leading-5 text-text-secondary"><input type="checkbox" checked={reviewConfirmed} onChange={(event) => setReviewConfirmed(event.target.checked)} className="mt-1 size-4 accent-brand-400" /><span><strong className="text-text-primary">I have reviewed this technical request.</strong> I confirm the specification and cutting-list information above is ready to be submitted for ProGlass review. This does not approve a price or production layout.</span></label>
       </div>}
-
       {validation && <p role="alert" className="rounded-lg border border-state-danger/40 bg-state-danger/10 p-3 text-xs text-state-danger">{validation}</p>}
       <div className="flex items-center justify-between border-t border-line-strong/70 pt-4"><button type="button" onClick={previous} disabled={step === 0} className="rounded-lg border border-line-strong px-3 py-2 text-xs font-semibold text-text-muted disabled:opacity-40">← Back</button>{step < 3 ? <button type="button" onClick={next} className="rounded-lg bg-brand-400 px-4 py-2.5 text-xs font-bold text-ink-950">Continue →</button> : <button type="button" onClick={previous} className="rounded-lg border border-brand-300/30 px-3 py-2 text-xs font-semibold text-brand-200">Edit specification</button>}</div>
     </div>

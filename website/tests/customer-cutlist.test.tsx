@@ -3,7 +3,7 @@
 import { describe, expect, it } from "vitest";
 import { createXlsx } from "@/lib/export-formats";
 import type { OperationsExportBundle } from "@/lib/operations-exports";
-import { createCustomerCutLayout, parseCustomerCutListFile } from "@/lib/customer-cutlist";
+import { calculateWpfPanelSqm, calculateWpfTotalSqm, parseCustomerCutListFile } from "@/lib/customer-cutlist";
 
 function asFile(name: string, bytes: Uint8Array | string): File {
   const file = new File([bytes], name);
@@ -37,6 +37,15 @@ function xlsxFixture() {
 }
 
 describe("customer Step 5 cut-list tools", () => {
+  it("matches WPF panel and total SQM rules, including the minimum billable area", () => {
+    expect(calculateWpfPanelSqm(1200, 1800)).toBe(2.16);
+    expect(calculateWpfTotalSqm(1200, 1800, 2)).toBe(4.32);
+    expect(calculateWpfPanelSqm(400, 300)).toBe(0.5);
+    expect(calculateWpfTotalSqm(400, 300, 2)).toBe(1);
+    expect(calculateWpfPanelSqm("", 300)).toBeNull();
+    expect(calculateWpfPanelSqm(1200.5, 1800)).toBeNull();
+  });
+
   it("imports quoted CSV lines and ignores any price columns", async () => {
     const file = asFile("cut-list.csv", "Spec Name,Glass Type,Glass Ref,W1 (mm),H1 (mm),W2 (mm),H2 (mm),Quantity,Rate\r\n\"Spec Group 1\",DGU,\"A,1\",1200,1800,1100,1700,2,450.00\r\n");
     const result = await parseCustomerCutListFile(file);
@@ -55,6 +64,12 @@ describe("customer Step 5 cut-list tools", () => {
     }]);
   });
 
+  it("imports cutting lists up to the 12-group WPF bulk-generation capacity", async () => {
+    const lines = ["Glass Ref,W1 (mm),H1 (mm),Quantity", ...Array.from({ length: 120_001 }, (_, index) => `R${index + 1},800,1200,1`)];
+    const result = await parseCustomerCutListFile(asFile("large-cut-list.csv", lines.join("\n")));
+    expect(result.rows).toHaveLength(120_000);
+  });
+
   it("imports WPF-style headerless TXT rows", async () => {
     const result = await parseCustomerCutListFile(asFile("loose-cut-list.txt", "A1 1200 1800 2\nA2 800x1200 1\n"));
     expect(result.rows).toEqual([
@@ -63,23 +78,5 @@ describe("customer Step 5 cut-list tools", () => {
     ]);
   });
 
-  it("builds technical sheet layouts without returning yield or utilization values", () => {
-    const result = createCustomerCutLayout(
-      [{ reference: "A1", width: 500, height: 500, quantity: 4 }],
-      { width: 1000, height: 1000, label: "Glass pane" },
-      "optimize",
-    );
-    expect(result.pieceCount).toBe(4);
-    expect(result.sheets).toHaveLength(1);
-    expect(result.sheets[0]?.placements).toHaveLength(4);
-    expect(JSON.stringify(result)).not.toMatch(/yield|utilization|waste|margin|price|cost/i);
-  });
 
-  it("rejects pieces that cannot fit either orientation on the chosen stock sheet", () => {
-    expect(() => createCustomerCutLayout(
-      [{ reference: "A1", width: 1500, height: 2000, quantity: 1 }],
-      { width: 1000, height: 1200, label: "Glass pane" },
-      "quick",
-    )).toThrow(/do not fit/i);
-  });
 });

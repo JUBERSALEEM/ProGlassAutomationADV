@@ -7,6 +7,7 @@ import { LanguageMenu } from "@/components/layout/LanguageMenu";
 import { ThemeModeSwitch } from "@/components/layout/ThemeModeSwitch";
 import { ThemeToggle } from "@/components/layout/ThemeToggle";
 import { globalChatDisplayName } from "@/lib/global-chat";
+import { supabaseBrowser } from "@/lib/supabase";
 import { useWebsiteSession } from "@/lib/website-session";
 
 /** Compact SaaS chrome: account access, inquiry actions, chat and appearance. */
@@ -14,9 +15,31 @@ export function WelcomeHeader() {
   const [inquiryMenuOpen, setInquiryMenuOpen] = useState(false);
   const inquiryMenuRef = useRef<HTMLDivElement>(null);
   const { checking, user, userEmail } = useWebsiteSession();
+  const [savedProfile, setSavedProfile] = useState<{ userId: string; displayName: string } | null>(null);
+  const metadata = user?.user_metadata ?? {};
+  const metadataName = [metadata.full_name, metadata.name].find((value) => typeof value === "string" && value.trim());
+  const profileName = savedProfile && savedProfile.userId === user?.id ? savedProfile.displayName : "";
   const accountName = user
-    ? globalChatDisplayName({ email: user.email, metadata: user.user_metadata })
+    ? profileName || (typeof metadataName === "string" ? metadataName.trim() : "") || globalChatDisplayName({ email: user.email, metadata })
     : null;
+
+  useEffect(() => {
+    if (!user?.id) return;
+    let active = true;
+    void (async () => {
+      try {
+        const { data, error } = await supabaseBrowser()
+          .from("user_profiles")
+          .select("display_name")
+          .eq("user_id", user.id)
+          .maybeSingle();
+        if (active) setSavedProfile({ userId: user.id, displayName: !error && typeof data?.display_name === "string" ? data.display_name.trim() : "" });
+      } catch {
+        if (active) setSavedProfile({ userId: user.id, displayName: "" });
+      }
+    })();
+    return () => { active = false; };
+  }, [user?.id, metadata.full_name, metadata.name]);
 
   useEffect(() => {
     if (!inquiryMenuOpen) return;

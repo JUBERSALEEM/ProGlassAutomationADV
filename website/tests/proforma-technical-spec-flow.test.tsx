@@ -25,16 +25,20 @@ describe("customer PI technical specification flow", () => {
     fireEvent.click(screen.getByRole("button", { name: "Continue →" }));
     expect(screen.getByText("05 · Cutting list")).toBeTruthy();
     expect(screen.getByRole("button", { name: "Import CSV / Excel" })).toBeTruthy();
-    expect(screen.getByRole("button", { name: "Export Excel" })).toBeTruthy();
-    expect(screen.getByRole("button", { name: "Export CSV" })).toBeTruthy();
-    expect(screen.getByRole("button", { name: "Export PDF" })).toBeTruthy();
-    expect(screen.getAllByRole("button", { name: "Run quick" })).toHaveLength(2);
-    expect(screen.getAllByRole("button", { name: "Optimize" })).toHaveLength(2);
+    for (const label of ["Export Excel", "Export CSV", "Export PDF", "Share technical PDF", "QUICK layout", "OPTIMIZE layouts"]) {
+      expect(screen.queryByRole("button", { name: label })).toBeNull();
+    }
+    expect(screen.getByRole("button", { name: "Import CSV / Excel" })).toBeTruthy();
+    expect(screen.getByRole("table", { name: "Editable cutting list for Spec Group 1" })).toBeTruthy();
     expect(screen.getByRole("heading", { name: "Spec Group 1 · DGU" })).toBeTruthy();
     fireEvent.click(screen.getByRole("button", { name: "Continue →" }));
     expect(screen.getByRole("alert").textContent).toContain("positive width, height");
-    fireEvent.change(screen.getByLabelText("W1 (mm)"), { target: { value: "1200" } });
-    fireEvent.change(screen.getByLabelText("H1 (mm)"), { target: { value: "1800" } });
+    fireEvent.change(screen.getByLabelText("Row 1, Width 1 in millimetres"), { target: { value: "1200" } });
+    fireEvent.change(screen.getByLabelText("Row 1, Height 1 in millimetres"), { target: { value: "1800" } });
+    fireEvent.change(screen.getByLabelText("Row 1, Quantity"), { target: { value: "2" } });
+    expect(screen.getByLabelText("Row 1, SQM").textContent).toBe("2.160");
+    expect(screen.getByLabelText("Row 1, Total SQM").textContent).toBe("4.320");
+    expect(screen.getByLabelText("Spec Group 1 total SQM").textContent).toBe("4.320");
     fireEvent.click(screen.getByRole("button", { name: "Continue →" }));
 
     expect(screen.getByText("06 · Fabrication details")).toBeTruthy();
@@ -42,15 +46,36 @@ describe("customer PI technical specification flow", () => {
     fireEvent.change(screen.getByLabelText("Spacer extra"), { target: { value: "With U-Insert As Per DWG" } });
     fireEvent.click(screen.getByRole("button", { name: "Continue →" }));
 
-    expect(screen.getByText("Technical review · no prices shown")).toBeTruthy();
-    const specification = container.querySelector<HTMLInputElement>('input[name="pi_specification"]');
+    expect(screen.getByText("Review technical request · no prices shown")).toBeTruthy();
+    const paper = screen.getByRole("article", { name: "Technical specification review preview" });
+    expect(paper.textContent).toContain("Suggested processing:");
+    expect(paper.textContent).toContain("U-Insert fitting");
+    expect(paper.textContent).toContain("DGU secondary silicone bed");
+    expect(paper.textContent).toContain("Total SQM");
+    expect(paper.textContent).toContain("4.320");
+    expect(screen.getByLabelText(/I have reviewed this technical request/)).toBeTruthy();
+    expect(container.querySelector<HTMLInputElement>('input[name="pi_spec_complete"]')?.value).toBe("false");
+    fireEvent.click(screen.getByLabelText(/I have reviewed this technical request/));
+    const specification = container.querySelector<HTMLInputElement>('input[name="pi_specification_json"]');
     const complete = container.querySelector<HTMLInputElement>('input[name="pi_spec_complete"]');
     expect(complete?.value).toBe("true");
-    expect(specification?.value).toContain("CUSTOMER PI TECHNICAL SPECIFICATION — NO PRICING");
-    expect(specification?.value).toContain("With Overlap As Per DWG");
-    expect(specification?.value).toContain("With U-Insert As Per DWG");
-    expect(specification?.value).toContain("1200 × 1800 mm; quantity 1");
-    expect(specification?.value).not.toMatch(/AED|margin|yield|profit|rate:/i);
+    const payload = JSON.parse(specification?.value || "{}") as { specs: Array<{ panelExtra: string; spacerExtra: string }>; rows: Array<{ width1: string; height1: string; quantity: string }> };
+    expect(payload.specs[0]?.panelExtra).toBe("With Overlap As Per DWG");
+    expect(payload.specs[0]?.spacerExtra).toBe("With U-Insert As Per DWG");
+    expect(payload.rows[0]).toMatchObject({ width1: "1200", height1: "1800", quantity: "2" });
+    expect(JSON.stringify(payload)).not.toMatch(/AED|margin|yield|profit|rate:/i);
+  });
+
+  it("calculates WPF SQM with the 0.5 minimum and derives total SQM from quantity", () => {
+    render(<ProformaTechnicalSpecFlow />);
+    completeActiveSpecStock();
+    fireEvent.click(screen.getByRole("button", { name: "Continue →" }));
+    fireEvent.change(screen.getByLabelText("Row 1, Width 1 in millimetres"), { target: { value: "400" } });
+    fireEvent.change(screen.getByLabelText("Row 1, Height 1 in millimetres"), { target: { value: "300" } });
+    fireEvent.change(screen.getByLabelText("Row 1, Quantity"), { target: { value: "2" } });
+    expect(screen.getByLabelText("Row 1, SQM").textContent).toBe("0.500");
+    expect(screen.getByLabelText("Row 1, Total SQM").textContent).toBe("1.000");
+    expect(screen.getByLabelText("Spec Group 1 total SQM").textContent).toBe("1.000");
   });
 
   it("keeps the Step 4 construction type above its own Step 5 list and allows grouped editing", () => {
@@ -67,17 +92,34 @@ describe("customer PI technical specification flow", () => {
     completeActiveSpecStock();
 
     fireEvent.click(screen.getByRole("button", { name: "Continue →" }));
-    const secondGroup = screen.getByRole("region", { name: "Step 4 specification group 2 and Step 5 cutting list" });
-    fireEvent.click(within(secondGroup).getByRole("button", { name: "+ Add line" }));
-    fireEvent.change(within(secondGroup).getByLabelText("W1 (mm)"), { target: { value: "900" } });
-    fireEvent.change(within(secondGroup).getByLabelText("H1 (mm)"), { target: { value: "2100" } });
+    const secondGroup = screen.getByRole("region", { name: "Cutting list for Spec Group 2" });
+    const firstGroup = screen.getByRole("region", { name: "Cutting list for Spec Group 1" });
+    fireEvent.change(within(firstGroup).getByLabelText("Row 1, Width 1 in millimetres"), { target: { value: "1000" } });
+    fireEvent.change(within(firstGroup).getByLabelText("Row 1, Height 1 in millimetres"), { target: { value: "1500" } });
+    fireEvent.click(within(secondGroup).getByRole("button", { name: "+ Add row" }));
+    fireEvent.change(within(secondGroup).getByLabelText("Row 2, Width 1 in millimetres"), { target: { value: "900" } });
+    fireEvent.change(within(secondGroup).getByLabelText("Row 2, Height 1 in millimetres"), { target: { value: "2100" } });
     fireEvent.click(screen.getByRole("button", { name: "Continue →" }));
     fireEvent.click(screen.getByRole("button", { name: "Continue →" }));
+    fireEvent.click(screen.getByLabelText(/I have reviewed this technical request/));
 
-    const specification = container.querySelector<HTMLInputElement>('input[name="pi_specification"]')?.value || "";
-    expect(specification).toContain("Spec Group 1: DGU");
-    expect(specification).toContain("Spec Group 2: LAM");
-    expect(specification).toContain("A2 [Spec Group 2]: 900 × 2100 mm; quantity 1");
+    const specification = JSON.parse(container.querySelector<HTMLInputElement>('input[name="pi_specification_json"]')?.value || "{}") as { specs: Array<{ kind: string }>; rows: Array<{ reference: string; specId: string; width1: string; height1: string; quantity: string }> };
+    expect(specification.specs.map((spec) => spec.kind)).toEqual(["DGU", "LAM"]);
+    expect(specification.rows).toContainEqual(expect.objectContaining({ reference: "A2", specId: "spec-2", width1: "900", height1: "2100", quantity: "1" }));
+  });
+
+  it("pastes spreadsheet rows into the aligned grid and generates rows in bulk", () => {
+    render(<ProformaTechnicalSpecFlow />);
+    completeActiveSpecStock();
+    fireEvent.click(screen.getByRole("button", { name: "Continue →" }));
+    const reference = screen.getByLabelText("Row 1, Glass reference");
+    fireEvent.paste(reference, { clipboardData: { getData: () => "A1\t1200\t1800\t\t\t2\nA2\t800\t900\t\t\t1" } });
+    expect((screen.getByLabelText("Row 1, Glass reference") as HTMLInputElement).value).toBe("A1");
+    expect((screen.getByLabelText("Row 2, Width 1 in millimetres") as HTMLInputElement).value).toBe("800");
+    fireEvent.change(screen.getByLabelText("Generate rows"), { target: { value: "2" } });
+    fireEvent.click(screen.getByRole("button", { name: "Add generated rows" }));
+    expect(screen.getByLabelText("Row 4, Quantity")).toBeTruthy();
+    expect(screen.getByText(/4 \/ 120,000 total rows/)).toBeTruthy();
   });
 
   it("requires valid stock-sheet dimensions for every active pane before advancing from Step 4", () => {
@@ -95,15 +137,16 @@ describe("customer PI technical specification flow", () => {
     const { container } = render(<ProformaTechnicalSpecFlow onCompleteChange={onCompleteChange} />);
     completeActiveSpecStock();
     fireEvent.click(screen.getByRole("button", { name: "Continue →" }));
-    fireEvent.change(screen.getByLabelText("W1 (mm)"), { target: { value: "1200" } });
-    fireEvent.change(screen.getByLabelText("H1 (mm)"), { target: { value: "1800" } });
+    fireEvent.change(screen.getByLabelText("Row 1, Width 1 in millimetres"), { target: { value: "1200" } });
+    fireEvent.change(screen.getByLabelText("Row 1, Height 1 in millimetres"), { target: { value: "1800" } });
     fireEvent.click(screen.getByRole("button", { name: "Continue →" }));
     fireEvent.click(screen.getByRole("button", { name: "Continue →" }));
+    fireEvent.click(screen.getByLabelText(/I have reviewed this technical request/));
     await vi.waitFor(() => expect(container.querySelector<HTMLInputElement>('input[name="pi_spec_complete"]')?.value).toBe("true"));
 
     fireEvent.click(screen.getByRole("button", { name: "← Back" }));
     fireEvent.click(screen.getByRole("button", { name: "← Back" }));
-    fireEvent.change(screen.getByLabelText("H1 (mm)"), { target: { value: "" } });
+    fireEvent.change(screen.getByLabelText("Row 1, Height 1 in millimetres"), { target: { value: "" } });
     await vi.waitFor(() => expect(container.querySelector<HTMLInputElement>('input[name="pi_spec_complete"]')?.value).toBe("false"));
     await vi.waitFor(() => expect(onCompleteChange).toHaveBeenLastCalledWith(false));
   });

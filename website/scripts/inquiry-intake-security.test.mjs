@@ -107,10 +107,10 @@ test("profile and project APIs prefill, persist, associate, and filter customer 
   assert.match(api, /p_project_id: projectId \|\| null/);
   assert.match(portal, /Loading your saved details and projects/);
   assert.match(portal, /accepted\.length >= userFileLimit/);
-  assert.match(portal, /AUTO_PI_ATTACHMENT_COUNT = 3/);
-  assert.match(portal, /generateCustomerPiAttachments/);
+  assert.match(portal, /AUTO_PI_ATTACHMENT_COUNT = 1/);
+  assert.match(portal, /generateCustomerPiInquiryPdf/);
   assert.match(portal, /files = \[\.\.\.userFiles, \.\.\.\(generatedPiFilesRef\.current \|\| \[\]\)\]/);
-  assert.match(portal, /Excel, CSV, and PDF files are generated and attached automatically/);
+  assert.match(portal, /One unpriced Inquiry PDF is generated automatically/);
   assert.match(portal, /Need a PI\? Request a PI/);
   assert.ok(portal.indexOf('<ProformaTechnicalSpecFlow key={flowInstance} onCompleteChange={handlePiCompleteChange} />') > portal.indexOf('id="inquiry-documents-label"'), "PI technical steps follow optional supporting files");
   assert.match(portal, /async function customerApiFetch/);

@@ -1,5 +1,5 @@
 import { NextResponse, type NextRequest } from "next/server";
-import { ProformaApiFailure, readProformaShare, revokeProformaShare, shareProforma } from "@/lib/proforma-api";
+import { ProformaApiFailure, readProformaShare, revokeProformaShare } from "@/lib/proforma-api";
 
 export const runtime = "nodejs";
 export const dynamic = "force-dynamic";
@@ -46,8 +46,20 @@ export async function POST(request: NextRequest, context: { params: Promise<{ id
   if (!token) return errorResponse(new ProformaApiFailure("UNAUTHORIZED", "Sign in to share a proforma."));
   try {
     const { id } = await context.params;
-    const revision = await shareProforma(token, id);
-    return NextResponse.json({ ok: true, data: { revision, state: await readProformaShare(token, id) } }, { headers: HEADERS });
+    const state = await readProformaShare(token, id);
+    if (!state.can_write) {
+      return errorResponse(new ProformaApiFailure("FORBIDDEN", "Withdrawing a legacy share or administering PI data needs an inquiry administrator role."));
+    }
+    return NextResponse.json(
+      {
+        ok: false,
+        error: {
+          message: "Customer access to priced proformas is disabled. Continue PI preparation and release in the authorized WPF workflow.",
+          code: "CUSTOMER_PRICING_DISABLED",
+        },
+      },
+      { status: 410, headers: HEADERS },
+    );
   } catch (error) {
     return errorResponse(error);
   }

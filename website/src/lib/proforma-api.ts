@@ -75,25 +75,22 @@ async function authorizedClient(token: string, mode: "read" | "write"): Promise<
   return client;
 }
 
-/** What the customer currently holds, and whether that is the current revision. */
+/** Staff-only status and audit metadata for legacy customer share records. */
 export type ProformaShareState = {
   proforma_id: string | null;
   current_revision: number;
   /** False when the inquiry has no linked customer submission, so nobody to share with. */
   customer_linked: boolean;
-  share: { revision: number; shared_at: string } | null;
-  /** True when a newer revision exists than the one the customer was given. */
+  share: { revision: number; shared_at: string; revoked_at: string | null } | null;
+  /** True when a newer revision exists than the one recorded in the legacy share row. */
   stale: boolean;
   /** True when this account may share or withdraw (administrator only). */
   can_write: boolean;
 };
 
 /**
- * Read the share state of the inquiry's website proforma.
- *
- * A deployment that has not applied C1 has no `web_submission_id`, and one that
- * has not applied C7 has no share ledger. Neither is an error here: the panel
- * says the document cannot be shared yet instead of breaking the workspace.
+ * Read the staff-only audit state of legacy customer shares for the inquiry's website proforma.
+ * The C11 migration adds `revoked_at`; apply it before deploying this reader.
  */
 export async function readProformaShare(token: string, inquiryId: string): Promise<ProformaShareState> {
   if (!isUuid(inquiryId)) throw new ProformaApiFailure("NOT_FOUND", "Inquiry not found.");
@@ -127,14 +124,20 @@ export async function readProformaShare(token: string, inquiryId: string): Promi
 
   const share = await client
     .from("inquiry_proforma_shares")
-    .select("revision,shared_at")
+    .select("revision,shared_at,revoked_at")
     .eq("proforma_id", String(proforma.data.id))
     .maybeSingle();
   if (share.error && !missingRelation(share.error)) databaseFailure(share.error);
 
   const currentRevision = numeric((proforma.data as unknown as Record<string, unknown>).revision);
   const shared = share.data
-    ? { revision: numeric((share.data as unknown as Record<string, unknown>).revision), shared_at: String((share.data as unknown as Record<string, unknown>).shared_at || "") }
+    ? {
+        revision: numeric((share.data as unknown as Record<string, unknown>).revision),
+        shared_at: String((share.data as unknown as Record<string, unknown>).shared_at || ""),
+        revoked_at: typeof (share.data as unknown as Record<string, unknown>).revoked_at === "string"
+          ? String((share.data as unknown as Record<string, unknown>).revoked_at)
+          : null,
+      }
     : null;
 
   return {
@@ -147,29 +150,11 @@ export async function readProformaShare(token: string, inquiryId: string): Promi
   };
 }
 
-/**
- * Share the current revision with the customer account that owns the inquiry.
- * The database decides who that is and refuses when the inquiry is unlinked.
- */
-export async function shareProforma(token: string, inquiryId: string): Promise<number> {
-  const state = await readProformaShare(token, inquiryId);
-  if (!state.proforma_id) throw new ProformaApiFailure("NOT_FOUND", "Save the proforma before sharing it.");
-  const client = await authorizedClient(token, "write");
-  const { data, error } = await client.rpc("share_inquiry_proforma", { p_proforma_id: state.proforma_id });
-  if (error) {
-    if (error.code === "42501" || /permission denied|needs an enabled/i.test(error.message || "")) {
-      throw new ProformaApiFailure("FORBIDDEN", error.message || "Sharing a proforma needs an inquiry administrator role.");
-    }
-    if (error.code === "P0002") throw new ProformaApiFailure("INVALID", error.message);
-    if (error.code === "22023") throw new ProformaApiFailure("INVALID", error.message);
-    databaseFailure(error);
-  }
-  return numeric(data);
-}
-
 export async function revokeProformaShare(token: string, inquiryId: string): Promise<void> {
   const state = await readProformaShare(token, inquiryId);
-  if (!state.proforma_id) throw new ProformaApiFailure("NOT_FOUND", "There is no proforma to withdraw.");
+  if (!state.proforma_id || !state.share || state.share.revoked_at) {
+    throw new ProformaApiFailure("NOT_FOUND", "There is no active legacy share to withdraw.");
+  }
   const client = await authorizedClient(token, "write");
   const { error } = await client.rpc("revoke_inquiry_proforma_share", { p_proforma_id: state.proforma_id });
   if (error) {

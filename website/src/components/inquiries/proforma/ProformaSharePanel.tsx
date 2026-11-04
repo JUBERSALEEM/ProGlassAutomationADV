@@ -9,100 +9,48 @@ function formatWhen(value: string): string {
   return Number.isNaN(date.getTime()) ? "an unknown time" : date.toLocaleString();
 }
 
-/**
- * Who holds this proforma, and the one action that changes it.
- *
- * The customer sees a document only while a share names their account and the
- * revision it names is the revision the document is on. That is why this panel
- * reports a stale share instead of pretending the customer still has the current
- * figures: once the operator saves a newer revision, the customer's access lapses
- * until it is shared again.
- */
+/** Staff-only status for legacy customer shares; new priced customer sharing is retired. */
 export function SharePanelView({
   state,
   busy,
   error,
   notice,
-  onShare,
   onRevoke,
 }: {
   state: ProformaShareState;
   busy: boolean;
   error: string | null;
   notice: string | null;
-  onShare: () => void;
   onRevoke: () => void;
 }) {
-  const current = state.current_revision;
-  const canWrite = state.can_write;
-
-  let body: React.ReactNode;
-  if (!state.proforma_id) {
-    body = <p className="text-xs text-text-muted">Save the proforma once before it can be shared with the customer.</p>;
-  } else if (!state.customer_linked) {
-    body = (
-      <p className="text-xs text-text-muted">
-        This inquiry is not linked to a customer account, so there is nobody to share it with. The link comes from the
-        customer submission the inquiry was published from.
-      </p>
-    );
-  } else if (!state.share) {
-    body = (
-      <div className="flex flex-wrap items-center justify-between gap-2">
-        <p className="text-xs text-text-muted">Not shared with the customer. Nothing is visible in their account.</p>
-        <button
-          type="button"
-          onClick={onShare}
-          disabled={busy || !canWrite}
-          title={canWrite ? undefined : "Sharing needs an inquiry administrator role"}
-          className="rounded-xl bg-brand-400 px-3 py-2 text-xs font-bold text-accent-ink hover:bg-brand-300 disabled:opacity-50"
-        >
-          Share revision {current} with the customer
-        </button>
-      </div>
-    );
-  } else if (state.stale) {
-    body = (
-      <div className="flex flex-wrap items-center justify-between gap-2">
-        <p className="text-xs text-state-warning">
-          Shared revision {state.share.revision} on {formatWhen(state.share.shared_at)}. The document is now on revision{" "}
-          {current}, so the customer cannot see it until this revision is shared.
-        </p>
-        <button
-          type="button"
-          onClick={onShare}
-          disabled={busy || !canWrite}
-          className="rounded-xl bg-brand-400 px-3 py-2 text-xs font-bold text-accent-ink hover:bg-brand-300 disabled:opacity-50"
-        >
-          Share revision {current}
-        </button>
-      </div>
-    );
-  } else {
-    body = (
-      <div className="flex flex-wrap items-center justify-between gap-2">
-        <p className="text-xs text-state-success">
-          Shared with the customer on {formatWhen(state.share.shared_at)} at revision {state.share.revision}.
-        </p>
-        <button
-          type="button"
-          onClick={onRevoke}
-          disabled={busy || !canWrite}
-          className="rounded-xl border border-state-danger/40 px-3 py-2 text-xs font-semibold text-state-danger disabled:opacity-50"
-        >
-          Withdraw the customer&apos;s access
-        </button>
-      </div>
-    );
-  }
-
   return (
-    <section className="rounded-2xl border border-line-strong/60 bg-ink-900/70 p-3" aria-label="Customer access">
-      <div className="flex flex-wrap items-baseline gap-2">
-        <h2 className="text-3xs font-semibold uppercase tracking-wider text-text-faint">Customer access</h2>
-        {!canWrite ? <span className="text-3xs text-text-faint">read only for this role</span> : null}
-      </div>
-      <div className="mt-1.5">{body}</div>
+    <section className="rounded-2xl border border-line-strong/60 bg-ink-900/70 p-3" aria-label="Internal PI release">
+      <h2 className="text-3xs font-semibold uppercase tracking-wider text-text-faint">Internal PI release</h2>
+      <p className="mt-1.5 text-xs leading-relaxed text-text-muted">
+        Customer access to priced proformas is disabled. The customer portal accepts unpriced technical inquiries only;
+        authorized staff continue PI review and release in the WPF workflow.
+      </p>
+      {state.share ? (
+        <div className="mt-2 rounded-xl border border-state-warning/35 bg-state-warning/10 p-3">
+          <p className="text-xs leading-relaxed text-state-warning">
+            {state.share.revoked_at
+              ? `Legacy share record retained in the internal audit ledger (revision ${state.share.revision}, shared ${formatWhen(state.share.shared_at)}, withdrawn ${formatWhen(state.share.revoked_at)}). Customer accounts cannot read the proforma.`
+              : `Legacy share record retained in the internal audit ledger (revision ${state.share.revision}, shared ${formatWhen(state.share.shared_at)}). Customer accounts cannot read the proforma. An administrator may mark the legacy share withdrawn without deleting its audit record.`}
+          </p>
+          {!state.share.revoked_at && state.can_write ? (
+            <button
+              type="button"
+              onClick={onRevoke}
+              disabled={busy}
+              className="mt-2 rounded-xl border border-state-danger/40 px-3 py-2 text-xs font-semibold text-state-danger disabled:opacity-50"
+            >
+              {busy ? "Recording withdrawal…" : "Mark legacy share withdrawn"}
+            </button>
+          ) : !state.share.revoked_at ? (
+            <p className="mt-2 text-3xs text-text-faint">Withdrawal requires an inquiry administrator role.</p>
+          ) : null}
+        </div>
+      ) : null}
       {error ? <p role="alert" className="mt-2 text-xs text-state-danger">{error}</p> : null}
       {notice ? <p role="status" className="mt-2 text-xs text-state-success">{notice}</p> : null}
     </section>
@@ -130,12 +78,12 @@ export function ProformaSharePanel({ inquiryId, authToken }: { inquiryId: string
           | null;
         if (cancelled) return;
         if (!body || !body.ok) {
-          setError(body && !body.ok ? body.error.message : "The sharing state could not be read.");
+          setError(body && !body.ok ? body.error.message : "The internal share audit state could not be read.");
           return;
         }
         setState(body.data);
       } catch {
-        if (!cancelled) setError("The sharing state could not be read.");
+        if (!cancelled) setError("The internal share audit state could not be read.");
       }
     })();
     return () => {
@@ -143,32 +91,28 @@ export function ProformaSharePanel({ inquiryId, authToken }: { inquiryId: string
     };
   }, [authToken, inquiryId]);
 
-  const act = async (method: "POST" | "DELETE") => {
+  const revokeLegacyShare = async () => {
     if (!authToken) return;
     setBusy(true);
     setError(null);
     setNotice(null);
     try {
       const response = await fetch(`/api/inquiries/${inquiryId}/proforma/share`, {
-        method,
+        method: "DELETE",
         headers: { Authorization: `Bearer ${authToken}` },
       });
       const body = (await response.json().catch(() => null)) as
-        | { ok: true; data: { revision?: number; state: ProformaShareState } }
+        | { ok: true; data: { state: ProformaShareState } }
         | { ok: false; error: { message: string } }
         | null;
       if (!body || !body.ok) {
-        setError(body && !body.ok ? body.error.message : "The change did not reach the server.");
+        setError(body && !body.ok ? body.error.message : "The audit update did not reach the server.");
         return;
       }
       setState(body.data.state);
-      setNotice(
-        method === "POST"
-          ? `Shared revision ${body.data.revision ?? body.data.state.current_revision} with the customer.`
-          : "The customer can no longer open this proforma.",
-      );
+      setNotice("Legacy customer access is marked withdrawn; its audit record is retained.");
     } catch {
-      setError("The change did not reach the server.");
+      setError("The audit update did not reach the server.");
     } finally {
       setBusy(false);
     }
@@ -178,18 +122,9 @@ export function ProformaSharePanel({ inquiryId, authToken }: { inquiryId: string
     return error ? (
       <p role="alert" className="text-xs text-state-danger">{error}</p>
     ) : (
-      <p className="text-3xs text-text-faint">Checking who holds this document…</p>
+      <p className="text-3xs text-text-faint">Checking the internal PI release boundary…</p>
     );
   }
 
-  return (
-    <SharePanelView
-      state={state}
-      busy={busy}
-      error={error}
-      notice={notice}
-      onShare={() => void act("POST")}
-      onRevoke={() => void act("DELETE")}
-    />
-  );
+  return <SharePanelView state={state} busy={busy} error={error} notice={notice} onRevoke={() => void revokeLegacyShare()} />;
 }

@@ -68,9 +68,9 @@ export function InquiryWelcome() {
             <Badge tone="accent">Customer inquiries</Badge>
             <h1 className="mt-3 text-4xl font-bold tracking-tight sm:text-5xl">Inquiries</h1>
             <p className="mt-4 max-w-2xl text-sm leading-relaxed text-text-muted sm:text-base">
-              Send drawings and requirements to ProGlass, ask for a quotation, or request a proforma invoice — then
-              follow the review, the messages and the documents that are shared with your account. Your submission is
-              private: only your account and the ProGlass staff who review it can read it.
+              Send drawings and requirements to ProGlass, ask for a quotation, or submit an unpriced technical PI
+              inquiry — then follow its review and messages. Customer submissions and technical attachments contain no
+              prices; authorized staff review the request and prepare any priced PI in the WPF workflow.
             </p>
           </div>
 
@@ -145,9 +145,9 @@ export function InquiryWelcome() {
           />
           <PathCard
             href="/inquiries/submit/proforma"
-            title="Submit an inquiry with a proforma invoice"
-            description="Send your requirement together with the proforma invoice details. This one is confirmed by a coordinator before the priced document is issued."
-            cta="Start a proforma invoice request"
+            title="Submit an unpriced PI technical inquiry"
+            description="Send glass specifications, dimensions, processing needs and drawings for staff review. This creates an unpriced inquiry only; authorized staff prepare any priced PI through the WPF workflow."
+            cta="Start a technical PI inquiry"
             tone="secondary"
           />
           <PathCard
@@ -155,13 +155,6 @@ export function InquiryWelcome() {
             title="My inquiries and messages"
             description="The status, the estimated response time, the note from the reviewer and the conversation attached to each inquiry your account has sent."
             cta="Open my inquiries"
-            tone="secondary"
-          />
-          <PathCard
-            href="/account/proformas"
-            title="Proformas shared with me"
-            description="Only the proforma invoices ProGlass has explicitly shared with your account, with the figures that were shared."
-            cta="View shared proformas"
             tone="secondary"
           />
         </div>
@@ -182,7 +175,7 @@ export function InquiryWelcome() {
             <Step
               index={3}
               title="You read the answer"
-              body="Status, messages and any proforma invoice shared with your account appear on this site, and nothing else is exposed."
+              body="Your inquiry status and messages appear on this site. Priced proformas are not available to customer accounts; authorized staff handle them in WPF."
             />
           </ol>
         </section>

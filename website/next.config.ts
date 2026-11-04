@@ -81,7 +81,9 @@ const csp = [
   "default-src 'self'",
   isDevelopment
     ? "script-src 'self' 'unsafe-inline' 'unsafe-eval'"
-    : "script-src 'self' 'unsafe-inline'",
+    // The browser-side PDF layout engine (Yoga, used by @react-pdf/renderer)
+    // compiles WebAssembly. This narrowly permits Wasm without enabling JS eval.
+    : "script-src 'self' 'unsafe-inline' 'wasm-unsafe-eval'",
   "style-src 'self' 'unsafe-inline'",
   "img-src 'self' data: blob:",
   "font-src 'self'",

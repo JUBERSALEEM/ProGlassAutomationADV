@@ -20,8 +20,29 @@ export type CutListImportResult = {
 type Matrix = string[][];
 
 const MAX_IMPORT_BYTES = 10 * 1024 * 1024;
-const MAX_IMPORT_ROWS = 250;
-const MAX_LAYOUT_PIECES = 2_500;
+const MAX_IMPORT_ROWS = 120_000;
+
+/** WPF Step 5 billable SQM: rounded to 3 dp using midpoint-to-even, then floored at 0.5 m². */
+export function calculateWpfPanelSqm(widthMm: string | number, heightMm: string | number): number | null {
+  const width = Number(widthMm);
+  const height = Number(heightMm);
+  if (!Number.isInteger(width) || !Number.isInteger(height) || width <= 0 || height <= 0 || width > 100_000 || height > 100_000) return null;
+  const product = width * height;
+  const lowerMilliSqm = Math.floor(product / 1_000);
+  const remainder = product - lowerMilliSqm * 1_000;
+  const roundedMilliSqm = remainder > 500 || (remainder === 500 && lowerMilliSqm % 2 === 1)
+    ? lowerMilliSqm + 1
+    : lowerMilliSqm;
+  return Math.max(500, roundedMilliSqm) / 1_000;
+}
+
+/** WPF Step 5 Total SQM: billable panel SQM multiplied by the line quantity. */
+export function calculateWpfTotalSqm(widthMm: string | number, heightMm: string | number, quantity: string | number): number | null {
+  const panelSqm = calculateWpfPanelSqm(widthMm, heightMm);
+  const count = Number(quantity);
+  if (panelSqm === null || !Number.isInteger(count) || count <= 0 || count > 10_000) return null;
+  return Math.round(panelSqm * count * 1_000) / 1_000;
+}
 
 function parseDelimited(text: string): Matrix {
   const firstLine = text.split(/\r?\n/, 1)[0] ?? "";
@@ -241,120 +262,4 @@ export async function parseCustomerCutListFile(file: File): Promise<CutListImpor
   if (extension === "xlsx") return parseRows(parseXlsx(bytes));
   if (extension !== "csv" && extension !== "txt") throw new Error("Choose a CSV, TXT, or Excel (.xlsx) cutting-list file.");
   return parseRows(parseDelimited(new TextDecoder().decode(bytes)));
-}
-
-export type CutLayoutInput = {
-  reference: string;
-  width: number;
-  height: number;
-  quantity: number;
-};
-
-export type CutLayoutStock = { width: number; height: number; label: string };
-export type CutLayoutPlacement = { reference: string; x: number; y: number; width: number; height: number; rotated: boolean };
-export type CutLayoutSheet = { width: number; height: number; placements: CutLayoutPlacement[] };
-export type CutLayoutResult = { sheets: CutLayoutSheet[]; pieceCount: number; stock: CutLayoutStock };
-
-type FreeRect = { x: number; y: number; width: number; height: number };
-type ExpandedPiece = { reference: string; width: number; height: number; area: number; longSide: number; shortSide: number; originalIndex: number };
-
-function expandPieces(rows: CutLayoutInput[]): ExpandedPiece[] {
-  const pieces: ExpandedPiece[] = [];
-  rows.forEach((row, rowIndex) => {
-    if (!Number.isFinite(row.width) || !Number.isFinite(row.height) || row.width <= 0 || row.height <= 0 || !Number.isInteger(row.quantity) || row.quantity < 1) return;
-    for (let count = 0; count < row.quantity; count += 1) {
-      const width = row.width;
-      const height = row.height;
-      pieces.push({ reference: row.quantity > 1 ? `${row.reference} · ${count + 1}` : row.reference, width, height, area: width * height, longSide: Math.max(width, height), shortSide: Math.min(width, height), originalIndex: rowIndex });
-      if (pieces.length > MAX_LAYOUT_PIECES) throw new Error("The layout preview supports up to 2,500 individual pieces at a time.");
-    }
-  });
-  return pieces;
-}
-
-function packInOrder(pieces: ExpandedPiece[], stock: CutLayoutStock, allowRotation: boolean): CutLayoutSheet[] | null {
-  const sheets: Array<{ free: FreeRect[]; placements: CutLayoutPlacement[] }> = [];
-  for (const piece of pieces) {
-    if (piece.width > stock.width && piece.height > stock.width || piece.width > stock.height && piece.height > stock.height) return null;
-    let target: { sheetIndex: number; freeIndex: number; placement: CutLayoutPlacement; score: number } | null = null;
-    for (let sheetIndex = 0; sheetIndex < sheets.length && !target; sheetIndex += 1) {
-      const sheet = sheets[sheetIndex]!;
-      for (let freeIndex = 0; freeIndex < sheet.free.length; freeIndex += 1) {
-        const free = sheet.free[freeIndex]!;
-        const orientations = allowRotation ? [[piece.width, piece.height, false], [piece.height, piece.width, true]] as const : [[piece.width, piece.height, false]] as const;
-        for (const [width, height, rotated] of orientations) {
-          if (width > free.width || height > free.height) continue;
-          const leftoverShort = Math.min(free.width - width, free.height - height);
-          const leftoverLong = Math.max(free.width - width, free.height - height);
-          const score = leftoverShort * 1_000_000 + leftoverLong;
-          if (!target || score < target.score) {
-            target = { sheetIndex, freeIndex, placement: { reference: piece.reference, x: free.x, y: free.y, width, height, rotated }, score };
-          }
-        }
-      }
-    }
-    if (!target) {
-      const orientations = allowRotation ? [[piece.width, piece.height, false], [piece.height, piece.width, true]] as const : [[piece.width, piece.height, false]] as const;
-      const orientation = orientations.find(([width, height]) => width <= stock.width && height <= stock.height);
-      if (!orientation) return null;
-      sheets.push({ free: [{ x: 0, y: 0, width: stock.width, height: stock.height }], placements: [] });
-      const sheetIndex = sheets.length - 1;
-      target = { sheetIndex, freeIndex: 0, placement: { reference: piece.reference, x: 0, y: 0, width: orientation[0], height: orientation[1], rotated: orientation[2] }, score: 0 };
-    }
-    const current = sheets[target.sheetIndex]!;
-    const free = current.free.splice(target.freeIndex, 1)[0]!;
-    const placed = target.placement;
-    current.placements.push(placed);
-    const rightWidth = free.width - placed.width;
-    const bottomHeight = free.height - placed.height;
-    if (rightWidth > 0 && bottomHeight > 0) {
-      if (rightWidth * free.height >= free.width * bottomHeight) {
-        current.free.push({ x: free.x + placed.width, y: free.y, width: rightWidth, height: free.height });
-        current.free.push({ x: free.x, y: free.y + placed.height, width: placed.width, height: bottomHeight });
-      } else {
-        current.free.push({ x: free.x + placed.width, y: free.y, width: rightWidth, height: placed.height });
-        current.free.push({ x: free.x, y: free.y + placed.height, width: free.width, height: bottomHeight });
-      }
-    } else if (rightWidth > 0) {
-      current.free.push({ x: free.x + placed.width, y: free.y, width: rightWidth, height: free.height });
-    } else if (bottomHeight > 0) {
-      current.free.push({ x: free.x, y: free.y + placed.height, width: free.width, height: bottomHeight });
-    }
-  }
-  return sheets.map((sheet) => ({ width: stock.width, height: stock.height, placements: sheet.placements }));
-}
-
-function candidateOrders(pieces: ExpandedPiece[]) {
-  const orders: ExpandedPiece[][] = [];
-  const comparators: Array<(a: ExpandedPiece, b: ExpandedPiece) => number> = [
-    (a, b) => b.area - a.area || b.longSide - a.longSide,
-    (a, b) => b.longSide - a.longSide || b.area - a.area,
-    (a, b) => b.shortSide - a.shortSide || b.area - a.area,
-    (a, b) => a.width - b.width || b.height - a.height,
-  ];
-  for (const compare of comparators) orders.push([...pieces].sort((a, b) => compare(a, b) || a.originalIndex - b.originalIndex || a.reference.localeCompare(b.reference)));
-  return orders;
-}
-
-/**
- * Browser-side guillotine-layout estimate for customer planning. It deliberately
- * returns only the technical piece placements and sheet count: no yield,
- * utilization, waste, cost, margin, or price metrics are calculated or exposed.
- */
-export function createCustomerCutLayout(
-  rows: CutLayoutInput[],
-  stock: CutLayoutStock,
-  mode: "quick" | "optimize",
-): CutLayoutResult {
-  if (!Number.isFinite(stock.width) || !Number.isFinite(stock.height) || stock.width <= 0 || stock.height <= 0) throw new Error("Enter valid stock-sheet width and height in Step 4 before running a layout preview.");
-  const pieces = expandPieces(rows);
-  if (pieces.length === 0) throw new Error("Add at least one cutting-list line with valid dimensions and quantity before running a layout preview.");
-  const orders = mode === "quick" ? [candidateOrders(pieces)[0]!] : candidateOrders(pieces);
-  let best: CutLayoutSheet[] | null = null;
-  for (const order of orders) {
-    const result = packInOrder(order, stock, true);
-    if (result && (!best || result.length < best.length)) best = result;
-  }
-  if (!best) throw new Error("One or more pieces do not fit the selected stock sheet in either orientation.");
-  return { sheets: best, pieceCount: pieces.length, stock };
 }

@@ -10,7 +10,7 @@ import type { CustomerInquiryListItem, CustomerInquiryProfile, CustomerInquiryPr
 
 const ACCEPT = ".pdf,.jpg,.jpeg,.png,.gif,.webp,.bmp,.xlsx,.csv";
 const MAX_FILES = 15;
-const AUTO_PI_ATTACHMENT_COUNT = 3;
+const AUTO_PI_ATTACHMENT_COUNT = 1;
 const MAX_BYTES = 30 * 1024 * 1024;
 
 function date(value: string) { const parsed = new Date(value); return Number.isNaN(parsed.getTime()) ? "—" : parsed.toLocaleDateString(); }
@@ -61,6 +61,7 @@ export function CustomerInquiryPortal({ intent = "quotation" }: { intent?: Custo
   const [submitting, setSubmitting] = useState(false);
   const [error, setError] = useState("");
   const [listError, setListError] = useState("");
+  const [refreshingSession, setRefreshingSession] = useState(false);
   const [notice, setNotice] = useState("");
   const [uploadStates, setUploadStates] = useState<Record<number, UploadState>>({});
   const [overallProgress, setOverallProgress] = useState(0);
@@ -102,7 +103,8 @@ export function CustomerInquiryPortal({ intent = "quotation" }: { intent?: Custo
       const response = await customerApiFetch("/api/inquiry-submissions", { cache: "no-store" });
       const body = await response.json().catch(() => null);
       if (response.status === 401) {
-        setListError("The inquiry service rejected the saved access token after session recovery was attempted. Your submissions have not been treated as an empty account; retry or open Account to check the saved session.");
+        const detail = body?.error?.message ? ` ${body.error.message}` : "";
+        setListError(`The inquiry service returned HTTP 401 after session recovery was attempted.${detail} Your submissions have not been treated as an empty account.`);
         return;
       }
       if (!response.ok || !body?.ok || !Array.isArray(body.data)) throw new Error(body?.error?.message || "Unable to load your inquiry history.");
@@ -114,13 +116,45 @@ export function CustomerInquiryPortal({ intent = "quotation" }: { intent?: Custo
   async function loadSetup() {
     if (!authToken) return;
     try {
-      const response=await customerApiFetch("/api/inquiry-submissions/profile",{cache:"no-store"});
-      if (response.status === 401) { setError("Customer details could not be authorized after checking the saved sign-in. Please retry."); return; }
-      const body=await response.json(); if(!response.ok||!body.ok) throw new Error(body?.error?.message||"Unable to load saved customer details.");
-      setProfile(body.data.profile); setProjects(body.data.projects||[]);
-    } catch(reason) { setError(reason instanceof Error?reason.message:"Unable to load saved customer details."); }
-    finally { setSetupLoaded(true); }
+      const response = await customerApiFetch("/api/inquiry-submissions/profile", { cache: "no-store" });
+      const body = await response.json().catch(() => null);
+      if (response.status === 401) {
+        const detail = body?.error?.message ? ` ${body.error.message}` : "";
+        setError(`Customer details request returned HTTP 401 after session recovery was attempted.${detail}`);
+        return;
+      }
+      if (!response.ok || !body?.ok) throw new Error(body?.error?.message || "Unable to load saved customer details.");
+      setProfile(body.data.profile);
+      setProjects(body.data.projects || []);
+    } catch (reason) {
+      setError(reason instanceof Error ? reason.message : "Unable to load saved customer details.");
+    } finally {
+      setSetupLoaded(true);
+    }
   }
+
+  async function refreshAndRetryCustomerData() {
+    setRefreshingSession(true);
+    setError("");
+    setListError("");
+    const previousToken = currentAuthTokenRef.current ?? authToken;
+    try {
+      const refreshed = await refreshSession();
+      if (!refreshed?.access_token) {
+        setError("Supabase could not refresh the saved sign-in. Open Account and sign in again, then return to your inquiry.");
+        return;
+      }
+      currentAuthTokenRef.current = refreshed.access_token;
+      if (refreshed.access_token === previousToken) {
+        await Promise.all([load(), loadSetup()]);
+      }
+      // If the token changed, the session store updates authToken and the
+      // existing effect reloads both endpoints using the refreshed token.
+    } finally {
+      setRefreshingSession(false);
+    }
+  }
+
   useEffect(() => { if (!checking && authToken) queueMicrotask(() => { void load(); void loadSetup(); }); }, [authToken, checking]); // eslint-disable-line react-hooks/exhaustive-deps
 
   function validFiles(input: FileList | File[]): File[] | null {
@@ -189,18 +223,15 @@ export function CustomerInquiryPortal({ intent = "quotation" }: { intent?: Custo
       }
     }
     let submissionDescription = String(new FormData(currentForm).get("description") || "").trim();
-    let technicalSpecification = "";
     let technicalSpecificationJson = "";
     if (intent === "proforma_invoice") {
       const complete = currentForm.querySelector<HTMLInputElement>('input[name="pi_spec_complete"]')?.value === "true";
-      const specification = currentForm.querySelector<HTMLInputElement>('input[name="pi_specification"]')?.value.trim() || "";
       technicalSpecificationJson = currentForm.querySelector<HTMLInputElement>('input[name="pi_specification_json"]')?.value || "";
-      if (!complete || !specification || !technicalSpecificationJson) {
+      if (!complete || !technicalSpecificationJson) {
         setError("Complete the technical specification steps 4–7 before sending the PI request.");
         currentForm.querySelector<HTMLElement>("[aria-label='Proforma technical specification generator']")?.scrollIntoView({ behavior: "smooth", block: "center" });
         return;
       }
-      technicalSpecification = specification;
       if (submissionDescription.length > 4_400) {
         setError("For a PI request, keep the project requirements under 4,400 characters so the technical-attachment note fits the secure inquiry description limit.");
         return;
@@ -215,34 +246,34 @@ export function CustomerInquiryPortal({ intent = "quotation" }: { intent?: Custo
         setError("The PI technical request could not be read. Reopen Step 7 and review the specification, then try again.");
         return;
       }
-      submissionDescription = `${submissionDescription}\n\nPI technical specification is attached as Excel, CSV, and PDF (${specGroupCount} specification group${specGroupCount === 1 ? "" : "s"}; ${cuttingLineCount} cutting-list line${cuttingLineCount === 1 ? "" : "s"}). Technical request only; ProGlass confirms the production layout.`;
+      submissionDescription = `${submissionDescription}\n\nPI technical specification is attached as one unpriced Inquiry PDF (${specGroupCount} specification group${specGroupCount === 1 ? "" : "s"}; ${cuttingLineCount} cutting-list line${cuttingLineCount === 1 ? "" : "s"}). Supporting drawings and reference files may also be attached. ProGlass confirms the production layout.`;
     }
     if (!authToken) { requireAuth(); return; }
     const userFiles = selectedFiles;
-    if (userFiles.length > userFileLimit) { setError(`Select at most ${userFileLimit} optional project files${intent === "proforma_invoice" ? "; three more slots are reserved for the generated PI files" : ""}.`); return; }
+    if (userFiles.length > userFileLimit) { setError(`Select at most ${userFileLimit} optional project files${intent === "proforma_invoice" ? "; one additional slot is reserved for the generated Inquiry PDF" : ""}.`); return; }
     const oversized = userFiles.find((file) => file.size > MAX_BYTES);
     if (oversized) { setError(`${oversized.name} exceeds the 30 MB per-file limit.`); return; }
     const form = new FormData(currentForm); form.delete("documents");
-    form.delete("pi_specification"); form.delete("pi_specification_json"); form.delete("pi_spec_complete");
+    form.delete("pi_specification_json"); form.delete("pi_spec_complete");
     setSubmitting(true);
     try {
       let files = userFiles;
       if (intent === "proforma_invoice") {
         if (!generatedPiFilesRef.current) {
           setGeneratingPiFiles(true);
-          const { generateCustomerPiAttachments } = await import("@/lib/customer-pi-attachments");
-          const generated = await generateCustomerPiAttachments({
+          const { generateCustomerPiInquiryPdf } = await import("@/lib/customer-pi-attachments");
+          const generatedFile = await generateCustomerPiInquiryPdf({
             companyName: String(form.get("company_name") || ""),
             contactName: String(form.get("contact_name") || ""),
             customerReference: String(form.get("customer_reference") || ""),
             projectName: String(form.get("project_name") || ""),
             projectLocation: String(form.get("project_location") || ""),
             projectRequirements: String(form.get("description") || ""),
-            technicalSpecification,
             technicalSpecificationJson,
           });
+          const generated = [generatedFile];
           const collidingName = userFiles.find((file) => generated.some((attachment) => file.name.toLocaleLowerCase() === attachment.name.toLocaleLowerCase()));
-          if (collidingName) throw new Error(`Rename or remove ${collidingName.name}; it conflicts with an automatically generated PI attachment.`);
+          if (collidingName) throw new Error(`Rename or remove ${collidingName.name}; it conflicts with the automatically generated Inquiry PDF.`);
           generatedPiFilesRef.current = generated;
           setGeneratedPiFiles(generated);
         }
@@ -325,10 +356,10 @@ export function CustomerInquiryPortal({ intent = "quotation" }: { intent?: Custo
   const filteredRows=rows.filter((row)=>(!historyProject||row.project_id===historyProject)&&(!historyType||row.inquiry_type===historyType)&&(!historyStatus||row.status===historyStatus));
 
   return <main className="min-h-screen bg-ink-950 pb-20 text-text-primary">
-    <header className="border-b border-line-strong/60"><div className="shell flex flex-wrap items-center justify-between gap-3 py-6"><div><div className="eyebrow text-brand-300">Secure customer portal</div><h1 className="mt-1 text-2xl font-bold">{intent === "proforma_invoice" ? "Request a proforma invoice" : "Create an inquiry"}</h1><p className="mt-1 text-xs text-text-muted">{intent === "proforma_invoice" ? "Enter customer and project details, then build the technical glass specification through WPF Step 7. Your Excel, CSV, and PDF files are generated and attached automatically; no upload is required." : "Share your company and project details in one guided flow. Supporting files are optional."}</p></div><div className="text-right"><div className="text-3xs text-text-faint">{userEmail}</div><button type="button" onClick={() => void signOut()} className="mt-2 text-xs font-semibold text-brand-300">Sign out</button></div></div></header>
+    <header className="border-b border-line-strong/60"><div className="shell flex flex-wrap items-center justify-between gap-3 py-6"><div><div className="eyebrow text-brand-300">Secure customer portal</div><h1 className="mt-1 text-2xl font-bold">{intent === "proforma_invoice" ? "Request a proforma invoice" : "Create an inquiry"}</h1><p className="mt-1 text-xs text-text-muted">{intent === "proforma_invoice" ? "Enter glass specifications, dimensions, quantities and processing requirements. An unpriced Inquiry PDF is attached automatically; drawings and reference files are optional." : "Share your company and project details in one guided flow. Supporting files are optional."}</p></div><div className="text-right"><div className="text-3xs text-text-faint">{userEmail}</div><button type="button" onClick={() => void signOut()} className="mt-2 text-xs font-semibold text-brand-300">Sign out</button></div></div></header>
     <div className={`shell mt-6 grid gap-6 ${intent === "proforma_invoice" ? "grid-cols-1" : "lg:grid-cols-[minmax(0,1.1fr)_minmax(20rem,.9fr)]"}`}>
-      <section className="rounded-2xl border border-line-strong/60 bg-ink-900/85 p-5"><div className="flex flex-wrap items-center justify-between gap-3"><h2 className="text-lg font-bold">{intent === "proforma_invoice" ? "PI request details" : "Inquiry details"}</h2><LocaleLink href={intent === "proforma_invoice" ? "/inquiries/submit" : "/inquiries/submit/proforma"} className="rounded-full border border-brand-300/25 bg-brand-400/[.06] px-3 py-1.5 text-xs font-bold text-brand-100 hover:bg-brand-400/[.12]">{intent === "proforma_invoice" ? "Switch to general inquiry" : "Need a PI? Request a PI →"}</LocaleLink></div><p className="mt-1 text-xs text-text-muted">{intent === "proforma_invoice" ? "Enter customer and project details, add optional supporting files, then complete the WPF Steps 4–7 technical specification beside the file section." : "Company, client, and project details are gathered together for the ProGlass team."}</p>
-        {error && <div role="alert" className="mt-4 rounded-xl border border-state-danger/40 bg-state-danger/10 p-3 text-xs text-state-danger">{error}</div>}
+      <section className="rounded-2xl border border-line-strong/60 bg-ink-900/85 p-5"><div className="flex flex-wrap items-center justify-between gap-3"><h2 className="text-lg font-bold">{intent === "proforma_invoice" ? "PI request details" : "Inquiry details"}</h2><LocaleLink href={intent === "proforma_invoice" ? "/inquiries/submit" : "/inquiries/submit/proforma"} className="rounded-full border border-brand-300/25 bg-brand-400/[.06] px-3 py-1.5 text-xs font-bold text-brand-100 hover:bg-brand-400/[.12]">{intent === "proforma_invoice" ? "Switch to general inquiry" : "Need a PI? Request a PI →"}</LocaleLink></div><p className="mt-1 text-xs text-text-muted">{intent === "proforma_invoice" ? "Complete the glass build-up, cutting list and fabrication requirements. One unpriced Inquiry PDF is generated; you may also attach drawings or other project references." : "Company, client, and project details are gathered together for the ProGlass team."}</p>
+        {error && <div role="alert" className="mt-4 rounded-xl border border-state-danger/40 bg-state-danger/10 p-3 text-xs text-state-danger"><p>{error}</p><button type="button" onClick={() => void refreshAndRetryCustomerData()} disabled={refreshingSession} className="mt-3 rounded-lg border border-state-danger/40 px-3 py-2 font-semibold disabled:opacity-60">{refreshingSession ? "Refreshing saved sign-in…" : "Refresh saved sign-in and retry"}</button></div>}
         {notice && <div role="status" className="mt-4 rounded-xl border border-state-success/40 bg-state-success/10 p-3 text-xs text-state-success"><p>{notice}</p><LocaleLink href="/inquiries/chat" className="mt-2 inline-flex font-bold underline underline-offset-4">View in My inquiries &amp; chat →</LocaleLink></div>}
         {!setupLoaded ? <p role="status" className="mt-5 text-xs text-text-muted">Loading your saved details and projects…</p> : (
           <form ref={formRef} onSubmit={submit} noValidate className="mt-5">
@@ -349,7 +380,7 @@ export function CustomerInquiryPortal({ intent = "quotation" }: { intent?: Custo
                 { group: "Customer + project", title: "Sales reference", body: "Optional: identify the salesperson or internal reference connected to this request.", example: "Sales team — Khalid" },
                 { group: "Customer + project", title: "Handover estimator", body: "Optional: if an estimator is already assigned, enter their name. Otherwise leave it blank." },
                 ...(intent === "proforma_invoice" ? [
-                  { group: "Customer + project", title: "Project requirements", body: "Add delivery timing, scope, and project context. Then complete the technical-only WPF Steps 4–7 specification beside the optional project-file section.", example: "Supply 24 panels for the Marina Residence fit-out; requested delivery in March." },
+                  { group: "Customer + project", title: "Project requirements", body: "Add delivery timing, scope, and project context. Then complete the full-width technical-only WPF Steps 4–7 specification; the PI attachments are generated automatically.", example: "Supply 24 panels for the Marina Residence fit-out; requested delivery in March." },
                 ] : [
                   { group: "Request details", title: "What do you need?", body: "Choose the kind of help you need. You can ask for a quotation, drawing review, technical support, or another inquiry." },
                   { group: "Request details", title: "Describe the project", body: "Tell us what you need estimated or reviewed. Include glass type, quantities, dimensions, deadline, or other useful context.", example: "Please quote 24 DGU panels, 1200 × 1800 mm, clear glass, delivery to Abu Dhabi." },
@@ -389,25 +420,24 @@ export function CustomerInquiryPortal({ intent = "quotation" }: { intent?: Custo
               </label>
             </InquiryPromptFlow>
 
-            <div className={intent === "proforma_invoice" ? "mt-4 grid items-start gap-4 lg:grid-cols-2" : ""}>
-            <section className={`rounded-2xl border border-line-strong/60 bg-ink-950/45 p-4 ${intent === "proforma_invoice" ? "" : "mt-4"}`} aria-labelledby="inquiry-documents-label">
-              <div className="flex items-center justify-between gap-3">
-                <div><h3 id="inquiry-documents-label" className="text-sm font-bold text-text-primary">Supporting project files <span className="font-normal text-text-faint">(optional)</span></h3><p className="mt-1 text-xs text-text-muted">{intent === "proforma_invoice" ? "You can submit without uploading anything. Your completed PI specification is automatically attached as an Excel workbook, CSV, and PDF; upload drawings or BOQ files only if you want to." : "Attach inquiry drawings or BOQ files for the WPF inbox, or submit without files."}</p></div>
-                {selectedFiles.length > 0 && <button type="button" onClick={() => setSelectedFiles([])} className="rounded-lg border border-line-strong px-3 py-1.5 text-xs font-semibold text-state-danger hover:bg-state-danger/10">Remove all</button>}
-              </div>
-              <input ref={fileInputRef} id="inquiry-documents" aria-labelledby="inquiry-documents-label" aria-describedby="inquiry-documents-help" name="documents" type="file" multiple accept={ACCEPT} onChange={(event) => { if (event.target.files) addFiles(event.target.files); event.target.value = ""; }} className="sr-only" />
-              <input ref={replaceFileInputRef} aria-label="Choose a replacement document" type="file" accept={ACCEPT} onChange={(event) => { const file = event.target.files?.[0]; if (file) replaceFile(file); event.target.value = ""; }} className="sr-only" />
-              <button type="button" aria-labelledby="inquiry-documents-label inquiry-document-picker-copy" aria-describedby="inquiry-documents-help" onClick={() => fileInputRef.current?.click()} onDragEnter={(event) => { event.preventDefault(); setDragging(true); }} onDragOver={(event) => event.preventDefault()} onDragLeave={() => setDragging(false)} onDrop={(event) => { event.preventDefault(); setDragging(false); addFiles(event.dataTransfer.files); }} className={`mt-3 w-full rounded-2xl border-2 border-dashed p-4 text-center outline-none transition focus-visible:border-brand-300 focus-visible:ring-2 focus-visible:ring-brand-400/50 sm:p-5 ${dragging ? "border-brand-300 bg-brand-500/15" : "border-line-strong bg-ink-950/70 hover:border-brand-400/70"}`}>
-                <span aria-hidden="true" className="mx-auto grid h-10 w-10 place-items-center rounded-xl bg-brand-500/15 text-xl text-brand-300">+</span><span id="inquiry-document-picker-copy" className="mt-2 block text-sm font-bold leading-5 text-text-primary">{selectedFiles.length ? "Add more documents" : "Choose drawings or drop them here"}</span><span id="inquiry-documents-help" className="mt-1 block text-xs leading-5 text-text-muted">PDF, images, XLSX or CSV · 30 MB each · {selectedFiles.length}/{userFileLimit} optional files{intent === "proforma_invoice" ? ` · ${AUTO_PI_ATTACHMENT_COUNT} PI files auto-generated` : ""}</span>
-              </button>
-              {intent === "proforma_invoice" && <div className="mt-3 rounded-xl border border-brand-300/15 bg-brand-400/[.05] p-3 text-xs"><p className="font-bold text-brand-100">Auto-attached PI files · Excel (.xlsx), CSV, and PDF</p><p className="mt-1 text-text-muted">{generatingPiFiles ? "Generating the three files from your Step 4–7 specification…" : generatedPiFiles.length ? generatedPiFiles.map((file, index) => `${file.name} · ${uploadStates[selectedFiles.length + index]?.detail || "ready to attach"}`).join(" · ") : "Generated and attached automatically when you send the PI request. No upload is needed."}</p></div>}
-              {selectedFiles.length > 0 && <div aria-live="polite" aria-label={`${selectedFiles.length} documents selected`} className="mt-3 grid gap-2 sm:grid-cols-2">{selectedFiles.map((file, index) => <div key={`${file.name}-${file.size}-${index}`} className="flex items-center justify-between gap-3 rounded-xl border border-line-strong bg-ink-950 px-3 py-2"><div className="min-w-0"><div className="truncate text-xs font-semibold text-text-primary">{file.name}</div><div className="text-3xs text-text-faint">{Math.ceil(file.size / 1024).toLocaleString()} KB · {uploadStates[index]?.detail || "ready to attach"}</div>{uploadStates[index] && <div className="mt-1 h-1.5 overflow-hidden rounded-full bg-ink-800" role="progressbar" aria-label={`${file.name} upload progress`} aria-valuemin={0} aria-valuemax={100} aria-valuenow={uploadStates[index]?.percent}><div className={`h-full transition-[width] ${uploadStates[index]?.status === "failed" ? "bg-state-danger" : "bg-brand-400"}`} style={{ width: `${uploadStates[index]?.percent || 0}%` }} /></div>}</div><div className={`shrink-0 gap-1 ${submitting ? "hidden" : "flex"}`}><button type="button" aria-label={`Replace ${file.name}`} onClick={() => { replaceIndexRef.current = index; replaceFileInputRef.current?.click(); }} className="rounded-lg px-2 py-1 text-xs font-semibold text-brand-300 hover:bg-brand-500/10">Replace</button><button type="button" aria-label={`Remove ${file.name}`} onClick={() => setSelectedFiles((current) => current.filter((_, position) => position !== index))} className="rounded-lg px-2 py-1 text-xs font-semibold text-state-danger hover:bg-state-danger/10">Remove</button></div></div>)}</div>}
-              <span className="mt-2 block text-3xs text-text-faint">Files stay private and are checked by content, not filename alone. CAD files must be exported to PDF or image.</span>
-            </section>
-            {intent === "proforma_invoice" && <section className="rounded-2xl border border-brand-300/25 bg-ink-950/45 p-4" aria-labelledby="pi-technical-spec-label"><div className="mb-3"><p className="text-[.65rem] font-bold uppercase tracking-[.16em] text-brand-200">Next · WPF Steps 4–7</p><h3 id="pi-technical-spec-label" className="mt-1 text-sm font-bold text-text-primary">Technical glass specification</h3><p className="mt-1 text-xs leading-5 text-text-muted">Enter the glass build-up, stock dimensions, cutting list, and fabrication details manually. No supporting upload or priced invoice is needed.</p></div><ProformaTechnicalSpecFlow key={flowInstance} onCompleteChange={handlePiCompleteChange} /></section>}
+            <div className="mt-4">
+              <section className="rounded-2xl border border-line-strong/60 bg-ink-950/45 p-4" aria-labelledby="inquiry-documents-label">
+                <div className="flex items-center justify-between gap-3">
+                  <div><h3 id="inquiry-documents-label" className="text-sm font-bold text-text-primary">Supporting project files <span className="font-normal text-text-faint">(optional)</span></h3><p className="mt-1 text-xs text-text-muted">Attach drawings or project references for the ProGlass team, or submit without files. The unpriced Inquiry PDF is added automatically for PI requests.</p></div>
+                  {selectedFiles.length > 0 && <button type="button" onClick={() => setSelectedFiles([])} className="rounded-lg border border-line-strong px-3 py-1.5 text-xs font-semibold text-state-danger hover:bg-state-danger/10">Remove all</button>}
+                </div>
+                <input ref={fileInputRef} id="inquiry-documents" aria-labelledby="inquiry-documents-label" aria-describedby="inquiry-documents-help" name="documents" type="file" multiple accept={ACCEPT} onChange={(event) => { if (event.target.files) addFiles(event.target.files); event.target.value = ""; }} className="sr-only" />
+                <input ref={replaceFileInputRef} aria-label="Choose a replacement document" type="file" accept={ACCEPT} onChange={(event) => { const file = event.target.files?.[0]; if (file) replaceFile(file); event.target.value = ""; }} className="sr-only" />
+                <button type="button" aria-labelledby="inquiry-documents-label inquiry-document-picker-copy" aria-describedby="inquiry-documents-help" onClick={() => fileInputRef.current?.click()} onDragEnter={(event) => { event.preventDefault(); setDragging(true); }} onDragOver={(event) => event.preventDefault()} onDragLeave={() => setDragging(false)} onDrop={(event) => { event.preventDefault(); setDragging(false); addFiles(event.dataTransfer.files); }} className={`mt-3 w-full rounded-2xl border-2 border-dashed p-4 text-center outline-none transition focus-visible:border-brand-300 focus-visible:ring-2 focus-visible:ring-brand-400/50 sm:p-5 ${dragging ? "border-brand-300 bg-brand-500/15" : "border-line-strong bg-ink-950/70 hover:border-brand-400/70"}`}>
+                  <span aria-hidden="true" className="mx-auto grid h-10 w-10 place-items-center rounded-xl bg-brand-500/15 text-xl text-brand-300">+</span><span id="inquiry-document-picker-copy" className="mt-2 block text-sm font-bold leading-5 text-text-primary">{selectedFiles.length ? "Add more documents" : "Choose drawings or drop them here"}</span><span id="inquiry-documents-help" className="mt-1 block text-xs leading-5 text-text-muted">PDF, images, XLSX or CSV · 30 MB each · {selectedFiles.length}/{userFileLimit} optional files</span>
+                </button>
+                {selectedFiles.length > 0 && <div aria-live="polite" aria-label={`${selectedFiles.length} documents selected`} className="mt-3 grid gap-2 sm:grid-cols-2">{selectedFiles.map((file, index) => <div key={`${file.name}-${file.size}-${index}`} className="flex items-center justify-between gap-3 rounded-xl border border-line-strong bg-ink-950 px-3 py-2"><div className="min-w-0"><div className="truncate text-xs font-semibold text-text-primary">{file.name}</div><div className="text-3xs text-text-faint">{Math.ceil(file.size / 1024).toLocaleString()} KB · {uploadStates[index]?.detail || "ready to attach"}</div>{uploadStates[index] && <div className="mt-1 h-1.5 overflow-hidden rounded-full bg-ink-800" role="progressbar" aria-label={`${file.name} upload progress`} aria-valuemin={0} aria-valuemax={100} aria-valuenow={uploadStates[index]?.percent}><div className={`h-full transition-[width] ${uploadStates[index]?.status === "failed" ? "bg-state-danger" : "bg-brand-400"}`} style={{ width: `${uploadStates[index]?.percent || 0}%` }} /></div>}</div><div className={`shrink-0 gap-1 ${submitting ? "hidden" : "flex"}`}><button type="button" aria-label={`Replace ${file.name}`} onClick={() => { replaceIndexRef.current = index; replaceFileInputRef.current?.click(); }} className="rounded-lg px-2 py-1 text-xs font-semibold text-brand-300 hover:bg-brand-500/10">Replace</button><button type="button" aria-label={`Remove ${file.name}`} onClick={() => setSelectedFiles((current) => current.filter((_, position) => position !== index))} className="rounded-lg px-2 py-1 text-xs font-semibold text-state-danger hover:bg-state-danger/10">Remove</button></div></div>)}</div>}
+                <span className="mt-2 block text-3xs text-text-faint">Files stay private and are checked by content, not filename alone. CAD files must be exported to PDF or image.</span>
+              </section>
+              {intent === "proforma_invoice" && <section className="rounded-2xl border border-brand-300/25 bg-ink-950/45 p-4" aria-labelledby="pi-technical-spec-label"><div className="mb-3"><p className="text-[.65rem] font-bold uppercase tracking-[.16em] text-brand-200">Next · WPF Steps 4–7</p><h3 id="pi-technical-spec-label" className="mt-1 text-sm font-bold text-text-primary">Technical glass specification</h3><p className="mt-1 text-xs leading-5 text-text-muted">Enter the glass build-up, dimensions, quantities and fabrication requirements. One unpriced Inquiry PDF is generated automatically; drawings and project references may be attached above.</p></div><ProformaTechnicalSpecFlow key={flowInstance} onCompleteChange={handlePiCompleteChange} /></section>}
             </div>
 
-            {submitting && <div className="mt-4" role="status" aria-live="polite"><div className="flex justify-between text-xs font-semibold"><span>{generatingPiFiles ? "Generating Excel, CSV, and PDF PI files" : `Uploading and verifying ${filesLabel(selectedFiles.length + generatedPiFiles.length)}`}</span><span>{overallProgress}%</span></div><div className="mt-2 h-2.5 overflow-hidden rounded-full bg-ink-800" role="progressbar" aria-label="Overall inquiry upload progress" aria-valuemin={0} aria-valuemax={100} aria-valuenow={overallProgress}><div className="h-full bg-brand-400 transition-[width]" style={{ width: `${overallProgress}%` }} /></div><p className="mt-2 text-3xs text-text-muted">Keep this page open. Each selected file is uploaded and verified separately.</p></div>}
+            {submitting && <div className="mt-4" role="status" aria-live="polite"><div className="flex justify-between text-xs font-semibold"><span>{generatingPiFiles ? "Generating the unpriced Inquiry PDF" : `Uploading and verifying ${filesLabel(selectedFiles.length + generatedPiFiles.length)}`}</span><span>{overallProgress}%</span></div><div className="mt-2 h-2.5 overflow-hidden rounded-full bg-ink-800" role="progressbar" aria-label="Overall inquiry upload progress" aria-valuemin={0} aria-valuemax={100} aria-valuenow={overallProgress}><div className="h-full bg-brand-400 transition-[width]" style={{ width: `${overallProgress}%` }} /></div><p className="mt-2 text-3xs text-text-muted">Keep this page open. Each selected file is uploaded and verified separately.</p></div>}
             {intent === "proforma_invoice" && !piSpecificationComplete && <p role="status" className="mt-4 rounded-xl border border-state-warning/35 bg-state-warning/10 px-3 py-2.5 text-xs leading-relaxed text-state-warning">Finish Steps 4–7, review the cutting list, and confirm the technical specification to enable PI submission.</p>}
             <button disabled={submitting || (intent === "proforma_invoice" && !piSpecificationComplete)} className="mt-4 w-full rounded-xl bg-brand-400 px-5 py-3.5 text-sm font-bold text-ink-950 transition hover:bg-brand-300 disabled:cursor-not-allowed disabled:opacity-50">{submitting ? `Sending request ${overallProgress}%` : intent === "proforma_invoice" ? "Send PI request to ProGlass" : "Submit inquiry"}</button>
           </form>
@@ -415,7 +445,7 @@ export function CustomerInquiryPortal({ intent = "quotation" }: { intent?: Custo
       </section>
       <section className="rounded-2xl border border-line-strong/60 bg-ink-900/85 p-5"><div className="flex items-center justify-between"><h2 className="text-lg font-bold">Your submissions</h2><button onClick={() => void load()} className="text-xs font-semibold text-brand-300">Refresh</button></div>
         <div className="mt-3 grid gap-2 sm:grid-cols-3"><select aria-label="Filter by project" value={historyProject} onChange={(event)=>setHistoryProject(event.target.value)} className="h-10 rounded-xl border border-line-strong bg-ink-950 px-2 text-xs"><option value="">All projects</option>{projects.map((project)=><option key={project.id} value={project.id}>{project.project_name}</option>)}</select><select aria-label="Filter by inquiry type" value={historyType} onChange={(event)=>setHistoryType(event.target.value)} className="h-10 rounded-xl border border-line-strong bg-ink-950 px-2 text-xs"><option value="">All types</option>{CUSTOMER_INQUIRY_TYPES.map((value)=><option key={value} value={value}>{CUSTOMER_INQUIRY_TYPE_LABELS[value]}</option>)}</select><select aria-label="Filter by status" value={historyStatus} onChange={(event)=>setHistoryStatus(event.target.value)} className="h-10 rounded-xl border border-line-strong bg-ink-950 px-2 text-xs"><option value="">All statuses</option><option value="submitted">Submitted</option><option value="under_review">Under review</option><option value="accepted">Accepted</option><option value="rejected">Rejected</option><option value="closed">Closed</option></select></div>
-        {loading ? <p role="status" className="mt-5 text-xs text-text-muted">Loading…</p> : listError ? <div role="alert" className="mt-5 rounded-xl border border-state-danger/40 bg-state-danger/10 p-3 text-xs leading-relaxed text-state-danger"><p>{listError}</p><button type="button" onClick={() => void load()} className="mt-3 rounded-lg border border-state-danger/40 px-3 py-2 font-semibold">Retry inquiry list</button></div> : rows.length === 0 ? <p className="mt-5 text-xs text-text-muted">No website inquiries submitted by this account.</p> : filteredRows.length===0?<p className="mt-5 text-xs text-text-muted">No inquiries match these filters.</p>: <div className="mt-4 space-y-3">{filteredRows.map((row) => <LocaleLink key={row.id} href={`/inquiries/submissions/${row.id}`} className="block rounded-xl border border-line-strong bg-ink-950/70 p-4"><div className="flex justify-between gap-3"><span className="font-mono text-xs font-bold text-brand-300">{row.submission_reference}</span><span className="rounded-full border border-line-strong px-2 py-0.5 text-3xs uppercase text-text-muted">{row.status.replaceAll("_", " ")}</span></div><div className="mt-2 text-sm font-semibold">{row.project_name}</div><div className="mt-1 text-3xs text-text-faint">{row.document_count} document{row.document_count === 1 ? "" : "s"} · submitted {date(row.submitted_at)}</div><div className="mt-2 text-3xs font-semibold text-text-muted">Response estimate: {row.estimated_response_at ? date(row.estimated_response_at) : "pending operator review"}</div>{row.operator_note && <div className="mt-1 text-xs text-text-muted">Operator note: {row.operator_note}</div>}</LocaleLink>)}</div>}
+        {loading ? <p role="status" className="mt-5 text-xs text-text-muted">Loading…</p> : listError ? <div role="alert" className="mt-5 rounded-xl border border-state-danger/40 bg-state-danger/10 p-3 text-xs leading-relaxed text-state-danger"><p>{listError}</p><div className="mt-3 flex flex-wrap gap-2"><button type="button" onClick={() => void load()} className="rounded-lg border border-state-danger/40 px-3 py-2 font-semibold">Retry inquiry list</button><button type="button" onClick={() => void refreshAndRetryCustomerData()} disabled={refreshingSession} className="rounded-lg border border-state-danger/40 px-3 py-2 font-semibold disabled:opacity-60">{refreshingSession ? "Refreshing saved sign-in…" : "Refresh saved sign-in and retry"}</button></div></div> : rows.length === 0 ? <p className="mt-5 text-xs text-text-muted">No website inquiries submitted by this account.</p> : filteredRows.length===0?<p className="mt-5 text-xs text-text-muted">No inquiries match these filters.</p>: <div className="mt-4 space-y-3">{filteredRows.map((row) => <LocaleLink key={row.id} href={`/inquiries/submissions/${row.id}`} className="block rounded-xl border border-line-strong bg-ink-950/70 p-4"><div className="flex justify-between gap-3"><span className="font-mono text-xs font-bold text-brand-300">{row.submission_reference}</span><span className="rounded-full border border-line-strong px-2 py-0.5 text-3xs uppercase text-text-muted">{row.status.replaceAll("_", " ")}</span></div><div className="mt-2 text-sm font-semibold">{row.project_name}</div><div className="mt-1 text-3xs text-text-faint">{row.document_count} document{row.document_count === 1 ? "" : "s"} · submitted {date(row.submitted_at)}</div><div className="mt-2 text-3xs font-semibold text-text-muted">Response estimate: {row.estimated_response_at ? date(row.estimated_response_at) : "pending operator review"}</div>{row.operator_note && <div className="mt-1 text-xs text-text-muted">Operator note: {row.operator_note}</div>}</LocaleLink>)}</div>}
       </section>
     </div>
   </main>;

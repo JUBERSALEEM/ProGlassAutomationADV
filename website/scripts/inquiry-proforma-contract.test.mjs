@@ -68,7 +68,7 @@ test("the money is recomputed by the database, not trusted from the client", () 
   assert.match(writeFunction, /v_line_value := round\(v_total_sqm \* coalesce\(v_line\.rate, 0\), 2\)/);
   assert.match(writeFunction, /approved_rate/);
   assert.match(draft, /export function lineValue/);
-  assert.match(draft, /Math\.round\(\(sqmUnits \* rateUnits\) \/ 10000\) \/ 100/);
+  assert.match(draft, /Math\.round\(\(sqmMilliUnits \* rateMinorUnits\) \/ 1000\) \/ 100/);
 });
 
 test("no internal cost, margin, profit or optimiser figure reaches the proforma workspace", () => {
