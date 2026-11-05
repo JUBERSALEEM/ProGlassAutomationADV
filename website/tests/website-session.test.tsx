@@ -117,6 +117,39 @@ describe("shared website session", () => {
     expect(result.current.isAuthRequired).toBe(false);
   });
 
+  it("lets an explicit retry force a fresh Supabase token even after automatic recovery cooldown", async () => {
+    const { result } = renderHook(() => useWebsiteSession());
+    await waitFor(() => expect(result.current.accessToken).toBe("old-access-token"));
+
+    await act(async () => {
+      await recoverWebsiteSessionAfterUnauthorized("old-access-token");
+    });
+    // Simulate the refreshed token also being rejected by the API. The explicit
+    // user action must bypass the automatic 15-second recovery cooldown.
+    mocks.state.refreshResult = { data: { session: mocks.newSession }, error: null };
+    mocks.client.auth.refreshSession.mockClear();
+    await act(async () => {
+      await result.current.refreshSession();
+    });
+
+    expect(mocks.client.auth.refreshSession).toHaveBeenCalledTimes(1);
+    expect(result.current.accessToken).toBe("new-access-token");
+  });
+
+  it("reports when Supabase cannot refresh a still-stored session", async () => {
+    const { result } = renderHook(() => useWebsiteSession());
+    await waitFor(() => expect(result.current.accessToken).toBe("old-access-token"));
+    mocks.state.refreshResult = { data: { session: null }, error: new Error("Invalid Refresh Token") };
+
+    await act(async () => {
+      await result.current.refreshSession();
+    });
+
+    expect(result.current.accessToken).toBe("old-access-token");
+    expect(result.current.error).toMatch(/could not refresh the saved sign-in/i);
+    expect(result.current.isAuthRequired).toBe(false);
+  });
+
   it("does not sign out a saved user when the same API token receives another 401", async () => {
     const { result } = renderHook(() => useWebsiteSession());
     await waitFor(() => expect(result.current.accessToken).toBe("old-access-token"));

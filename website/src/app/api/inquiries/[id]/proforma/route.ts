@@ -1,6 +1,6 @@
 import { NextResponse, type NextRequest } from "next/server";
 import { fetchProformaWorkspace, ProformaApiFailure, saveProforma } from "@/lib/proforma-api";
-import type { ProformaLineInput } from "@/types/proforma";
+import type { ProformaLineInput, ProformaSaveInput } from "@/types/proforma";
 
 export const runtime = "nodejs";
 export const dynamic = "force-dynamic";
@@ -52,6 +52,7 @@ export async function POST(request: NextRequest, context: { params: Promise<{ id
     currency?: unknown;
     lines?: unknown;
     groups?: unknown;
+    workflow_snapshot?: ProformaSaveInput["workflow_snapshot"];
   };
   const lines = Array.isArray(payload.lines) ? (payload.lines as ProformaLineInput[]) : [];
   const groups = Array.isArray(payload.groups)
@@ -83,6 +84,7 @@ export async function POST(request: NextRequest, context: { params: Promise<{ id
       currency: String(payload.currency || "AED"),
       lines,
       groups,
+      workflow_snapshot: payload.workflow_snapshot,
     });
     return NextResponse.json({ ok: true, data }, { headers: HEADERS });
   } catch (error) {

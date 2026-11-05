@@ -25,6 +25,9 @@ export type DraftLine = {
   h2: string;
   qty: string;
   rate: string;
+  /** Transient WPF-style ownership flags, revision-persisted in workflow_snapshot. */
+  glassRefOwner?: "step4" | "manual";
+  rateOwner?: "step4" | "manual";
 };
 
 export type PricedLine = {
@@ -38,6 +41,7 @@ export type PricedLine = {
   h2: number;
   qty: number;
   rate: number;
+  rateOwner?: "step4" | "manual";
   physicalSqm: number;
   sqm: number;
   totalSqm: number;
@@ -117,7 +121,7 @@ function decimal(value: string): number {
 }
 
 export function emptyLine(groupNo: number): DraftLine {
-  return { key: newLineKey(), groupNo, glassRef: "", w1: "", h1: "", w2: "", h2: "", qty: "1", rate: "" };
+  return { key: newLineKey(), groupNo, glassRef: "", w1: "", h1: "", w2: "", h2: "", qty: "1", rate: "", glassRefOwner: "step4", rateOwner: "step4" };
 }
 
 /**
@@ -145,6 +149,7 @@ export function priceLine(line: DraftLine, lineNo = 0): PricedLine {
     h2,
     qty,
     rate,
+    rateOwner: line.rateOwner,
     physicalSqm,
     sqm,
     totalSqm,
@@ -305,6 +310,9 @@ export function fromSavedLine(line: ProformaLine): DraftLine {
     h2: line.h2 ? String(line.h2) : "",
     qty: line.qty ? String(line.qty) : "1",
     rate: line.approved_rate ? String(line.approved_rate) : "",
+    // A legacy saved row has no ownership marker; preserve its current values as manual.
+    glassRefOwner: "manual",
+    rateOwner: "manual",
   };
 }
 

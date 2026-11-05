@@ -154,6 +154,13 @@ describe("the document view", () => {
     expect(markup).toContain("Print document");
   });
 
+  it("prints saved Step 6 Other Charges separately from the database glass-line total", () => {
+    const markup = renderToStaticMarkup(<ProformaDocument proforma={proforma()} inquiry={inquiry} lines={[line()]} otherChargesTotal={87.5} />);
+    expect(markup).toContain("Other charges (Step 6)");
+    expect(markup).toContain("87.50");
+    expect(markup).toContain("remain separate from the database&#x27;s glass-line total");
+  });
+
   it("warns that unsaved grid edits are not part of the printed revision", () => {
     const markup = renderToStaticMarkup(
       <ProformaDocument proforma={proforma()} inquiry={inquiry} lines={[line()]} hasUnsavedChanges />,

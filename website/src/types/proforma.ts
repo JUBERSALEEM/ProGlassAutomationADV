@@ -1,5 +1,13 @@
 import type { InquiryStatus } from "@/types/inquiries";
 import type { ProformaStatus } from "@/lib/proforma-status";
+import type { Step4Build, Step5Ownership, Step6Draft } from "@/lib/proforma-workflow";
+
+export type ProformaWorkflowSnapshot = {
+  step4_groups: Record<number, Step4Build>;
+  step6: Step6Draft;
+  /** Ownership markers are keyed by persisted group/line position. */
+  step5_ownership?: Step5Ownership;
+};
 
 export type { ProformaStatus };
 
@@ -87,6 +95,9 @@ export type ProformaWorkspaceData = {
    * two inputs. The page says so rather than pretending they were saved.
    */
   groups_persisted: boolean;
+  /** Step 4 build inputs and Step 6 charges pinned to the loaded revision. */
+  workflow_snapshot: ProformaWorkflowSnapshot | null;
+  workflow_snapshot_persisted: boolean;
   saves: ProformaSaveSummary[];
   /**
    * False when the proforma tables are not installed in this deployment. The
@@ -114,6 +125,7 @@ export type ProformaSaveInput = {
   lines: ProformaLineInput[];
   /** Specification settings to store with this revision. Omitted when unknown. */
   groups?: Array<{ group_no: number; base_rate: number; surcharge_percent: number }>;
+  workflow_snapshot?: ProformaWorkflowSnapshot;
 };
 
 export type ProformaApiError = {

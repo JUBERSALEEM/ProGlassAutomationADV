@@ -57,6 +57,7 @@ let started = false;
 let authSubscription: { unsubscribe: () => void } | null = null;
 let browserListenersAttached = false;
 let recoveryPromise: Promise<Session | null> | null = null;
+let manualRefreshPromise: Promise<Session | null> | null = null;
 let unauthorizedRecoveryPromise: Promise<Session | null> | null = null;
 let initialRecoveryWatchdog: number | null = null;
 let lastForcedRecoveryAt = 0;
@@ -179,6 +180,43 @@ async function refreshSavedSession(): Promise<RefreshResult> {
   } catch (error) {
     return { session: null, error, unavailable: looksUnavailable(error) };
   }
+}
+
+/** Force a new Supabase refresh when a signed-in page's API calls were rejected. */
+export async function refreshWebsiteSessionNow(): Promise<Session | null> {
+  if (!isSupabaseConfigured()) {
+    emit({ ...INITIAL_STATE, checking: false, unavailable: true, error: "Sign-in is not configured in this deployment." });
+    return null;
+  }
+  if (manualRefreshPromise) return manualRefreshPromise;
+
+  manualRefreshPromise = (async () => {
+    const refreshed = await refreshSavedSession();
+    if (refreshed.session?.user && refreshed.session.access_token) {
+      applySession(refreshed.session);
+      return refreshed.session;
+    }
+    if (refreshed.unavailable) {
+      applyUnavailable(refreshed.error);
+      return null;
+    }
+    if (!hasStoredSupabaseSession()) {
+      applySignedOut();
+      return null;
+    }
+    emit({
+      ...state,
+      checking: false,
+      isAuthRequired: false,
+      unavailable: false,
+      error: "Supabase could not refresh the saved sign-in. Sign in again to continue.",
+    });
+    return null;
+  })().finally(() => {
+    manualRefreshPromise = null;
+  });
+
+  return manualRefreshPromise;
 }
 
 /**
@@ -423,7 +461,7 @@ export function useWebsiteSession({ enabled = true }: { enabled?: boolean } = {}
     if (enabled) ensureWebsiteSessionStarted();
   }, [enabled]);
 
-  const refreshSession = useCallback(() => recoverWebsiteSession(), []);
+  const refreshSession = useCallback(() => refreshWebsiteSessionNow(), []);
   const recoverAfterUnauthorized = useCallback(
     () => recoverWebsiteSessionAfterUnauthorized(snapshot.accessToken),
     [snapshot.accessToken],
@@ -450,6 +488,7 @@ export function resetWebsiteSessionForTests() {
   authSubscription = null;
   started = false;
   recoveryPromise = null;
+  manualRefreshPromise = null;
   unauthorizedRecoveryPromise = null;
   lastForcedRecoveryAt = 0;
   state = INITIAL_STATE;

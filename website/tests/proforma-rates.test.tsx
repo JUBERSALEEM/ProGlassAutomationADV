@@ -45,6 +45,16 @@ describe("specification rate entry, as Step 5 does it", () => {
     expect(plan?.rows[0]?.rate).toBe(120);
   });
 
+  it("preserves operator-owned row-rate overrides when a group rate is applied", () => {
+    const lines = [
+      { ...line(1, "1000", "1000", "1", "111.11"), rateOwner: "manual" as const },
+      { ...line(1, "1000", "1000", "1", "0"), rateOwner: "step4" as const },
+    ];
+    const plan = planRates(priceDraft(lines), 1, "150", "10");
+    expect(applyRatePlan(lines, plan!).map((row) => row.rate)).toEqual(["111.11", "150.00"]);
+    expect(applyRatePlan(lines, plan!).map((row) => row.rateOwner)).toEqual(["manual", "step4"]);
+  });
+
   it("treats an empty percentage as no surcharge", () => {
     const priced = priceDraft([line(1, "2000", "2000", "1", "0")]);
     const plan = planRates(priced, 1, "100", "");

@@ -58,12 +58,15 @@ export function ProformaDocument({
   proforma,
   inquiry,
   lines,
+  otherChargesTotal,
   hasUnsavedChanges = false,
   onClose,
 }: {
   proforma: ProformaRecord;
   inquiry: ProformaInquiryHeader;
   lines: ProformaLine[];
+  /** Saved revision's Step 6 total, separate from the database's glass-line subtotal. */
+  otherChargesTotal?: number;
   /** The grid holds edits that the saved revision, and therefore this document, does not. */
   hasUnsavedChanges?: boolean;
   onClose?: () => void;
@@ -222,12 +225,16 @@ export function ProformaDocument({
               <dt className="text-3xs uppercase tracking-wider text-text-faint print:text-black/60">Glass materials subtotal</dt>
               <dd className="font-mono text-base font-bold text-text-primary print:text-black">{formatMoney(model.totalValue, currency)}</dd>
             </div>
+            {otherChargesTotal !== undefined ? <div className="flex items-baseline gap-2">
+              <dt className="text-3xs uppercase tracking-wider text-text-faint print:text-black/60">Other charges (Step 6)</dt>
+              <dd className="font-mono text-base font-bold text-text-primary print:text-black">{formatMoney(otherChargesTotal, currency)}</dd>
+            </div> : null}
           </dl>
           <p className="mt-2 text-right text-3xs text-text-faint print:text-black/60">
             Values as stored by the database at revision {proforma.revision}, and not recalculated on the website.
           </p>
           <p className="mt-1 text-right text-3xs text-text-faint print:text-black/60">
-            This subtotal covers the glass lines only. Other charges, discount and VAT are applied by the desktop summary and are not computed here.
+            {otherChargesTotal !== undefined ? "Other charges are shown from the saved staff Step 6 snapshot; they remain separate from the database's glass-line total. Discount, VAT and the desktop grand total are not computed here." : "This subtotal covers the glass lines only. This revision has no saved Step 6 snapshot; other charges, discount and VAT are not included."}
           </p>
         </footer>
       </article>

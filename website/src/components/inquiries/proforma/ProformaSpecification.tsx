@@ -3,6 +3,7 @@
 import { formatMoney, formatSqm, type DraftLine, type GroupTotal, type PricedLine } from "@/lib/proforma-draft";
 import { EMPTY_RATE_SETTING, planRates, type RateSetting } from "@/lib/proforma-rates";
 import { SpecificationRateBar } from "@/components/inquiries/proforma/SpecificationRateBar";
+import { workflowLineMetrics, type Step4Build } from "@/lib/proforma-workflow";
 
 const CELL = "border-b border-line/40 px-2 py-1.5 align-middle";
 const INPUT = "h-8 w-full rounded-lg border border-line-strong bg-ink-950 px-2 text-xs text-text-primary";
@@ -23,6 +24,7 @@ export function ProformaSpecification({
   currency,
   totals,
   rateSettings,
+  builds = {},
   onRateChange,
   onApplyRates,
   onEdit,
@@ -41,6 +43,7 @@ export function ProformaSpecification({
   currency: string;
   totals: { lines: number; sqm: number; value: number };
   rateSettings: Record<number, RateSetting>;
+  builds?: Record<number, Step4Build>;
   onRateChange: (groupNo: number, patch: Partial<RateSetting>) => void;
   onApplyRates: (groupNo: number) => void;
   onEdit: (key: string, patch: Partial<DraftLine>) => void;
@@ -52,6 +55,11 @@ export function ProformaSpecification({
   onRemoveGroup: (groupNo: number) => void;
   onFocusGroup: (groupNo: number) => void;
 }) {
+  const metricsFor = (line: PricedLine) => workflowLineMetrics({
+    key: line.key, groupNo: line.groupNo, glassRef: line.glassRef,
+    w1: String(line.w1), h1: String(line.h1), w2: String(line.w2), h2: String(line.h2),
+    qty: String(line.qty), rate: String(line.rate),
+  }, builds[line.groupNo]?.code);
   return (
     <section aria-label="Step 5, priced specification" className="min-w-0 space-y-3">
       <div className="flex flex-wrap items-end justify-between gap-3 rounded-2xl border border-line-strong/60 bg-ink-900/80 px-3 py-2.5">
@@ -131,7 +139,7 @@ export function ProformaSpecification({
             />
 
             <div className="overflow-x-auto">
-              <table className="w-full min-w-[62rem] border-collapse text-left text-xs">
+              <table className="w-full min-w-[88rem] border-collapse text-left text-xs">
                 <thead>
                   <tr className="bg-ink-950/60 text-3xs uppercase tracking-wider text-text-faint">
                     <th className="px-2 py-2 font-semibold">#</th>
@@ -141,16 +149,21 @@ export function ProformaSpecification({
                     <th className="px-2 py-2 font-semibold">W2</th>
                     <th className="px-2 py-2 font-semibold">H2</th>
                     <th className="px-2 py-2 font-semibold">Qty</th>
-                    <th className="px-2 py-2 font-semibold">SQM</th>
-                    <th className="px-2 py-2 font-semibold">Total SQM</th>
+                    <th className="px-2 py-2 font-semibold">SQM1</th>
+                    <th className="px-2 py-2 font-semibold">Total SQM1</th>
+                    <th className="px-2 py-2 font-semibold">SQM2</th>
+                    <th className="px-2 py-2 font-semibold">Total SQM2</th>
+                    <th className="px-2 py-2 font-semibold">LM1</th>
+                    <th className="px-2 py-2 font-semibold">LM2</th>
                     <th className="px-2 py-2 font-semibold">Approved rate</th>
                     <th className="px-2 py-2 text-right font-semibold">Value</th>
                     <th className="px-2 py-2" />
                   </tr>
                 </thead>
                 <tbody>
-                  {rows.map((line, rowIndex) => (
-                    <tr key={line.key} className="hover:bg-ink-850/40">
+                  {rows.map((line, rowIndex) => {
+                    const metrics = metricsFor(line);
+                    return <tr key={line.key} className="hover:bg-ink-850/40">
                       <td className={`${CELL} font-mono text-3xs text-text-faint`}>{line.lineNo}</td>
                       <td className={`${CELL} min-w-[14rem]`}>
                         <label className="sr-only" htmlFor={`${line.key}-ref`}>Glass reference for line {line.lineNo} of specification {groupNo}</label>
@@ -193,6 +206,10 @@ export function ProformaSpecification({
                         {line.floored ? <span className="ml-1 text-state-warning" title="Panels under half a square metre bill at half a square metre">min</span> : null}
                       </td>
                       <td className={`${CELL} whitespace-nowrap font-mono text-3xs text-text-secondary`}>{formatSqm(line.totalSqm)}</td>
+                      <td className={`${CELL} whitespace-nowrap font-mono text-3xs text-text-secondary`}>{formatSqm(line.qty > 0 ? metrics.sqm2 / line.qty : 0)}</td>
+                      <td className={`${CELL} whitespace-nowrap font-mono text-3xs text-text-secondary`}>{formatSqm(metrics.sqm2)}</td>
+                      <td className={`${CELL} whitespace-nowrap font-mono text-3xs text-text-secondary`}>{metrics.lm1.toFixed(3)}</td>
+                      <td className={`${CELL} whitespace-nowrap font-mono text-3xs text-text-secondary`}>{metrics.lm2.toFixed(3)}</td>
                       <td className={`${CELL} w-24`}>
                         <label className="sr-only" htmlFor={`${line.key}-rate`}>Approved rate for line {line.lineNo}</label>
                         <input
@@ -243,20 +260,21 @@ export function ProformaSpecification({
                           </button>
                         </div>
                       </td>
-                    </tr>
-                  ))}
+                    </tr>;
+                  })}
                   {rows.length === 0 ? (
                     <tr>
-                      <td colSpan={12} className="px-3 py-4 text-center text-3xs text-text-faint">
-                        No rows yet. Build one on the right, or add a row here.
+                      <td colSpan={16} className="px-3 py-4 text-center text-3xs text-text-faint">
+                        No rows yet. Apply a Step 4 build or add a cut-list row here.
                       </td>
                     </tr>
                   ) : null}
                 </tbody>
                 <tfoot>
                   <tr className="bg-ink-950/40 text-3xs text-text-muted">
-                    <td colSpan={8} className="px-2 py-2 text-right font-semibold uppercase tracking-wider text-text-faint">Specification {groupNo} total</td>
+                    <td colSpan={7} className="px-2 py-2 text-right font-semibold uppercase tracking-wider text-text-faint">Specification {groupNo} total</td>
                     <td className="px-2 py-2 font-mono">{formatSqm(totalsForGroup?.sqm || 0)}</td>
+                    <td colSpan={5} className="px-2 py-2" />
                     <td className="px-2 py-2" />
                     <td className="px-2 py-2 text-right font-mono font-bold text-text-primary">{formatMoney(totalsForGroup?.value || 0, currency)}</td>
                     <td />

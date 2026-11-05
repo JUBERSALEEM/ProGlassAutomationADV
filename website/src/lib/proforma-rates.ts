@@ -94,7 +94,7 @@ export function planRates(
     .filter((line) => line.groupNo === groupNo)
     .map((line) => {
       const surcharged = line.sqm >= 4;
-      const rate = line.sqm > 0 ? rowRate(baseRate, percent, line.sqm) : line.rate;
+      const rate = line.sqm > 0 && line.rateOwner !== "manual" ? rowRate(baseRate, percent, line.sqm) : line.rate;
       return { key: line.key, sqm: line.sqm, rate, surcharged };
     });
 
@@ -115,7 +115,9 @@ export function applyRatePlan(lines: DraftLine[], plan: RatePlan): DraftLine[] {
   return lines.map((line) => {
     const planned = byKey.get(line.key);
     if (!planned) return line;
-    return { ...line, rate: formatRate(planned.rate) };
+    // WPF preserves operator-owned row rates when a group rate is recalculated.
+    if (line.rateOwner === "manual" && line.rate.trim()) return line;
+    return { ...line, rate: formatRate(planned.rate), rateOwner: "step4" };
   });
 }
 

@@ -10,6 +10,7 @@ import type {
   ProformaRecord,
   ProformaSaveInput,
   ProformaWorkspaceData,
+  ProformaWorkflowSnapshot,
 } from "@/types/proforma";
 
 const READ_ROLES = ["inquiry_admin", "inquiry_auditor"] as const;
@@ -250,16 +251,16 @@ export async function fetchProformaWorkspace(token: string, inquiryId: string): 
 
   if (proforma.error) {
     if (missingRelation(proforma.error)) {
-      return { inquiry: header, proforma: null, lines: [], groups: [], groups_persisted: false, saves: [], installed: false };
+      return { inquiry: header, proforma: null, lines: [], groups: [], groups_persisted: false, workflow_snapshot: null, workflow_snapshot_persisted: false, saves: [], installed: false };
     }
     databaseFailure(proforma.error);
   }
   if (!proforma.data) {
-    return { inquiry: header, proforma: null, lines: [], groups: [], groups_persisted: true, saves: [], installed: true };
+    return { inquiry: header, proforma: null, lines: [], groups: [], groups_persisted: true, workflow_snapshot: null, workflow_snapshot_persisted: false, saves: [], installed: true };
   }
 
   const record = recordRow(proforma.data as unknown as Record<string, unknown>);
-  const [lines, saves, groups] = await Promise.all([
+  const [lines, saves, groups, workflow] = await Promise.all([
     client
       .from("inquiry_proforma_lines")
       .select("group_no,line_no,glass_ref,w1,h1,w2,h2,qty,approved_rate,sqm,total_sqm,line_value")
@@ -278,6 +279,12 @@ export async function fetchProformaWorkspace(token: string, inquiryId: string): 
       .eq("proforma_id", record.id)
       .eq("revision", record.revision)
       .order("group_no", { ascending: true }),
+    client
+      .from("inquiry_proforma_workflow_states")
+      .select("snapshot")
+      .eq("proforma_id", record.id)
+      .eq("revision", record.revision)
+      .maybeSingle(),
   ]);
   if (lines.error) databaseFailure(lines.error);
   if (saves.error) databaseFailure(saves.error);
@@ -285,6 +292,16 @@ export async function fetchProformaWorkspace(token: string, inquiryId: string): 
   // and the page says they are not stored rather than inventing them.
   const groupsInstalled = !groups.error;
   if (groups.error && !missingRelation(groups.error)) databaseFailure(groups.error);
+  const workflowSnapshotInstalled = !workflow.error;
+  if (workflow.error && !missingRelation(workflow.error)) databaseFailure(workflow.error);
+  let workflowSnapshot: ProformaWorkflowSnapshot | null = null;
+  if (workflow.data?.snapshot) {
+    try {
+      workflowSnapshot = validateWorkflowSnapshot(workflow.data.snapshot);
+    } catch (error) {
+      console.error("[proforma-api] Ignoring malformed saved Step 4/6 workflow snapshot:", error instanceof Error ? error.message : "invalid payload");
+    }
+  }
 
   return {
     inquiry: header,
@@ -294,6 +311,8 @@ export async function fetchProformaWorkspace(token: string, inquiryId: string): 
       ? ((groups.data || []) as unknown as Record<string, unknown>[]).map(groupRow)
       : [],
     groups_persisted: groupsInstalled,
+    workflow_snapshot: workflowSnapshot,
+    workflow_snapshot_persisted: workflowSnapshotInstalled && workflowSnapshot !== null,
     saves: ((saves.data || []) as unknown as Record<string, unknown>[]).map((row) => ({
       revision: numeric(row.revision),
       line_count: numeric(row.line_count),
@@ -306,6 +325,72 @@ export async function fetchProformaWorkspace(token: string, inquiryId: string): 
 
 function invalid(message: string): never {
   throw new ProformaApiFailure("INVALID", message);
+}
+
+function isObject(value: unknown): value is Record<string, unknown> {
+  return Boolean(value) && typeof value === "object" && !Array.isArray(value);
+}
+
+/** Keep the revision-pinned workflow payload bounded and structurally safe. */
+export function validateWorkflowSnapshot(value: unknown): ProformaWorkflowSnapshot {
+  if (!isObject(value) || !isObject(value.step4_groups) || !isObject(value.step6)) invalid("The saved Step 4–6 workflow state is invalid.");
+  const allowedCodes = new Set(["SGU", "DGU", "LAM", "DGU+LAM"]);
+  const step4_groups: ProformaWorkflowSnapshot["step4_groups"] = {};
+  const entries = Object.entries(value.step4_groups);
+  if (entries.length > MAX_GROUPS) invalid("Too many Step 4 specification groups.");
+  for (const [rawGroup, rawBuild] of entries) {
+    const groupNo = Number(rawGroup);
+    if (!Number.isInteger(groupNo) || groupNo < 1 || groupNo > MAX_GROUPS || !isObject(rawBuild) || !allowedCodes.has(String(rawBuild.code)) || !isObject(rawBuild.values)) invalid("A Step 4 specification group is invalid.");
+    const values = Object.entries(rawBuild.values);
+    if (values.length > 100 || values.some(([key, item]) => key.length > 80 || typeof item !== "string" || item.length > 500)) invalid("A Step 4 specification contains invalid or oversized values.");
+    step4_groups[groupNo] = { code: String(rawBuild.code) as ProformaWorkflowSnapshot["step4_groups"][number]["code"], values: Object.fromEntries(values) as Record<string, string> };
+  }
+  const rawStep6 = value.step6;
+  if ((rawStep6.mode !== "advanced" && rawStep6.mode !== "manual") || !Array.isArray(rawStep6.charges) || !Array.isArray(rawStep6.wastages) || !Array.isArray(rawStep6.customCharges) || rawStep6.charges.length > 100 || rawStep6.wastages.length > 200 || rawStep6.customCharges.length > 200) invalid("The saved Step 6 charges are invalid.");
+  const stringList = (items: unknown, max: number): string[] => {
+    if (!Array.isArray(items) || items.length > max || items.some((item) => typeof item !== "string" || item.length > 100)) invalid("The saved Step 6 selection is invalid.");
+    return [...new Set(items as string[])];
+  };
+  const validGroups = (items: unknown): number[] => {
+    if (!Array.isArray(items) || items.length > MAX_GROUPS || items.some((item) => !Number.isInteger(item) || Number(item) < 1 || Number(item) > MAX_GROUPS)) invalid("A Step 6 target specification is invalid.");
+    return [...new Set(items as number[])];
+  };
+  const chargeKeys = new Set(["ARGON_GAS", "SILICON_BED", "SILICON_BED_SQM", "OVERLAP", "OVERLAP_SQM", "SHUTTER_BONDING", "MITRING", "POLISH", "POLISH_MATCHED_LAM", "CUTOUT", "HOLES", "SANDBLASTING", "EDGE_GRINDING", "COUNTERSUNK_HOLES", "FAN_HOLES", "DELIVERY", "U_INSERT"]);
+  const metricKeys = new Set(["LM1", "LM2", "LM_COMBINED", "SQM1", "SQM2", "SQM_COMBINED", "DGU_CAVITY", "QTY", "TOTAL_PIECES", "DOUBLE_GLASS"]);
+  const numericString = (value: unknown, label: string, max = 1_000_000): string => {
+    if (typeof value !== "string" || value.length > 40) invalid(`${label} is invalid.`);
+    const trimmed = value.trim();
+    if (trimmed && (!Number.isFinite(Number(trimmed)) || Number(trimmed) < 0 || Number(trimmed) > max)) invalid(`${label} is outside the accepted range.`);
+    return value;
+  };
+  const charges = rawStep6.charges.map((item) => {
+    if (!isObject(item) || typeof item.key !== "string" || !chargeKeys.has(item.key) || typeof item.isActive !== "boolean" || typeof item.metricKey !== "string" || !metricKeys.has(item.metricKey) || (item.polishType !== undefined && (typeof item.polishType !== "string" || item.polishType.length > 100)) || (item.customDescription !== undefined && (typeof item.customDescription !== "string" || item.customDescription.length > 300)) || (item.customQty !== undefined && typeof item.customQty !== "string")) invalid("A Step 6 predefined charge is invalid.");
+    const rate = numericString(item.rate, "A Step 6 rate");
+    const customQty = numericString(String(item.customQty ?? ""), "A custom polish quantity");
+    return { key: item.key, isActive: item.isActive, rate, metricKey: item.metricKey, groupNos: validGroups(item.groupNos), polishType: String(item.polishType ?? "AllSidePolish"), customDescription: String(item.customDescription ?? ""), customQty };
+  });
+  const wastages = rawStep6.wastages.map((item) => {
+    if (!isObject(item) || typeof item.id !== "string" || item.id.length > 100 || typeof item.isActive !== "boolean" || typeof item.color !== "string" || item.color.length > 200 || !["outer", "inner", "third"].includes(String(item.side)) || typeof item.rate !== "string" || typeof item.sheetQuantity !== "string") invalid("A Step 6 wastage row is invalid.");
+    const rate = numericString(item.rate, "A Step 6 wastage rate");
+    const sheetQuantity = numericString(item.sheetQuantity, "A Step 6 sheet quantity", 100_000);
+    return { id: item.id, isActive: item.isActive, color: item.color, side: item.side as "outer" | "inner" | "third", rate, sheetQuantity, groupNos: validGroups(item.groupNos) };
+  });
+  const customCharges = rawStep6.customCharges.map((item) => {
+    if (!isObject(item) || typeof item.id !== "string" || item.id.length > 100 || typeof item.isActive !== "boolean" || typeof item.name !== "string" || item.name.length > 300 || typeof item.qty !== "string" || typeof item.rate !== "string" || !["Sqm", "Lm", "Qty"].includes(String(item.unit))) invalid("A Step 6 custom charge is invalid.");
+    const qty = numericString(item.qty, "A custom Step 6 quantity");
+    const rate = numericString(item.rate, "A custom Step 6 rate");
+    return { id: item.id, isActive: item.isActive, name: item.name, qty, rate, unit: item.unit as "Sqm" | "Lm" | "Qty" };
+  });
+  let step5_ownership: ProformaWorkflowSnapshot["step5_ownership"];
+  if (value.step5_ownership !== undefined) {
+    if (!isObject(value.step5_ownership) || Object.keys(value.step5_ownership).length > MAX_LINES) invalid("The saved Step 5 ownership map is invalid.");
+    step5_ownership = {};
+    for (const [key, rawOwner] of Object.entries(value.step5_ownership)) {
+      if (!/^\d{1,2}:\d{1,3}$/.test(key) || !isObject(rawOwner) || !["step4", "manual"].includes(String(rawOwner.glassRef)) || !["step4", "manual"].includes(String(rawOwner.rate))) invalid("A Step 5 ownership marker is invalid.");
+      step5_ownership[key] = { glassRef: rawOwner.glassRef as "step4" | "manual", rate: rawOwner.rate as "step4" | "manual" };
+    }
+  }
+  return { step4_groups, step6: { mode: rawStep6.mode, charges, wastages, customCharges, manualActiveKeys: stringList(rawStep6.manualActiveKeys ?? [], 100), manualTargetKeys: stringList(rawStep6.manualTargetKeys ?? [], 100), manualWastageIds: stringList(rawStep6.manualWastageIds ?? [], 200) }, ...(step5_ownership ? { step5_ownership } : {}) };
 }
 
 /** Validates the proposed lines before the database sees them. */
@@ -353,6 +438,7 @@ export async function saveProforma(token: string, inquiryId: string, input: Prof
   const currency = String(input.currency || "").trim().toUpperCase();
   if (!CURRENCY.test(currency)) invalid("A three letter currency code is required.");
   const lines = validateLines(input.lines);
+  const workflowSnapshot = input.workflow_snapshot === undefined ? undefined : validateWorkflowSnapshot(input.workflow_snapshot);
 
   const client = await authorizedClient(token, "write");
   const groups = (input.groups || []).map((group) => ({
@@ -361,20 +447,21 @@ export async function saveProforma(token: string, inquiryId: string, input: Prof
     surcharge_percent: Math.round(group.surcharge_percent * 100) / 100,
   }));
 
-  /*
-   * v2 stores the lines and the specification settings in one revision. If this
-   * deployment has not applied the C5 migration, the function does not exist and
-   * the save falls back to v1, which stores the lines exactly as before; the
-   * settings are then reported as not stored rather than silently dropped.
-   */
-  let saved = await client.rpc("save_inquiry_proforma_v2", {
+  /* v3 writes Step 4/6 snapshot and line/rate data under one revision. */
+  const args = {
     p_inquiry_id: inquiryId,
     p_idempotency_key: input.idempotency_key,
     p_expected_revision: input.expected_revision,
     p_currency: currency,
     p_lines: lines,
     p_groups: groups,
-  });
+  };
+  let saved = workflowSnapshot
+    ? await client.rpc("save_inquiry_proforma_v3", { ...args, p_workflow_snapshot: workflowSnapshot })
+    : await client.rpc("save_inquiry_proforma_v2", args);
+  if (saved.error && (saved.error.code === "42883" || saved.error.code === "PGRST202") && workflowSnapshot) {
+    saved = await client.rpc("save_inquiry_proforma_v2", args);
+  }
   if (saved.error && (saved.error.code === "42883" || saved.error.code === "PGRST202")) {
     saved = await client.rpc("save_inquiry_proforma_v1", {
       p_inquiry_id: inquiryId,

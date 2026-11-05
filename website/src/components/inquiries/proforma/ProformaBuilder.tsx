@@ -1,368 +1,130 @@
 "use client";
 
 import { useMemo, useState } from "react";
-import { buildOptions, glassBuilds, type GlassBuildCode } from "@/data/pricingRules";
-import { emptyLine, formatMoney, formatSqm, wholeNumber, type DraftLine, type GroupTotal } from "@/lib/proforma-draft";
-
-type Control = { key: string; label: string; options?: readonly string[]; placeholder?: string };
-
-const LABELS: Record<string, string> = {
-  thickness: "Outer thickness",
-  colour: "Outer colour",
-  treatment: "Outer treatment",
-  innerThickness: "Inner thickness",
-  innerColour: "Inner colour",
-  innerTreatment: "Inner treatment",
-  lamThickness: "Laminated thickness",
-  lamColour: "Laminated colour",
-  lamTreatment: "Laminated treatment",
-  spacerWidth: "ASP spacer",
-  spacerExtra: "Spacer extra",
-  panelExtra: "Panel extra",
-  polish: "Polish",
-};
-
-function control(key: string, options?: readonly string[], placeholder?: string): Control {
-  return { key, label: LABELS[key] || key, options, placeholder };
-}
-
-/**
- * The Step 4 controls each build family asks for.
- *
- * The lists are the application's own option lists from `pricingRules`. The
- * generated reference is the build's own name function, so the line the
- * specification receives reads the way the desktop names it.
- */
-const BUILD_CONTROLS: Record<GlassBuildCode, Control[]> = {
-  SGU: [
-    control("thickness", buildOptions.thickness),
-    control("colour", buildOptions.colour),
-    control("treatment", buildOptions.treatment),
-    control("polish", buildOptions.polish),
-    control("panelExtra", buildOptions.panelExtra),
-  ],
-  DGU: [
-    control("thickness", buildOptions.thickness),
-    control("colour", buildOptions.colour),
-    control("treatment", buildOptions.treatment),
-    control("spacerWidth", buildOptions.spacerWidth),
-    control("spacerExtra", buildOptions.spacerExtra),
-    control("innerThickness", buildOptions.thickness),
-    control("innerColour", buildOptions.colour),
-    control("innerTreatment", buildOptions.treatment),
-    control("panelExtra", buildOptions.panelExtra),
-  ],
-  LAM: [
-    control("thickness", buildOptions.thickness),
-    control("colour", buildOptions.colour),
-    control("treatment", buildOptions.treatment),
-    control("pvb", undefined, "1.52mm Clear PVB"),
-    control("innerThickness", buildOptions.thickness),
-    control("innerColour", buildOptions.colour),
-    control("innerTreatment", buildOptions.treatment),
-    control("polish", buildOptions.polish),
-  ],
-  "DGU+LAM": [
-    control("thickness", buildOptions.thickness),
-    control("colour", buildOptions.colour),
-    control("treatment", buildOptions.treatment),
-    control("spacerWidth", buildOptions.spacerWidth),
-    control("spacerExtra", buildOptions.spacerExtra),
-    control("lamThickness", buildOptions.thickness),
-    control("lamColour", buildOptions.colour),
-    control("lamTreatment", buildOptions.treatment),
-    control("interlayer", undefined, "1.52mm Clear PVB"),
-    control("innerThickness", buildOptions.thickness),
-    control("innerColour", buildOptions.colour),
-    control("innerTreatment", buildOptions.treatment),
-    control("panelExtra", buildOptions.panelExtra),
-  ],
-};
-
-const DEFAULTS: Record<string, string> = {
-  thickness: "6mm",
-  colour: "Clear",
-  treatment: "FT",
-  innerThickness: "6mm",
-  innerColour: "Clear",
-  innerTreatment: "FT",
-  lamThickness: "6mm",
-  lamColour: "Clear",
-  lamTreatment: "FT",
-  spacerWidth: "12mm ASP",
-  spacerExtra: "None",
-  panelExtra: "None",
-  polish: "None (Standard)",
-  pvb: "1.52mm Clear PVB",
-  interlayer: "1.52mm Clear PVB",
-};
+import { defaultStep4Build, dguLamInterlayerDefaults, dguSpacerSuggestedPrice, estimateStep4Rate, generatedStep4SpecName, step4Options, type Step4Build, type Step4BuildCode } from "@/lib/proforma-workflow";
+import { formatMoney, formatSqm, type GroupTotal } from "@/lib/proforma-draft";
 
 const FIELD = "h-8 w-full rounded-lg border border-line-strong bg-ink-950 px-2 text-xs text-text-primary";
+type Field = { key: string; label: string; options?: readonly string[]; kind?: "text" | "money" | "number" | "toggle" };
+type FieldGroup = { title: string; fields: Field[] };
+const select = (key: string, label: string, options: readonly string[]): Field => ({ key, label, options });
+const text = (key: string, label: string): Field => ({ key, label, kind: "text" });
+const money = (key: string, label: string): Field => ({ key, label, kind: "money" });
+const number = (key: string, label: string): Field => ({ key, label, kind: "number" });
+const toggle: Field = { key: "useCustomPanelExtra", label: "Use custom panel extra", kind: "toggle" };
+const pane = (prefix: string, title: string, thicknessOptions: readonly string[] = step4Options.thickness): FieldGroup[] => [
+  { title, fields: [select(`${prefix}Thickness`, "Thickness", thicknessOptions), text(`${prefix}Colour`, "Colour (Sheet Store value)"), select(`${prefix}Treatment`, "Treatment", step4Options.treatment), money(`${prefix}Price`, "Pane price / m²"), number(`${prefix}SheetWidth`, "Sheet width (mm)"), number(`${prefix}SheetHeight`, "Sheet height (mm)")] },
+];
+const GROUPS: Record<Step4BuildCode, FieldGroup[]> = {
+  SGU: [
+    { title: "Single pane", fields: [select("thickness", "Thickness", step4Options.thickness), text("colour", "Colour (Sheet Store value)"), select("treatment", "Treatment", step4Options.sguTreatment), money("basePrice", "Pane price / m²"), number("sheetWidth", "Sheet width (mm)"), number("sheetHeight", "Sheet height (mm)")] },
+    { title: "Processing and estimate", fields: [money("cutting", "Cutting / m²"), money("tempering", "Tempering / m²"), number("yield", "Yield factor"), number("margin", "Margin %"), select("polish", "Polish / detail", step4Options.sguPolish), select("panelExtra", "Panel extra", step4Options.panelExtra), toggle, text("customPanelExtra", "Custom panel extra")] },
+  ],
+  DGU: [
+    ...pane("outer", "Outer pane"),
+    { title: "Air spacer", fields: [select("spacerWidth", "Spacer width", step4Options.spacerWidth), select("spacerMaterial", "Spacer material", step4Options.spacerMaterial), money("spacerPrice", "Spacer price / m²"), select("spacerExtra", "Spacer extra", step4Options.spacerExtra), money("uInsertPrice", "U-Insert reference rate / m² (Step 6 charge)" )] },
+    ...pane("inner", "Inner pane"),
+    { title: "Panel extra and estimate", fields: [select("panelExtra", "Panel extra", step4Options.panelExtra), toggle, text("customPanelExtra", "Custom panel extra"), number("yield", "Yield factor"), number("margin", "Margin %")] },
+  ],
+  LAM: [
+    ...pane("outer", "Outer glass pane"),
+    { title: "PVB interlayer", fields: [select("pvbThickness", "PVB thickness", step4Options.pvbThickness), select("pvbColour", "PVB colour", step4Options.pvbColour), money("pvbPrice", "PVB rate / m²")] },
+    ...pane("inner", "Inner glass pane"),
+    { title: "Processing and estimate", fields: [select("polish", "Lamination polish", step4Options.polish), money("outerCutting", "Outer cutting / m²"), money("innerCutting", "Inner cutting / m²"), money("outerTempering", "Outer tempering / m²"), money("innerTempering", "Inner tempering / m²"), number("yield", "Yield factor"), number("margin", "Margin %")] },
+  ],
+  "DGU+LAM": [
+    ...pane("outer", "Outer DGU pane", step4Options.hybridThickness),
+    { title: "Air spacer", fields: [select("spacerThickness", "Spacer thickness", step4Options.hybridSpacer), money("spacerPrice", "Spacer price / m²"), select("spacerExtra", "Spacer extra", step4Options.spacerExtra)] },
+    ...pane("lamOuter", "Laminated outer pane", step4Options.hybridThickness),
+    { title: "Interlayer", fields: [select("interlayerType", "Interlayer type", step4Options.interlayerType), select("interlayerThickness", "Interlayer thickness", step4Options.interlayerThickness), select("interlayerColour", "Interlayer colour", step4Options.interlayerColour), money("interlayerBuyPrice", "Interlayer buy price / m²"), money("interlayerSellPrice", "Interlayer sell price / m²")] },
+    ...pane("lamInner", "Laminated inner pane", step4Options.hybridThickness),
+    { title: "Extras and per-pane processing", fields: [select("panelExtra", "Panel extra", step4Options.panelExtra), toggle, text("customPanelExtra", "Custom panel extra"), select("edgePolish", "Edge polish", step4Options.polish), money("outerCutting", "Outer cutting / m²"), money("outerTempering", "Outer tempering / m²"), money("lamOuterCutting", "Lam outer cutting / m²"), money("lamOuterTempering", "Lam outer tempering / m²"), money("lamInnerCutting", "Lam inner cutting / m²"), money("lamInnerTempering", "Lam inner tempering / m²"), number("yield", "Yield factor"), number("margin", "Margin %")] },
+  ],
+};
 
-/**
- * Step 4: the builder, and the specifications the last save recorded.
- *
- * Building a line never saves it. It joins the specification that is currently
- * assigned, and the assignment is stated rather than implied. Reusing a saved
- * specification copies rows into a new group; replacing one overwrites the
- * assigned group and says so before it does it.
- */
+const BUILD_CHOICES: Array<{ code: Step4BuildCode; label: string }> = [
+  { code: "SGU", label: "Single Glass Unit (SGU)" },
+  { code: "DGU", label: "Double Glass Unit (DGU)" },
+  { code: "LAM", label: "Laminated Assembly (LAM)" },
+  { code: "DGU+LAM", label: "DGU + Laminated (hybrid)" },
+];
+
+/** Step 4 is the WPF glass builder and estimator. Dimensions and cut-list rows are entered in Step 5. */
 export function ProformaBuilder({
-  activeGroup,
-  groups,
-  currency,
-  saved,
-  issues,
-  onAssign,
-  onAddLine,
-  onReuse,
-  onReplace,
+  groupNo, build, onBuildChange, onApply, saved, currency, onReuse, onReplace,
 }: {
-  activeGroup: number;
-  groups: number[];
-  currency: string;
+  groupNo: number;
+  build: Step4Build;
+  onBuildChange: (build: Step4Build) => void;
+  onApply: (groupNo: number, build: Step4Build) => void;
   saved: { revision: number; groups: GroupTotal[] };
-  issues: string[];
-  onAssign: (groupNo: number) => void;
-  onAddLine: (groupNo: number, line: DraftLine) => void;
+  currency: string;
   onReuse: (savedGroup: number) => void;
   onReplace: (savedGroup: number, target: number) => void;
 }) {
-  const [code, setCode] = useState<GlassBuildCode>("SGU");
-  const [values, setValues] = useState<Record<string, string>>(DEFAULTS);
-  const [w, setW] = useState("");
-  const [h, setH] = useState("");
-  const [w2, setW2] = useState("");
-  const [h2, setH2] = useState("");
-  const [qty, setQty] = useState("1");
-  const [rate, setRate] = useState("");
-  const [problem, setProblem] = useState<string | null>(null);
   const [confirming, setConfirming] = useState<number | null>(null);
+  const estimate = useMemo(() => estimateStep4Rate(build), [build]);
+  const generated = useMemo(() => generatedStep4SpecName(build), [build]);
 
-  const build = glassBuilds.find((entry) => entry.code === code) || glassBuilds[0];
-  const reference = useMemo(() => build.name(values), [build, values]);
-  const controls = BUILD_CONTROLS[code];
-
-  const add = () => {
-    const width = wholeNumber(w);
-    const height = wholeNumber(h);
-    const quantity = wholeNumber(qty);
-    if (width < 1 || height < 1) {
-      setProblem("Enter a panel width and height in millimetres.");
-      return;
+  const changeCode = (code: Step4BuildCode) => {
+    const defaults = defaultStep4Build(code);
+    onBuildChange(defaults);
+  };
+  const update = (key: string, value: string) => {
+    const values = { ...build.values, [key]: value };
+    if (build.code === "DGU" && (key === "spacerWidth" || key === "spacerMaterial")) {
+      values.spacerPrice = String(dguSpacerSuggestedPrice(values.spacerWidth ?? "12mm ASP", values.spacerMaterial ?? "Normal Mill Aluminum"));
     }
-    if (width > 10000 || height > 10000) {
-      setProblem("A primary panel side cannot exceed 10000 mm.");
-      return;
+    if (build.code === "DGU+LAM" && key === "interlayerType") {
+      const defaults = dguLamInterlayerDefaults(value);
+      values.interlayerBuyPrice = String(defaults.buy);
+      values.interlayerSellPrice = String(defaults.sell);
     }
-    if (quantity < 1) {
-      setProblem("Enter a quantity of at least one.");
-      return;
-    }
-    if (quantity > 10000) {
-      setProblem("A quantity cannot exceed 10000.");
-      return;
-    }
-    setProblem(null);
-    const line: DraftLine = {
-      ...emptyLine(activeGroup),
-      glassRef: reference,
-      w1: String(width),
-      h1: String(height),
-      w2: w2 ? String(wholeNumber(w2)) : "",
-      h2: h2 ? String(wholeNumber(h2)) : "",
-      qty: String(quantity),
-      rate: rate ? String(rate) : "",
-    };
-    onAddLine(activeGroup, line);
-    setW("");
-    setH("");
-    setW2("");
-    setH2("");
-    setQty("1");
+    onBuildChange({ ...build, values });
   };
 
   return (
-    <aside aria-label="Step 4, build and saved specifications" className="min-w-0 space-y-3">
-      <section className="rounded-2xl border border-line-strong/60 bg-ink-900/80 p-3">
-        <div className="flex items-baseline justify-between gap-2">
-          <div>
-            <div className="text-3xs font-semibold uppercase tracking-wider text-brand-300">Step 4</div>
-            <h2 className="text-sm font-bold text-text-primary">Build a line</h2>
-          </div>
-          <span className="text-3xs text-text-faint">Adds to specification {activeGroup}</span>
-        </div>
+    <div className="grid gap-3 xl:grid-cols-[minmax(0,1fr)_22rem]">
+      <section aria-label="Step 4, glass specification and estimate" className="space-y-3 rounded-2xl border border-line-strong/60 bg-ink-900/80 p-4">
+        <header>
+          <div className="text-3xs font-semibold uppercase tracking-wider text-brand-300">Step 4 · Specification {groupNo}</div>
+          <h2 className="mt-1 text-base font-bold text-text-primary">Glass build and price estimate</h2>
+          <p className="mt-1 text-xs leading-relaxed text-text-muted">Enter the Step 4 pane, spacer or interlayer inputs and processing rates. The estimate follows the corresponding WPF build-family calculation. Website Step 4 does not read Sheet Store inventory, so verify the pane prices and sheet sizes here.</p>
+        </header>
 
-        <label className="mt-3 flex flex-col gap-1 text-3xs font-semibold uppercase tracking-wider text-text-faint">
-          Builder target
-          <select
-            value={activeGroup}
-            onChange={(event) => onAssign(Number(event.target.value))}
-            className={FIELD}
-          >
-            {groups.map((groupNo) => (
-              <option key={groupNo} value={groupNo}>Specification {groupNo}</option>
-            ))}
+        <label className="flex max-w-xl flex-col gap-1 text-3xs font-semibold uppercase tracking-wider text-text-faint">
+          Glass build family
+          <select aria-label="Glass build family" value={build.code} onChange={(event) => changeCode(event.target.value as Step4BuildCode)} className={FIELD}>
+            {BUILD_CHOICES.map((choice) => <option key={choice.code} value={choice.code}>{choice.label}</option>)}
           </select>
         </label>
 
-        <label className="mt-2 flex flex-col gap-1 text-3xs font-semibold uppercase tracking-wider text-text-faint">
-          Build family
-          <select value={code} onChange={(event) => setCode(event.target.value as GlassBuildCode)} className={FIELD}>
-            {glassBuilds.map((entry) => (
-              <option key={entry.code} value={entry.code}>{entry.label}, {entry.long}</option>
-            ))}
-          </select>
-        </label>
-
-        <div className="mt-2 grid grid-cols-2 gap-2">
-          {controls.map((entry) => (
-            <label key={entry.key} className="flex flex-col gap-1 text-3xs font-semibold uppercase tracking-wider text-text-faint">
-              {entry.label}
-              {entry.options ? (
-                <select
-                  value={values[entry.key] || ""}
-                  onChange={(event) => setValues((current) => ({ ...current, [entry.key]: event.target.value }))}
-                  className={FIELD}
-                >
-                  {entry.options.map((option) => (
-                    <option key={option} value={option}>{option}</option>
-                  ))}
-                </select>
-              ) : (
-                <input
-                  value={values[entry.key] || ""}
-                  placeholder={entry.placeholder}
-                  onChange={(event) => setValues((current) => ({ ...current, [entry.key]: event.target.value }))}
-                  className={FIELD}
-                />
-              )}
-            </label>
+        <div className="grid gap-3 lg:grid-cols-2">
+          {GROUPS[build.code].map((group) => (
+            <fieldset key={group.title} className="rounded-xl border border-line-strong/60 bg-ink-950/40 p-3">
+              <legend className="px-1 text-xs font-semibold text-text-secondary">{group.title}</legend>
+              <div className="grid gap-2 sm:grid-cols-2">
+                {group.fields.map((field) => {
+                  if (field.kind === "toggle") return <label key={field.key} className="flex min-h-8 items-center gap-2 text-xs text-text-muted"><input type="checkbox" checked={build.values[field.key] === "true"} onChange={(event) => update(field.key, String(event.target.checked))} />{field.label}</label>;
+                  if ((field.key === "customPanelExtra") && build.values.useCustomPanelExtra !== "true") return null;
+                  return <label key={field.key} className="flex flex-col gap-1 text-3xs font-semibold text-text-faint">{field.label}{field.options ? <select aria-label={field.label} value={build.values[field.key] ?? field.options[0]} onChange={(event) => update(field.key, event.target.value)} className={FIELD}>{field.options.map((option) => <option key={option} value={option}>{option}</option>)}</select> : <input aria-label={field.label} type={field.kind === "money" || field.kind === "number" ? "number" : "text"} step={field.kind === "money" ? "0.01" : field.kind === "number" ? "any" : undefined} value={build.values[field.key] ?? ""} onChange={(event) => update(field.key, event.target.value)} className={FIELD} />}</label>;
+                })}
+              </div>
+            </fieldset>
           ))}
         </div>
 
-        <p className="mt-2 rounded-lg border border-line-strong/60 bg-ink-950/60 px-2 py-1.5 text-3xs leading-relaxed text-text-muted">
-          <span className="font-semibold text-text-secondary">Generated reference:</span> {reference}
-        </p>
-
-        <div className="mt-2 grid grid-cols-2 gap-2">
-          {([
-            ["Width", w, setW],
-            ["Height", h, setH],
-            ["Inner width", w2, setW2],
-            ["Inner height", h2, setH2],
-          ] as const).map(([label, value, set]) => (
-            <label key={label} className="flex flex-col gap-1 text-3xs font-semibold uppercase tracking-wider text-text-faint">
-              {label}
-              <input
-                value={value}
-                onChange={(event) => set(event.target.value)}
-                inputMode="numeric"
-                placeholder="mm"
-                className={FIELD}
-              />
-            </label>
-          ))}
-          <label className="flex flex-col gap-1 text-3xs font-semibold uppercase tracking-wider text-text-faint">
-            Quantity
-            <input value={qty} onChange={(event) => setQty(event.target.value)} inputMode="numeric" className={FIELD} />
-          </label>
-          <label className="flex flex-col gap-1 text-3xs font-semibold uppercase tracking-wider text-text-faint">
-            Approved rate
-            <input value={rate} onChange={(event) => setRate(event.target.value)} inputMode="decimal" placeholder="per sqm" className={FIELD} />
-          </label>
+        <div className="grid gap-3 rounded-xl border border-brand-400/30 bg-brand-500/[.05] p-3 sm:grid-cols-2">
+          <div><div className="text-3xs font-semibold uppercase tracking-wider text-brand-300">Generated specification</div><p className="mt-1 break-words text-xs leading-relaxed text-text-primary">{generated}</p></div>
+          <div><div className="text-3xs font-semibold uppercase tracking-wider text-brand-300">Estimated rate</div><p className="mt-1 font-mono text-lg font-bold text-text-primary">{formatMoney(estimate.rate, currency)} / m²</p>{estimate.warning ? <p role="status" className="mt-1 text-3xs text-state-warning">{estimate.warning}</p> : null}</div>
         </div>
-
-        <button
-          type="button"
-          onClick={add}
-          className="mt-2 h-9 w-full rounded-xl bg-brand-400 text-xs font-bold text-accent-ink hover:bg-brand-300"
-        >
-          Add line to specification {activeGroup}
-        </button>
-        {problem ? <p role="alert" className="mt-2 text-3xs text-state-danger">{problem}</p> : null}
-        <p className="mt-2 text-3xs leading-relaxed text-text-faint">
-          Inner dimensions describe the second panel of a double glazed unit. The billable area follows the outer panel, floored at half a square metre.
-        </p>
+        <button type="button" disabled={!generated.trim() || estimate.rate <= 0} onClick={() => onApply(groupNo, build)} className="h-10 w-full rounded-xl bg-brand-400 text-xs font-bold text-accent-ink hover:bg-brand-300 disabled:cursor-not-allowed disabled:opacity-50">Apply Step 4 specification and estimate to Step 5 group {groupNo}</button>
       </section>
 
-      <section className="rounded-2xl border border-line-strong/60 bg-ink-900/80 p-3">
-        <div className="flex items-baseline justify-between gap-2">
-          <h2 className="text-sm font-bold text-text-primary">Saved specifications</h2>
-          <span className="text-3xs text-text-faint">{saved.revision ? `Revision ${saved.revision}` : "Not saved yet"}</span>
-        </div>
-        {saved.groups.length === 0 ? (
-          <p className="mt-2 text-3xs leading-relaxed text-text-muted">
-            Nothing is saved yet. Save the draft and the specifications you saved appear here, ready to reuse or replace.
-          </p>
-        ) : (
-          <ul className="mt-2 space-y-2">
-            {saved.groups.map((group) => (
-              <li key={group.groupNo} className="rounded-xl border border-line-strong/60 bg-ink-950/50 p-2">
-                <div className="flex items-baseline justify-between gap-2">
-                  <span className="text-xs font-semibold text-text-secondary">Specification {group.groupNo}</span>
-                  <span className="font-mono text-3xs text-text-faint">
-                    {group.lines} line{group.lines === 1 ? "" : "s"}, {formatSqm(group.sqm)} sqm, {formatMoney(group.value, currency)}
-                  </span>
-                </div>
-                <div className="mt-2 grid grid-cols-2 gap-2">
-                  <button
-                    type="button"
-                    onClick={() => onReuse(group.groupNo)}
-                    className="rounded-lg border border-brand-400/60 bg-brand-500/10 px-2 py-1.5 text-3xs font-semibold text-brand-200 hover:bg-brand-500/20"
-                  >
-                    Reuse as new
-                  </button>
-                  <button
-                    type="button"
-                    onClick={() => setConfirming(confirming === group.groupNo ? null : group.groupNo)}
-                    className="rounded-lg border border-line-strong px-2 py-1.5 text-3xs font-semibold text-text-muted hover:text-state-danger"
-                  >
-                    Replace specification {activeGroup}
-                  </button>
-                </div>
-                {confirming === group.groupNo ? (
-                  <div className="mt-2 rounded-lg border border-state-danger/50 bg-state-danger/10 p-2">
-                    <p className="text-3xs leading-relaxed text-state-danger">
-                      Replacing specification {activeGroup} discards every row it holds now, including anything not yet saved, and writes the {group.lines} saved rows of specification {group.groupNo} into it.
-                    </p>
-                    <div className="mt-2 flex gap-2">
-                      <button
-                        type="button"
-                        onClick={() => {
-                          onReplace(group.groupNo, activeGroup);
-                          setConfirming(null);
-                        }}
-                        className="rounded-lg bg-state-danger px-2 py-1 text-3xs font-bold text-ink-950"
-                      >
-                        Replace specification {activeGroup}
-                      </button>
-                      <button
-                        type="button"
-                        onClick={() => setConfirming(null)}
-                        className="rounded-lg border border-line-strong px-2 py-1 text-3xs font-semibold text-text-muted"
-                      >
-                        Keep it
-                      </button>
-                    </div>
-                  </div>
-                ) : null}
-              </li>
-            ))}
-          </ul>
-        )}
+      <section className="rounded-2xl border border-line-strong/60 bg-ink-900/80 p-3" aria-label="Saved specification groups">
+        <div className="flex items-baseline justify-between gap-2"><h2 className="text-sm font-bold text-text-primary">Saved specifications</h2><span className="text-3xs text-text-faint">{saved.revision ? `Revision ${saved.revision}` : "Not saved yet"}</span></div>
+        {saved.groups.length === 0 ? <p className="mt-2 text-3xs leading-relaxed text-text-muted">Saved cut-list groups will appear here after a revision is saved.</p> : <ul className="mt-2 space-y-2">{saved.groups.map((group) => <li key={group.groupNo} className="rounded-xl border border-line-strong/60 bg-ink-950/50 p-2"><div className="flex items-baseline justify-between gap-2"><span className="text-xs font-semibold text-text-secondary">Specification {group.groupNo}</span><span className="font-mono text-3xs text-text-faint">{group.lines} line{group.lines === 1 ? "" : "s"}, {formatSqm(group.sqm)} sqm, {formatMoney(group.value, currency)}</span></div><div className="mt-2 grid grid-cols-2 gap-2"><button type="button" onClick={() => onReuse(group.groupNo)} className="rounded-lg border border-brand-400/60 bg-brand-500/10 px-2 py-1.5 text-3xs font-semibold text-brand-200">Reuse as new</button><button type="button" onClick={() => setConfirming(confirming === group.groupNo ? null : group.groupNo)} className="rounded-lg border border-line-strong px-2 py-1.5 text-3xs font-semibold text-text-muted">Replace specification {groupNo}</button></div>{confirming === group.groupNo ? <div className="mt-2 rounded-lg border border-state-danger/50 bg-state-danger/10 p-2"><p className="text-3xs leading-relaxed text-state-danger">Replacing specification {groupNo} discards its working rows and copies the saved rows from specification {group.groupNo}.</p><div className="mt-2 flex gap-2"><button type="button" onClick={() => { onReplace(group.groupNo, groupNo); setConfirming(null); }} className="rounded-lg bg-state-danger px-2 py-1 text-3xs font-bold text-ink-950">Replace specification {groupNo}</button><button type="button" onClick={() => setConfirming(null)} className="rounded-lg border border-line-strong px-2 py-1 text-3xs">Keep it</button></div></div> : null}</li>)}</ul>}
       </section>
-
-      {issues.length ? (
-        <section role="alert" className="rounded-2xl border border-state-warning/45 bg-state-warning/10 p-3">
-          <h2 className="text-xs font-bold text-state-warning">Cannot save yet</h2>
-          <ul className="mt-1 space-y-1 text-3xs leading-relaxed text-text-secondary">
-            {issues.map((issue) => (
-              <li key={issue}>{issue}</li>
-            ))}
-          </ul>
-        </section>
-      ) : null}
-    </aside>
+    </div>
   );
 }

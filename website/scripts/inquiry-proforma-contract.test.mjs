@@ -71,7 +71,8 @@ test("the money is recomputed by the database, not trusted from the client", () 
   assert.match(draft, /Math\.round\(\(sqmMilliUnits \* rateMinorUnits\) \/ 1000\) \/ 100/);
 });
 
-test("no internal cost, margin, profit or optimiser figure reaches the proforma workspace", () => {
+test("the customer technical intake stays unpriced while the staff PI keeps cost inputs isolated", async () => {
+  const customerFlow = await read("src/components/inquiries/ProformaTechnicalSpecFlow.tsx");
   for (const source of [draft, workspace, builder, specification]) {
     assert.doesNotMatch(source, /ProfitLossSurface/);
     assert.doesNotMatch(source, /buildRateAdders/);
@@ -80,15 +81,13 @@ test("no internal cost, margin, profit or optimiser figure reaches the proforma 
     assert.doesNotMatch(source, /sheetForRef/);
     assert.doesNotMatch(source, /optimizerLimits/);
   }
-  // The builder may read the option lists; nothing else touches the rules file.
-  assert.doesNotMatch(workspace, /pricingRules/);
-  assert.doesNotMatch(specification, /pricingRules/);
-  assert.match(builder, /import \{ buildOptions, glassBuilds, type GlassBuildCode \} from "@\/data\/pricingRules"/);
-  // The draft may import the customer safe rules and nothing else.
-  assert.equal(
-    draft.match(/from "@\/data\/pricingRules"/g)?.length,
-    1,
-  );
+  assert.match(builder, /estimateStep4Rate/);
+  assert.match(builder, /generatedStep4SpecName/);
+  assert.match(workspace, /workflow_snapshot: workflowSnapshot/);
+  assert.doesNotMatch(customerFlow, /ProformaOtherCharges|ProformaWorkflowSnapshot|estimateStep4Rate/);
+  assert.doesNotMatch(customerFlow, /inquiry_proforma_workflow_states/);
+  // The staff-safe draft imports only the WPF-aligned area/value primitives.
+  assert.equal(draft.match(/from "@\/data\/pricingRules"/g)?.length, 1);
   assert.match(draft, /import \{ billablePanelSqm, isFloored, moneyRate, physicalPanelSqm \} from "@\/data\/pricingRules"/);
 });
 
