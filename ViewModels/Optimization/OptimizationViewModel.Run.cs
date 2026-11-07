@@ -816,7 +816,8 @@ namespace ProGlassAutomation.ViewModels.Optimization
                         var packed = (finiteStock || stagedRun)
                             ? GuillotinePacker.PackOptimize(groupPieces, groupStocks, groupMargins,
                                 rotation, groupEffort, ct, groupProgress, CurrentPlatePattern, cutPolicy,
-                                maxStage: CurrentMaxStage, reuseOffcuts: UseOffcutReuse)
+                                maxStage: CurrentMaxStage, reuseOffcuts: UseOffcutReuse,
+                                requireGuillotine: true)
                             : GuillotinePacker.PackOptimizePartitioned(groupPieces, groupStocks, groupMargins,
                                 rotation, groupEffort, ct, groupProgress, platePattern: CurrentPlatePattern,
                                 maxStage: CurrentMaxStage);
@@ -849,8 +850,11 @@ namespace ProGlassAutomation.ViewModels.Optimization
 
                     double glass = result.Sheets.Sum(s => s.Pieces.Sum(p => (long)p.WidthMm * p.HeightMm));
                     double stockArea = result.Sheets.Sum(s => (long)s.Stock.WidthMm * s.Stock.HeightMm);
-                    int problems = await Task.Run(() =>
-                        GuillotinePacker.VerifyComprehensive(result, groupPieces, groupMargins).Count, ct);
+                    var validationProblems = await Task.Run(() =>
+                        GuillotinePacker.VerifyProductionReady(result, groupPieces, groupMargins), ct);
+                    result.RecordValidation(validationProblems,
+                        conservationChecked: true, geometryChecked: true);
+                    int problems = validationProblems.Count;
 
                     runs.Add(new GroupRun
                     {

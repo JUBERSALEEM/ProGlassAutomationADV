@@ -6,7 +6,7 @@ import { hrefIn } from "@/i18n/core";
 // The redesigned site has a small public surface: the welcome page and the
 // two customer request forms. Private account and inquiry workspaces are not
 // included in search indexes.
-const publicPages = ["/", "/inquiries/submit", "/inquiries/submit/proforma"];
+const publicPages = ["/", "/optimization", "/inquiries/submit", "/inquiries/submit/proforma"];
 
 function alternatesFor(path: string): Record<string, string> {
   const languages: Record<string, string> = {};

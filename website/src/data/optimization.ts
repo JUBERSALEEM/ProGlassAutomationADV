@@ -34,17 +34,6 @@ export const optimizerTabs: OptimizerTab[] = [
     evidence: "Views/Optimization/Tabs/JobsTabView.xaml",
   },
   {
-    id: "stocks",
-    label: "Stocks",
-    summary: "The plates the engine is allowed to cut from, and what is left on each rack.",
-    bullets: [
-      "Sheet size, thickness, colour and origin source per rack row",
-      "Available / used counts per plate, with a tick to include a rack in the run",
-      "Import Step-4 sheets straight from the proforma, or add stock by hand",
-    ],
-    evidence: "Views/Optimization/Tabs/StocksTabView.xaml · Services/Optimization/OptimizationModels.cs (StockSize)",
-  },
-  {
     id: "sizes",
     label: "Sizes",
     summary: "The cut plan expressed as the saw will cut it, grouped by glass composition.",
@@ -67,15 +56,26 @@ export const optimizerTabs: OptimizerTab[] = [
     evidence: "Views/Optimization/Tabs/CutListTabView.xaml",
   },
   {
-    id: "two-d-view",
-    label: "2D View",
-    summary: "The nesting result, plate by plate, as the guillotine table sees it.",
+    id: "stocks",
+    label: "Stocks",
+    summary: "The plates the engine is allowed to cut from, and what is left on each rack.",
     bullets: [
-      "Placements with dimensions (W × H) and 90° rotation marks",
-      "Cut tags and breakout indicators",
-      "Zoom levels from fit-the-sheet to 100%",
+      "Sheet size, thickness, colour and origin source per rack row",
+      "Available / used counts per plate, with a tick to include a rack in the run",
+      "Import Step-4 sheets straight from the proforma, or add stock by hand",
     ],
-    evidence: "Views/Optimization/Tabs/TwoDViewTabView.xaml",
+    evidence: "Views/Optimization/Tabs/StocksTabView.xaml · Services/Optimization/OptimizationModels.cs (StockSize)",
+  },
+  {
+    id: "settings",
+    label: "Settings",
+    summary: "Everything that decides how the table actually cuts the glass.",
+    bullets: [
+      "Safety edges LM / RM / TM / BM per thickness, plus minimum breakout",
+      "Kerf (blade gap) and cutting complexity",
+      "Optimize effort 1–5, plate pattern and offcut reuse",
+    ],
+    evidence: "Views/Optimization/Tabs/SettingsTabView.xaml · ViewModels/Optimization/OptimizationViewModel.Margins.cs",
   },
   {
     id: "summary",
@@ -90,28 +90,28 @@ export const optimizerTabs: OptimizerTab[] = [
     evidence: "Views/Optimization/Tabs/SummaryTabView.xaml · OptimizationResult (UtilizationPct, Unplaced, OptimalityGap)",
   },
   {
+    id: "two-d-view",
+    label: "2D View",
+    summary: "The nesting result, plate by plate, as the guillotine table sees it.",
+    bullets: [
+      "Placements with dimensions (W × H) and 90° rotation marks",
+      "Cut tags and breakout indicators",
+      "Zoom levels from fit-the-sheet to 100%",
+    ],
+    evidence: "Views/Optimization/Tabs/TwoDViewTabView.xaml",
+  },
+  {
     id: "report",
     label: "Report",
-    summary: "Four printable sections plus machine-ready export.",
+    summary: "Four report sections, printable outputs and the implemented export formats.",
     bullets: [
       "1 · Industrial cut schedule",
       "2 · Nested sheets summary",
       "3 · Merged specifications summary",
       "4 · Stock plates allocation",
-      "Export: CSV, Excel, generic DXF and a cut-list CSV — with Bottero .OPT, Intermac .ISO and Lisec .DAT declared and finished against a sample file from your table",
+      "Implemented outputs include CSV, Excel, print PDF ticket, glass stickers, generic DXF and cut-list CSV; Bottero .OPT, Lisec .DAT and Intermac .ISO are marked not implemented in the WPF view",
     ],
     evidence: "Views/Optimization/Tabs/ReportTabView.xaml · ViewModels/Optimization/OptimizationViewModel.CncExport.cs",
-  },
-  {
-    id: "settings",
-    label: "Settings",
-    summary: "Everything that decides how the table actually cuts the glass.",
-    bullets: [
-      "Safety edges LM / RM / TM / BM per thickness, plus minimum breakout",
-      "Kerf (blade gap) and cutting complexity",
-      "Optimize effort 1–5, plate pattern and offcut reuse",
-    ],
-    evidence: "Views/Optimization/Tabs/SettingsTabView.xaml · ViewModels/Optimization/OptimizationViewModel.Margins.cs",
   },
 ];
 

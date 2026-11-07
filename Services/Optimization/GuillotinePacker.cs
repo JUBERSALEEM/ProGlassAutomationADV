@@ -223,6 +223,23 @@ namespace ProGlassAutomation.Services.Optimization
                     platePattern);
                 if (policy != null && policy.IsDepthConstrained)
                     industrialPlan.ScaleNotes.Add(IndustrialStagedUnsupportedNote);
+                if (requireGuillotine)
+                {
+                    var industrialProblems = VerifyProductionReady(industrialPlan, pieces, margins);
+                    industrialPlan.RecordValidation(industrialProblems,
+                        conservationChecked: true, geometryChecked: true);
+                    if (industrialProblems.Count > 0)
+                    {
+                        var quick = PackQuick(pieces, stocks, margins, rotation,
+                            cancellationToken: cancellationToken, progress: progress, policy: policy);
+                        var quickProblems = VerifyProductionReady(quick, pieces, margins);
+                        quick.RecordValidation(quickProblems,
+                            conservationChecked: true, geometryChecked: true);
+                        quick.ScaleNotes.Add("WARNING: industrial plan failed production validation ("
+                            + industrialProblems[0] + "); replaced with a fresh quick pass.");
+                        return quick;
+                    }
+                }
                 return industrialPlan;
             }
 
@@ -337,6 +354,8 @@ namespace ProGlassAutomation.Services.Optimization
                 }
             }
 
+            result.RecordValidation(VerifyProductionReady(result, pieces, margins),
+                conservationChecked: true, geometryChecked: true);
             if (result.HasValidationFailure)
                 result.ScaleNotes.Add("WARNING: no valid QUICK candidate — inspection only, not exportable.");
             progress?.Report(OptimizeProgress.Of("done", 100, 100,
@@ -367,7 +386,7 @@ namespace ProGlassAutomation.Services.Optimization
             bool remainderAware = false,
             bool wideBeam = false,
             bool parallelEval = false,
-            bool requireGuillotine = false)
+            bool requireGuillotine = true)
         {
             if (pieces == null) throw new ArgumentNullException(nameof(pieces));
             if (stocks == null || stocks.Count == 0)
@@ -390,8 +409,8 @@ namespace ProGlassAutomation.Services.Optimization
             //            consolidation sweeps).
             // They were the same number, so "search harder" also silently meant
             // "run a different portfolio". maxStage = 0 means "let effort decide
-            // both", which is exactly what this method has always done — every
-            // caller that does not opt in stays bit-for-bit identical.
+            // both". Guillotine feasibility is a separate default-on release
+            // policy and does not alter the search portfolio itself.
             int stage = maxStage > 0 ? maxStage : effortLevel;
 
             if (stage <= 1)
@@ -518,10 +537,9 @@ namespace ProGlassAutomation.Services.Optimization
             //   - the check derives cuts as a side effect, so an accepted
             //     candidate arrives at the export path already cuttable.
             //
-            // It is OFF BY DEFAULT because it changes results: an uncuttable
-            // plan that used one sheet fewer will now be refused. That is the
-            // whole point, and it is why it is a decision for the operator
-            // rather than something to slip into the default path.
+            // It is ON BY DEFAULT for the glass-cutting application: a plan
+            // that cannot be produced by straight cuts is not a production
+            // plan. A non-guillotine consumer must opt out explicitly.
             bool Accepts(OptimizationResult candidate)
             {
                 if (!requireGuillotine) return true;
@@ -798,12 +816,12 @@ namespace ProGlassAutomation.Services.Optimization
             // reach a cut file. Fall back to the quick pass, which is an
             // independent single-pass engine; if even that fails (should be
             // impossible), keep the original and say so explicitly.
-            var problems = VerifyComprehensive(final, pieces, margins);
+            var problems = VerifyProductionReady(final, pieces, margins);
             if (problems.Count > 0)
             {
                 var quick = PackQuick(pieces, stocks, margins, rotation,
                     cancellationToken: cancellationToken, policy: policy);
-                var quickProblems = VerifyComprehensive(quick, pieces, margins);
+                var quickProblems = VerifyProductionReady(quick, pieces, margins);
                 if (quickProblems.Count == 0)
                 {
                     // PHASE 4 / finding 24 (2026-09-20): this note used to be
@@ -891,6 +909,8 @@ namespace ProGlassAutomation.Services.Optimization
                 }
             }
 
+            final.RecordValidation(VerifyProductionReady(final, pieces, margins),
+                conservationChecked: true, geometryChecked: true);
             progress?.Report(OptimizeProgress.Of("done", comboList.Count, comboList.Count,
                 $"{final.Sheets.Count} sheets"));
             return final;
@@ -2303,6 +2323,37 @@ namespace ProGlassAutomation.Services.Optimization
                     }
                 }
             }
+
+            return problems;
+        }
+
+        /// <summary>
+        /// Production release gate. In addition to geometry, stock and piece
+        /// conservation, requires every occupied sheet to have a reachable,
+        /// internally consistent guillotine cut sequence. Use this before
+        /// allocation, production hand-off, or any cut-file export.
+        /// </summary>
+        public static List<string> VerifyProductionReady(
+            OptimizationResult result,
+            IReadOnlyList<CutPiece> inputPieces,
+            MarginProfile margins)
+        {
+            if (result == null)
+                return new List<string> { "No optimization result was supplied." };
+
+            var problems = VerifyComprehensive(result, inputPieces, margins);
+            foreach (var recordedProblem in result.ValidationProblems)
+            {
+                if (!string.IsNullOrWhiteSpace(recordedProblem) && !problems.Contains(recordedProblem))
+                    problems.Add(recordedProblem);
+            }
+            if (!AllSheetsCuttable(result))
+                problems.Add("Cut reachability failed: at least one occupied sheet has no derivable guillotine cut sequence.");
+
+            int inconsistent = AuditCutConsistency(result, margins?.KerfMm ?? 0);
+            if (inconsistent > 0)
+                problems.Add("Cut sequence verification failed: " + inconsistent
+                    + " occupied sheet(s) have a sequence that does not separate the placed panes.");
 
             return problems;
         }

@@ -178,25 +178,25 @@ public sealed class GuillotinePolicyTests
     // ── the policy ──────────────────────────────────────────────────────
 
     [Fact]
-    public void The_policy_is_off_unless_asked_for()
+    public void Guillotine_feasibility_is_on_by_default_and_matches_explicit_on()
     {
-        var plain = GuillotinePacker.PackOptimize(Job(40, 47), Stocks(), Margins,
+        var defaultPolicy = GuillotinePacker.PackOptimize(Job(40, 47), Stocks(), Margins,
             RotationPolicy.Free90, effortLevel: 3);
-        var explicitOff = GuillotinePacker.PackOptimize(Job(40, 47), Stocks(), Margins,
-            RotationPolicy.Free90, effortLevel: 3, requireGuillotine: false);
+        var explicitOn = GuillotinePacker.PackOptimize(Job(40, 47), Stocks(), Margins,
+            RotationPolicy.Free90, effortLevel: 3, requireGuillotine: true);
 
-        Assert.Equal(Signature(plain), Signature(explicitOff));
+        Assert.Equal(Signature(defaultPolicy), Signature(explicitOn));
+        foreach (var sheet in defaultPolicy.Sheets)
+            Assert.True(sheet.Pieces.Count == 0 || sheet.Cuts.Count > 0 || GuillotinePacker.TryDeriveGuillotineCuts(sheet));
     }
 
     [Fact]
-    public void The_policy_is_never_mentioned_when_it_was_not_asked_for()
+    public void The_policy_can_be_explicitly_disabled_for_non_glass_consumers()
     {
-        // A note the operator did not ask for is noise, and noise on the
-        // default path is how people stop reading the notes that matter.
-        var plain = GuillotinePacker.PackOptimize(Job(40, 47), Stocks(), Margins,
-            RotationPolicy.Free90, effortLevel: 5);
+        var explicitOff = GuillotinePacker.PackOptimize(Job(40, 47), Stocks(), Margins,
+            RotationPolicy.Free90, effortLevel: 3, requireGuillotine: false);
 
-        Assert.DoesNotContain(plain.ScaleNotes,
+        Assert.DoesNotContain(explicitOff.ScaleNotes,
             n => n.Contains("GUILLOTINE POLICY", StringComparison.Ordinal));
     }
 

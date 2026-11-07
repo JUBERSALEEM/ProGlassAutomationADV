@@ -215,18 +215,26 @@ namespace ProGlassAutomation.Services.Production
                 }
                 else
                 {
-                    optResult = await Task.Run(() => GuillotinePacker.PackOptimize(cutPieces, stocks, margins, rotation, effortLevel), ct).ConfigureAwait(false);
+                    optResult = await Task.Run(() => GuillotinePacker.PackOptimize(
+                        cutPieces, stocks, margins, rotation, effortLevel, requireGuillotine: true), ct).ConfigureAwait(false);
                 }
 
                 progress?.Report(new OptimizationBridgeProgress { Stage = "Verifying layouts", Percent = 70, Message = $"Verifying {optResult.SheetsUsed} sheets, utilization {optResult.UtilizationPct}% — terminology: Optimized/Best Found/Verified Layout" });
 
-                // Verify via oracle — never claim "mathematically optimal" unless proven
-                var verificationProblems = GuillotinePacker.Verify(optResult, margins);
+                // Production gate includes geometry, conservation, stock caps,
+                // and a reachable, replay-consistent guillotine cut sequence.
+                var verificationProblems = GuillotinePacker.VerifyProductionReady(optResult, cutPieces, margins);
+                optResult.RecordValidation(verificationProblems,
+                    conservationChecked: true, geometryChecked: true);
                 if (verificationProblems.Count > 0)
                 {
                     result.Warnings.AddRange(verificationProblems);
-                    AppLogService.Warning($"[OptBridge] Verification found {verificationProblems.Count} issues for {jobRef}",
+                    result.Success = false;
+                    result.Result = optResult;
+                    result.Message = $"Production release blocked: the layout failed verification for {jobRef}.";
+                    AppLogService.Warning($"[OptBridge] Production gate rejected {verificationProblems.Count} issue(s) for {jobRef}",
                         new LogContext { Module = "Production", Class = nameof(ProductionOptimizationBridge), Operation = nameof(RunAsync) });
+                    return result;
                 }
 
                 // Preserve 17-sheet / 82.77% benchmark as regression check (Low-E benchmark)

@@ -42,9 +42,21 @@ namespace ProGlassAutomation.Services.Optimization
                 return new OptimizationResult { Rotation = rotation };
 
             if (pieces.Count >= IndustrialQuantityThreshold)
-                return NoteFillSkipped(
+            {
+                var industrial = NoteFillSkipped(
                     PackIndustrialPatterns(pieces, stocks, margins, rotation, effortLevel, cancellationToken, progress),
                     platePattern);
+                var industrialProblems = VerifyProductionReady(industrial, pieces, margins);
+                industrial.RecordValidation(industrialProblems,
+                    conservationChecked: true, geometryChecked: true);
+                if (industrialProblems.Count == 0) return industrial;
+
+                var quick = PackQuick(pieces, stocks, margins, rotation,
+                    cancellationToken: cancellationToken, progress: progress);
+                quick.ScaleNotes.Add("WARNING: industrial plan failed production validation ("
+                    + industrialProblems[0] + "); replaced with a fresh quick pass.");
+                return quick;
+            }
 
             // PHASE 5a: same two axes as PackOptimize — stage picks the
             // portfolio, effort picks how hard it searches. 0 = uncapped,
@@ -243,21 +255,25 @@ namespace ProGlassAutomation.Services.Optimization
             // Industrial safety net: validate before the plan can reach a cut
             // file. If the winner is invalid, try the other candidate, then a
             // fresh validated quick pass — never emit overlapping placements.
-            var problems = VerifyComprehensive(winningResult, pieces, margins);
+            var problems = VerifyProductionReady(winningResult, pieces, margins);
             if (problems.Count > 0)
             {
                 var other = (winningResult == bestGlobal) ? combinedResult : bestGlobal;
-                if (other != null && VerifyComprehensive(other, pieces, margins).Count == 0)
+                var otherProblems = other == null
+                    ? new List<string> { "No alternate candidate was available." }
+                    : VerifyProductionReady(other, pieces, margins);
+                if (other != null && otherProblems.Count == 0)
                 {
-                    other.ScaleNotes.Add($"WARNING: consolidated plan failed layout validation " +
+                    other.ScaleNotes.Add($"WARNING: consolidated plan failed production validation " +
                         $"({problems[0]}); replaced with the validated {(bestGlobal == other ? "global" : "batch-combined")} pass.");
                     winningResult = other;
                 }
                 else
                 {
-                    var quick = PackOptimize(pieces, stocks, margins, rotation, 1, cancellationToken, progress);
+                    var quick = PackOptimize(pieces, stocks, margins, rotation, 1, cancellationToken, progress,
+                        requireGuillotine: true);
                     winningResult = quick;
-                    winningResult.ScaleNotes.Add($"WARNING: consolidated plan failed layout validation " +
+                    winningResult.ScaleNotes.Add($"WARNING: consolidated plan failed production validation " +
                         $"({problems[0]}; {problems.Count} issue(s)); replaced with validated quick pass.");
                 }
             }
@@ -267,11 +283,11 @@ namespace ProGlassAutomation.Services.Optimization
             // costs one more O(pieces²) pass and only happens on the rare
             // fallback path; on the clean path the already-computed list is
             // reused.
-            winningResult.RecordValidation(
-                problems.Count == 0 ? problems : VerifyComprehensive(winningResult, pieces, margins),
-                conservationChecked: true, geometryChecked: true);
             winningResult = ApplyPlatePattern(winningResult, pieces, stocks, margins, rotation,
                 effortLevel, platePattern, cancellationToken, progress);
+            var finalProblems = VerifyProductionReady(winningResult, pieces, margins);
+            winningResult.RecordValidation(finalProblems,
+                conservationChecked: true, geometryChecked: true);
 
             progress?.Report(OptimizeProgress.Of("done", 100, 100,
                 $"{winningResult.Sheets.Count:N0} sheets cut · {winningResult.Unplaced.Count} unplaced"));

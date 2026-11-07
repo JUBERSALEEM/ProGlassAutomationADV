@@ -1,4 +1,5 @@
 import { APP_STRINGS } from "./app-strings";
+import { overlayFor } from "./dict";
 import { pageOverlayFor } from "./server";
 import { I18nProvider } from "./provider";
 import type { Locale } from "./locales";
@@ -23,12 +24,21 @@ export function PageOverlay({
   locale,
   route,
   children,
+  extraKeys = [],
 }: {
   locale: Locale;
   route: string;
   children: ReactNode;
+  /** Additional client-visible sentences for a page-specific workflow. */
+  extraKeys?: readonly string[];
 }) {
   const overlay = { ...APP_STRINGS[locale], ...pageOverlayFor(route, locale) };
+  if (extraKeys.length > 0) {
+    const dictionary = overlayFor(locale);
+    for (const key of extraKeys) {
+      if (!overlay[key] && dictionary[key]) overlay[key] = dictionary[key];
+    }
+  }
   const inquiryWorkflow = route === "inquiries" || route.startsWith("inquiries/");
   return (
     <I18nProvider locale={locale} overlay={overlay}>

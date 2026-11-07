@@ -239,7 +239,8 @@ namespace ProGlassAutomation.Services.Production.Cutting
                         }
                         else
                         {
-                            optResult = await Task.Run(() => GuillotinePacker.PackOptimize(cutPieces, stockSizes, margins, rotation, effortLevel), ct).ConfigureAwait(false);
+                            optResult = await Task.Run(() => GuillotinePacker.PackOptimize(
+                                cutPieces, stockSizes, margins, rotation, effortLevel, requireGuillotine: true), ct).ConfigureAwait(false);
                         }
                     }
                     catch (OperationCanceledException)
@@ -281,7 +282,9 @@ namespace ProGlassAutomation.Services.Production.Cutting
                         GroupId = group.GroupId
                     });
 
-                    var verificationProblems = GuillotinePacker.Verify(optResult, margins);
+                    var verificationProblems = GuillotinePacker.VerifyProductionReady(optResult, cutPieces, margins);
+                    optResult.RecordValidation(verificationProblems,
+                        conservationChecked: true, geometryChecked: true);
                     bool isVerified = verificationProblems.Count == 0;
 
                     if (!isVerified)

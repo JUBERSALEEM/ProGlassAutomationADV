@@ -163,6 +163,38 @@ public sealed class CutSequenceAuditTests
         Assert.Equal(0, GuillotinePacker.AuditCutConsistency(result, Kerf));
     }
 
+    [Fact]
+    public void Production_release_gate_rejects_a_layout_with_no_derivable_cut_sequence()
+    {
+        var sheet = Sheet();
+        AddPane(sheet, 0, 0, 100, 200);
+        AddPane(sheet, 100, 0, 200, 100);
+        AddPane(sheet, 200, 100, 100, 200);
+        AddPane(sheet, 0, 200, 200, 100);
+        AddPane(sheet, 100, 100, 100, 100);
+        var result = PlanOf(sheet);
+        var input = sheet.Pieces.Select(p => p.Piece).ToList();
+
+        var problems = GuillotinePacker.VerifyProductionReady(result, input, Margins);
+
+        Assert.Contains(problems, problem => problem.Contains("Cut reachability", StringComparison.Ordinal));
+    }
+
+    [Fact]
+    public void Production_release_gate_rejects_a_stale_sequence_that_does_not_separate_panes()
+    {
+        var sheet = Sheet();
+        AddPane(sheet, 0, 0, 100, 300);
+        AddPane(sheet, 100, 0, 100, 300);
+        sheet.Cuts.Add(VerticalCut(200));
+        var result = PlanOf(sheet);
+        var input = sheet.Pieces.Select(p => p.Piece).ToList();
+
+        var problems = GuillotinePacker.VerifyProductionReady(result, input, Margins);
+
+        Assert.Contains(problems, problem => problem.Contains("Cut sequence verification", StringComparison.Ordinal));
+    }
+
     // ── wiring ──────────────────────────────────────────────────────────
 
     [Fact]

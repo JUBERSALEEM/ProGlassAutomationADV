@@ -52,6 +52,8 @@ export type PackInput = {
   /** Millimetres, before any rotation. */
   width: number;
   height: number;
+  /** Set false for directional glass that must retain its entered orientation. */
+  allowRotate?: boolean;
 };
 
 export type PackedPiece = {
@@ -124,7 +126,18 @@ export function packGuillotine(
       height: usableHeight,
     });
   };
-  openPlate();
+  if (pieces.length === 0) {
+    return {
+      placed,
+      unplaced,
+      plates: 0,
+      totalPieces: 0,
+      placedPieces: 0,
+      partAreaSqm: 0,
+      stockAreaSqm: 0,
+      utilizationPct: 0,
+    };
+  }
 
   /**
    * Split a region after a piece has taken its top-left corner.
@@ -181,7 +194,7 @@ export function packGuillotine(
     if (piece.width <= usableWidth && piece.height <= usableHeight) {
       orientations.push({ w: piece.width, h: piece.height, rotated: false });
     }
-    if (piece.height <= usableWidth && piece.width <= usableHeight) {
+    if (piece.allowRotate !== false && piece.height <= usableWidth && piece.width <= usableHeight) {
       orientations.push({ w: piece.height, h: piece.width, rotated: true });
     }
     if (orientations.length === 0) {

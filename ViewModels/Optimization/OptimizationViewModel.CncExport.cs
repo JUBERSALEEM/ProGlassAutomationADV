@@ -78,6 +78,23 @@ namespace ProGlassAutomation.ViewModels.Optimization
                 return;
             }
 
+            // Preflight every group before opening a save dialog or writing any
+            // file. A missing or inconsistent cut sequence must not produce an
+            // empty or misleading CNC export, even if placement geometry passes.
+            foreach (var group in targets)
+            {
+                var issues = GuillotinePacker.VerifyProductionReady(
+                    group.Result, GroupPieces(group), group.Margins);
+                if (group.Result.HasValidationFailure || issues.Count > 0)
+                {
+                    string reason = group.Result.ValidationProblems.FirstOrDefault()
+                        ?? issues.FirstOrDefault()
+                        ?? "The layout has a production validation failure.";
+                    SessionStatus = format.DisplayName + ": export blocked — " + reason;
+                    return;
+                }
+            }
+
             string stamp = DateTime.Now.ToString("yyyyMMdd-HHmm", CultureInfo.InvariantCulture);
             string? firstPath = null;
             int written = 0;
