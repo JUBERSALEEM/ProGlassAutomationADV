@@ -54,7 +54,7 @@ namespace ProGlassAutomation.Services.AI.AIConfig
         public string UiExperience { get; set; } = "Professional";
 
         /// <summary>
-        /// Persisted identity for one of the eight selectable theme families.
+        /// Persisted identity for one of the nine selectable theme families.
         /// ConfigService migrates legacy Normal/Industrial, Monet, Crystal Fluid,
         /// and iOS 26 values before the visual theme pipeline is built.
         /// Default: Liquid Glass.
@@ -70,7 +70,7 @@ namespace ProGlassAutomation.Services.AI.AIConfig
         /// </summary>
         public bool VisualThemeMigrated { get; set; }
 
-        /// <summary>One-time migration to the eight selectable theme families.</summary>
+        /// <summary>One-time migration to the nine selectable theme families.</summary>
         public bool EightThemeMigrationApplied { get; set; }
 
         /// <summary>
