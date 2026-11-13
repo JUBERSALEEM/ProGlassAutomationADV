@@ -412,6 +412,27 @@ namespace ProGlassAutomation.Tests.Theme
             Assert.DoesNotContain("StaticResource PgLavenderRibbonBrush", shell, StringComparison.Ordinal);
         }
 
+
+        [Fact]
+        public void Professional_top_bars_and_utility_chrome_use_family_surfaces()
+        {
+            string shell = Read("Themes/Professional/ProfessionalShell.xaml");
+            int top = shell.IndexOf("<Style x:Key=\"PgTopBarStyle\"", StringComparison.Ordinal);
+            int topEnd = shell.IndexOf("</Style>", top, StringComparison.Ordinal);
+            Assert.True(top >= 0 && topEnd > top);
+            Assert.Contains("DynamicResource ThemeCardFaceBrush", shell.Substring(top, topEnd - top), StringComparison.Ordinal);
+
+            int search = shell.IndexOf("<Style x:Key=\"PgSearchKbdStyle\"", StringComparison.Ordinal);
+            int searchEnd = shell.IndexOf("</Style>", search, StringComparison.Ordinal);
+            Assert.True(search >= 0 && searchEnd > search);
+            Assert.Contains("DynamicResource ThemeControlFaceBrush", shell.Substring(search, searchEnd - search), StringComparison.Ordinal);
+
+            int moduleBar = shell.IndexOf("<Style x:Key=\"PgModBarStyle\"", StringComparison.Ordinal);
+            int moduleBarEnd = shell.IndexOf("</Style>", moduleBar, StringComparison.Ordinal);
+            Assert.True(moduleBar >= 0 && moduleBarEnd > moduleBar);
+            Assert.Contains("DynamicResource ThemeCardFaceBrush", shell.Substring(moduleBar, moduleBarEnd - moduleBar), StringComparison.Ordinal);
+        }
+
         [Fact]
         public void Every_approved_family_has_separate_light_and_dark_palette_recipes()
         {
