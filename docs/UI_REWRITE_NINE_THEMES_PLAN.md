@@ -301,3 +301,8 @@ Theme-specific styling must be token-driven and use dynamic resource resolution 
 - Quick Settings cards use family-owned card edge/face materials; AI Chat workspace canvas uses the active family workspace surface.
 - Authentication gradients continue to use live theme color tokens from the application theme dictionaries; sign-in, first-run, reset, and password-change workflows are untouched.
 - Added regression coverage for the shared theme resource boundary.
+
+
+### Document and Job Order palette dependency cleanup
+- Removed now-unused Indigo dashboard dictionary imports from Tax Invoice, Delivery Note, and Job Order list shells after their surfaces were migrated to the shared theme resources.
+- This removes an unnecessary legacy palette dependency without changing any document workflow or navigation.

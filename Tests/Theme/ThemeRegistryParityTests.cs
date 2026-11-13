@@ -915,6 +915,10 @@ namespace ProGlassAutomation.Tests.Theme
             string deliveryList = Read("Views/DeliveryNote/DeliveryNoteView.xaml");
             string taxDetail = Read("Views/TaxInvoice/TaxInvoiceDetail/TaxInvoiceDetailView.xaml");
             string deliveryDetail = Read("Views/DeliveryNote/DeliveryNoteDetail/DeliveryNoteDetailView.xaml");
+            string jobOrderList = Read("Views/JobOrder/JobOrderView.xaml");
+            Assert.DoesNotContain("IndigoStudioResources.xaml", taxList, StringComparison.Ordinal);
+            Assert.DoesNotContain("IndigoStudioResources.xaml", deliveryList, StringComparison.Ordinal);
+            Assert.DoesNotContain("IndigoStudioResources.xaml", jobOrderList, StringComparison.Ordinal);
             foreach (string styles in new[] { taxStyles, deliveryStyles })
             {
                 Assert.DoesNotContain("IndigoStudioResources.xaml", styles, StringComparison.Ordinal);
