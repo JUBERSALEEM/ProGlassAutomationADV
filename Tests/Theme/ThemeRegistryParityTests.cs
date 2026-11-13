@@ -119,7 +119,7 @@ namespace ProGlassAutomation.Tests.Theme
         public void Theme_picker_uses_valid_WPF_height_properties()
         {
             string xaml = Read("Views/Settings/Sections/SettingsThemesSection.xaml");
-            Assert.DoesNotContain("Hnine=", xaml, StringComparison.Ordinal);
+            Assert.DoesNotContain("nine=", xaml, StringComparison.Ordinal);
             Assert.Contains("<RowDefinition Height=\"Auto\"/>", xaml, StringComparison.Ordinal);
         }
 

@@ -272,7 +272,7 @@
                                     <StackPanel Grid.Row="0" Grid.Column="0">
                                         <StackPanel Orientation="Horizontal" VerticalAlignment="Center">
                                             <Border Width="10" Height="10" CornerRadius="{DynamicResource Radius.Small}" Background="{DynamicResource AccentBrush}" Margin="{StaticResource SettingsInlineGap8R}"/>
-                                            <TextBlock Text="Live Studio Specimen" FontSize="{DynamicResource FontSize.Body}" FontWnine="SemiBold" Foreground="{DynamicResource TextPrimaryBrush}"/>
+                                            <TextBlock Text="Live Studio Specimen" FontSize="{DynamicResource FontSize.Body}" FontWeight="SemiBold" Foreground="{DynamicResource TextPrimaryBrush}"/>
                                         </StackPanel>
                                         <TextBlock Text="Real-time theme engine tokens verified with automatic WCAG contrast derivation."
                                                    FontSize="{DynamicResource FontSize.Caption}" Foreground="{DynamicResource TextTertiaryBrush}" Margin="{StaticResource SettingsStackGap4}"/>
@@ -280,10 +280,10 @@
 
                                     <StackPanel Grid.Row="0" Grid.Column="1" Orientation="Horizontal" VerticalAlignment="Center">
                                         <Border Background="{DynamicResource TintBlueBrush}" CornerRadius="{DynamicResource ControlCornerRadius}" Padding="10,4" Margin="{StaticResource SettingsInlineGap6R}">
-                                            <TextBlock Text="Active Accent" FontSize="{DynamicResource FontSize.Chip}" FontWnine="Bold" Foreground="{DynamicResource AccentBrush}"/>
+                                            <TextBlock Text="Active Accent" FontSize="{DynamicResource FontSize.Chip}" FontWeight="Bold" Foreground="{DynamicResource AccentBrush}"/>
                                         </Border>
                                         <Border Background="{DynamicResource TintGreenBrush}" CornerRadius="{DynamicResource ControlCornerRadius}" Padding="10,4">
-                                            <TextBlock Text="WCAG AAA" FontSize="{DynamicResource FontSize.Chip}" FontWnine="Bold" Foreground="{DynamicResource SuccessBrush}"/>
+                                            <TextBlock Text="WCAG AAA" FontSize="{DynamicResource FontSize.Chip}" FontWeight="Bold" Foreground="{DynamicResource SuccessBrush}"/>
                                         </Border>
                                     </StackPanel>
 

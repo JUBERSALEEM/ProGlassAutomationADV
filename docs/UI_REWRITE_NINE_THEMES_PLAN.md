@@ -157,3 +157,10 @@ Theme-specific styling must be token-driven and use dynamic resource resolution 
 - Aligned source regression assertions with the actual semantic alias names used by the shared component dictionary (`SurfaceCardBrush`, `RadiusCard`, and `RadiusControl`) and narrowed the list-card assertion to the `Sl.Card` style itself.
 - Added a regression pin to prevent the invalid `Hnine` attribute from returning.
 - The next push triggers a fresh Windows build and full test run; the correction is not considered verified until that run completes.
+
+
+### Second Windows CI markup correction
+- The rerun confirmed the first `Hnine` correction was effective, and both restore stages again passed.
+- Compilation then found three `FontWnine` typos in the same theme-picker specimen area. Corrected them to WPF `FontWeight`.
+- Strengthened the picker regression guard to reject any remaining malformed `nine=` property suffix in that XAML file, rather than checking only the first typo spelling.
+- This push triggers another Windows Release build and test attempt; verification remains pending until CI finishes.
