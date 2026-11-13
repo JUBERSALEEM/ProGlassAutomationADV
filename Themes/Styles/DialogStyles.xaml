@@ -66,7 +66,7 @@
 
     <!-- Dialog title — wraps so localized captions can never clip. -->
     <Style x:Key="DialogTitleStyle" TargetType="TextBlock">
-        <Setter Property="FontSize" Value="{StaticResource TextTitle}"/>
+        <Setter Property="FontSize" Value="{DynamicResource TextTitle}"/>
         <Setter Property="FontWeight" Value="Bold"/>
         <Setter Property="Foreground" Value="{DynamicResource TextPrimaryBrush}"/>
         <Setter Property="TextWrapping" Value="Wrap"/>
@@ -75,7 +75,7 @@
 
     <!-- Optional one-liner under the title. -->
     <Style x:Key="DialogSubtitleStyle" TargetType="TextBlock">
-        <Setter Property="FontSize" Value="{StaticResource TextBody}"/>
+        <Setter Property="FontSize" Value="{DynamicResource TextBody}"/>
         <Setter Property="Foreground" Value="{DynamicResource SecondaryForegroundBrush}"/>
         <Setter Property="Margin" Value="0,2,0,0"/>
         <Setter Property="TextWrapping" Value="Wrap"/>
@@ -84,7 +84,7 @@
     <!-- Field label — the one label treatment for form fields in dialogs
          (replaces ApprovalFieldLabel / FieldLabelStyle / DnLabel… copies). -->
     <Style x:Key="DialogFieldLabelStyle" TargetType="TextBlock">
-        <Setter Property="FontSize" Value="{StaticResource TextCaption}"/>
+        <Setter Property="FontSize" Value="{DynamicResource TextCaption}"/>
         <Setter Property="FontWeight" Value="SemiBold"/>
         <Setter Property="Foreground" Value="{DynamicResource TextTertiaryBrush}"/>
         <Setter Property="Margin" Value="2,0,0,6"/>
@@ -93,15 +93,15 @@
 
     <!-- Body / explanatory copy. -->
     <Style x:Key="DialogBodyTextStyle" TargetType="TextBlock">
-        <Setter Property="FontSize" Value="{StaticResource TextBody}"/>
+        <Setter Property="FontSize" Value="{DynamicResource TextBody}"/>
         <Setter Property="Foreground" Value="{DynamicResource SecondaryForegroundBrush}"/>
         <Setter Property="TextWrapping" Value="Wrap"/>
-        <Setter Property="LineHeight" Value="{StaticResource TextBodyLarge}"/>
+        <Setter Property="LineHeight" Value="{DynamicResource TextBodyLarge}"/>
     </Style>
 
     <!-- Small hint / validation text. -->
     <Style x:Key="DialogHintTextStyle" TargetType="TextBlock">
-        <Setter Property="FontSize" Value="{StaticResource TextCaption}"/>
+        <Setter Property="FontSize" Value="{DynamicResource TextCaption}"/>
         <Setter Property="Foreground" Value="{DynamicResource TextTertiaryBrush}"/>
         <Setter Property="TextWrapping" Value="Wrap"/>
         <Setter Property="Margin" Value="2,6,0,0"/>
@@ -135,7 +135,7 @@
         <Setter Property="Background" Value="Transparent"/>
         <Setter Property="Foreground" Value="{DynamicResource TextTertiaryBrush}"/>
         <Setter Property="FontFamily" Value="Segoe MDL2 Assets"/>
-        <Setter Property="FontSize" Value="{StaticResource TextBody}"/>
+        <Setter Property="FontSize" Value="{DynamicResource TextBody}"/>
         <Setter Property="Content" Value="&#xE711;"/>
         <Setter Property="Cursor" Value="Hand"/>
         <Setter Property="Focusable" Value="False"/>
@@ -179,7 +179,7 @@
            TargetType="{x:Type dialogs:ThemedDialogWindow}">
         <Setter Property="Background" Value="Transparent"/>
         <Setter Property="FontFamily" Value="{DynamicResource AppFontFamily}"/>
-        <Setter Property="FontSize" Value="{StaticResource TextBody}"/>
+        <Setter Property="FontSize" Value="{DynamicResource TextBody}"/>
         <Setter Property="Foreground" Value="{DynamicResource TextPrimaryBrush}"/>
         <Setter Property="UseLayoutRounding" Value="True"/>
         <Setter Property="SnapsToDevicePixels" Value="True"/>
@@ -195,7 +195,7 @@
                                 BorderBrush="{DynamicResource ThemeCardEdgeBrush}"
                                 BorderThickness="{DynamicResource CardBorderThickness}"
                                 CornerRadius="{DynamicResource CardCornerRadiusLarge}"
-                                Effect="{StaticResource ShadowElevated}"
+                                Effect="{DynamicResource ShadowElevated}"
                                 SnapsToDevicePixels="True">
 
                             <Border ClipToBounds="True"
@@ -335,7 +335,7 @@
                                 <Style TargetType="TextBlock">
                                     <Setter Property="TextWrapping" Value="Wrap"/>
                                     <Setter Property="Foreground" Value="{DynamicResource TextPrimaryBrush}"/>
-                                    <Setter Property="FontSize" Value="{StaticResource TextBody}"/>
+                                    <Setter Property="FontSize" Value="{DynamicResource TextBody}"/>
                                     <Setter Property="FontFamily" Value="{DynamicResource AppFontFamily}"/>
                                 </Style>
                             </ContentPresenter.Resources>
