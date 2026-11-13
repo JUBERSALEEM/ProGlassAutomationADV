@@ -928,6 +928,23 @@ namespace ProGlassAutomation.Tests.Theme
             Assert.Contains("DynamicResource SurfaceWorkspaceBrush", deliveryDetail, StringComparison.Ordinal);
         }
 
+        [Fact]
+        public void Authentication_ai_chat_and_quick_settings_use_shared_theme_resources()
+        {
+            string login = Read("Views/Login/LoginWindow.xaml");
+            string auth = Read("Views/Login/AuthSurfaceStyles.xaml");
+            string quick = Read("Views/Shared/QuickSettingsPanel.xaml");
+            string crash = Read("Views/CrashReports/CrashReportDialogStyles.xaml");
+            string ai = Read("Views/AI/AiChatView.xaml");
+            foreach (string xaml in new[] { login, auth, quick, crash, ai })
+                Assert.DoesNotContain("IndigoStudioResources.xaml", xaml, StringComparison.Ordinal);
+            Assert.Contains("ThemeCardEdgeBrush", quick, StringComparison.Ordinal);
+            Assert.Contains("ThemeCardFaceBrush", quick, StringComparison.Ordinal);
+            Assert.Contains("SurfaceWorkspaceBrush", ai, StringComparison.Ordinal);
+            Assert.DoesNotContain("Ov.", quick, StringComparison.Ordinal);
+            Assert.DoesNotContain("Ov.", ai, StringComparison.Ordinal);
+        }
+
         private static string ConstValue(string name)
         {
             var field = typeof(VisualThemeEngine).GetField(

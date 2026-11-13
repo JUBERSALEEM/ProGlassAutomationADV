@@ -294,3 +294,10 @@ Theme-specific styling must be token-driven and use dynamic resource resolution 
 - Their detail style dictionaries no longer merge the Indigo-only dashboard palette or shadow global text, accent, status, border, and surface tokens with static aliases.
 - Document cards, inset panels, section headers, hero strips, and text styles now resolve through the shared family-aware component styles and semantic resources.
 - Document numbering, tax calculations, delivery quantities, status logic, commands, and ViewModel bindings are unchanged; added regression checks for both modules.
+
+
+### Authentication, AI chat, and shared panel theme migration
+- Login window, shared authentication surfaces, crash-report dialog styles, Quick Settings, and AI Chat no longer import the Indigo-only dashboard palette.
+- Quick Settings cards use family-owned card edge/face materials; AI Chat workspace canvas uses the active family workspace surface.
+- Authentication gradients continue to use live theme color tokens from the application theme dictionaries; sign-in, first-run, reset, and password-change workflows are untouched.
+- Added regression coverage for the shared theme resource boundary.
