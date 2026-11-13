@@ -144,6 +144,12 @@ namespace ProGlassAutomation.ViewModels.Settings
                 // The optional water-material controls belong to Liquid Glass
                 // only; the other seven families do not inherit this scene.
                 OnPropertyChanged(nameof(IsCrystalThemeActive));
+                // BrushKeyConverter resolves these resource keys when the
+                // bound property changes. A family switch republishes both
+                // brushes, so re-evaluate the mode chip even when Light/Dark
+                // itself did not change.
+                OnPropertyChanged(nameof(ThemeModeChipBackgroundKey));
+                OnPropertyChanged(nameof(ThemeModeChipForegroundKey));
 
                 // 2026-09-05 PIPELINE UNIFICATION: the extra RefreshScene
                 // toggle used to duplicate the module overlay that is
