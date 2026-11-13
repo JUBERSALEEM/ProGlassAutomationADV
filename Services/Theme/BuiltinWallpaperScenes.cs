@@ -23,7 +23,7 @@
 //   Painted behind modules through the engine's existing
 //   "ModuleWallpaperBrush" key — zero XAML changes required.
 //
-// SCENE SIGNATURES align with the selectable eight families; legacy Monet,
+// SCENE SIGNATURES align with the selectable nine families; legacy Monet,
 // Crystal Fluid and iOS 26 scene functions remain only for compatibility.
 // ═══════════════════════════════════════════════════════════════════════
 
@@ -51,6 +51,7 @@ namespace ProGlassAutomation.Services.Theme
             (VisualThemeEngine.Claymorphism, "Sculpted Clay"),
             (VisualThemeEngine.LiquidGlass, "Liquid Light"),
             (VisualThemeEngine.Glassmorphism, "Frosted Layers"),
+            (VisualThemeEngine.FluentAcrylic, "Windows Mist"),
         };
 
         /// <summary>Draws the scene for a family. Unknown/empty family →
@@ -72,6 +73,10 @@ namespace ProGlassAutomation.Services.Theme
                     f == VisualThemeEngine.LiquidGlass ||
                     f == VisualThemeEngine.Glassmorphism)
                     return CrystalFluidScene(dark);
+                if (f == VisualThemeEngine.FluentAcrylic)
+                    return Diagonal((Parse(dark ? "#101820" : "#F2F5F9"), 0.0),
+                        (Parse(dark ? "#1B2633" : "#E7EDF4"), 0.58),
+                        (Parse(dark ? "#0B121A" : "#FFFFFF"), 1.0));
                 if (f == VisualThemeEngine.SpatialImmersive)
                     return Diagonal((Parse(dark ? "#06111D" : "#E7F5F8"), 0.0),
                         (Parse(dark ? "#0F3344" : "#BDE8EF"), 0.55),
