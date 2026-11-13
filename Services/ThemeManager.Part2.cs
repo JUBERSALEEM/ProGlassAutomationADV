@@ -822,6 +822,15 @@ namespace ProGlassAutomation.Services
                 _publishedEdgeColor = null;
                 RestoreThemeBrush(resources, "SettingsCardEdgeBrush");
                 RestoreThemeBrush(resources, "SettingsInnerEdgeBrush");
+                // RestoreThemeBrush returns the Light/Dark dictionary baseline.
+                // Reattach the selected family's material edges after a custom
+                // outline is disabled so the family style is not lost.
+                if (resources.Contains("ThemeSettingsCardEdgeBrush") &&
+                    resources["ThemeSettingsCardEdgeBrush"] is Brush familyCardEdge)
+                    resources["SettingsCardEdgeBrush"] = familyCardEdge;
+                if (resources.Contains("ThemeSettingsInnerEdgeBrush") &&
+                    resources["ThemeSettingsInnerEdgeBrush"] is Brush familyInnerEdge)
+                    resources["SettingsInnerEdgeBrush"] = familyInnerEdge;
                 return;
             }
 
