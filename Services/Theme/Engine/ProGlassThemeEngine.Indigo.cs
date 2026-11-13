@@ -11,6 +11,7 @@ namespace ProGlassAutomation.Services.Theme.Engine
     {
         private static void PublishIndigoAliases(ResourceDictionary resources)
         {
+            CopyBrush(resources, "InfoBrush", "AccentBrush", "AccentBrush");
             CopyBrush(resources, "Ov.Canvas", "SurfaceWorkspaceBrush", "WindowBackgroundBrush");
             CopyBrush(resources, "Ov.Surface", "ThemeCardFaceBrush", "SurfacePrimaryBrush");
             CopyBrush(resources, "Ov.Soft", "ThemeCardHighlightBrush", "SurfaceTertiaryBrush");

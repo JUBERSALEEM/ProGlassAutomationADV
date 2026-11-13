@@ -6,21 +6,8 @@
         <ResourceDictionary Source="Overview/IndigoStudioResources.xaml"/>
     </ResourceDictionary.MergedDictionaries>
 
-    <!-- Page-scoped aliases for the existing chart controls. These are NOT
-         merged into App.xaml and do not change any other module's theme.
-         Bind to the approved palette rather than duplicating its hex values. -->
-    <SolidColorBrush x:Key="AccentBrush" Color="{Binding Color, Source={StaticResource Ov.Accent}}"/>
-    <SolidColorBrush x:Key="InfoBrush" Color="{Binding Color, Source={StaticResource Ov.Accent}}"/>
-    <SolidColorBrush x:Key="SuccessBrush" Color="{Binding Color, Source={StaticResource Ov.Success}}"/>
-    <SolidColorBrush x:Key="WarningBrush" Color="{Binding Color, Source={StaticResource Ov.Warning}}"/>
-    <SolidColorBrush x:Key="DangerBrush" Color="{Binding Color, Source={StaticResource Ov.Danger}}"/>
-    <SolidColorBrush x:Key="PrimaryForegroundBrush" Color="{Binding Color, Source={StaticResource Ov.Ink}}"/>
-    <SolidColorBrush x:Key="SecondaryForegroundBrush" Color="{Binding Color, Source={StaticResource Ov.Muted}}"/>
-    <SolidColorBrush x:Key="TextPrimaryBrush" Color="{Binding Color, Source={StaticResource Ov.Ink}}"/>
-    <SolidColorBrush x:Key="TextSecondaryBrush" Color="{Binding Color, Source={StaticResource Ov.Muted}}"/>
-    <SolidColorBrush x:Key="TextTertiaryBrush" Color="{Binding Color, Source={StaticResource Ov.Muted}}"/>
-    <SolidColorBrush x:Key="PopupSurfaceBrush" Color="{Binding Color, Source={StaticResource Ov.Surface}}"/>
-
+    <!-- Chart and dashboard semantic brushes are published by ProGlassThemeEngine;
+         this dictionary keeps only layout metrics and reusable dashboard styles. -->
     <Thickness x:Key="Ds.PageMargin">20,12,20,16</Thickness>
     <Thickness x:Key="Ds.RowPadding">0,10</Thickness>
     <CornerRadius x:Key="Ds.ChipRadius">6</CornerRadius>
