@@ -36,11 +36,11 @@
             <Border Grid.Column="0" Style="{StaticResource OptHeroCard}" Margin="0,0,12,0">
                 <StackPanel VerticalAlignment="Center">
                     <TextBlock Text="{Binding Title}" FontSize="22" FontWeight="SemiBold"
-                               Foreground="{StaticResource OptOnIndigo}"/>
+                               Foreground="{DynamicResource ThemeNavigationSelectedForegroundBrush}"/>
                     <TextBlock Text="Stage 1 — cutting and 2D nesting" FontSize="12"
-                               Foreground="{StaticResource OptOnIndigoMuted}" Margin="0,4,0,0"/>
+                               Foreground="{DynamicResource ThemeNavigationSelectedForegroundBrush}" Margin="0,4,0,0"/>
                     <TextBlock Text="{Binding Subtitle}" FontSize="12"
-                               Foreground="{StaticResource OptOnIndigoMuted}" TextWrapping="Wrap" Margin="0,4,0,0"/>
+                               Foreground="{DynamicResource ThemeNavigationSelectedForegroundBrush}" TextWrapping="Wrap" Margin="0,4,0,0"/>
                 </StackPanel>
             </Border>
             <StackPanel Grid.Column="1" Orientation="Horizontal" VerticalAlignment="Center">
