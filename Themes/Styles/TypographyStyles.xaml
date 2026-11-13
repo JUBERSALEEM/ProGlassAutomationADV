@@ -19,7 +19,7 @@
 
     <!-- Big stat number (KPI cards, e.g. "4,500") -->
     <Style x:Key="StatNumberStyle" TargetType="TextBlock">
-        <Setter Property="FontSize" Value="{StaticResource TextDisplayLarge}"/>
+        <Setter Property="FontSize" Value="{DynamicResource TextDisplayLarge}"/>
         <Setter Property="FontWeight" Value="Bold"/>
         <Setter Property="Foreground" Value="{DynamicResource TextPrimaryBrush}"/>
         <Setter Property="Typography.NumeralAlignment" Value="Tabular"/>
@@ -29,7 +29,7 @@
 
     <!-- Medium stat number (smaller stat cards, activity feed values) -->
     <Style x:Key="MediumNumberStyle" TargetType="TextBlock">
-        <Setter Property="FontSize" Value="{StaticResource TextTitleLarge}"/>
+        <Setter Property="FontSize" Value="{DynamicResource TextTitleLarge}"/>
         <Setter Property="FontWeight" Value="Bold"/>
         <Setter Property="Foreground" Value="{DynamicResource TextPrimaryBrush}"/>
         <Setter Property="Typography.NumeralAlignment" Value="Tabular"/>
@@ -46,7 +46,7 @@
 
     <!-- Page subtitle (under page title, e.g. "Plan, prioritize, and...") -->
     <Style x:Key="PageSubtitleStyle" TargetType="TextBlock">
-        <Setter Property="FontSize" Value="{StaticResource TextBodyLarge}"/>
+        <Setter Property="FontSize" Value="{DynamicResource TextBodyLarge}"/>
         <Setter Property="FontWeight" Value="Normal"/>
         <Setter Property="Foreground" Value="{DynamicResource TextSecondaryBrush}"/>
         <Setter Property="Margin"     Value="0,4,0,0"/>
@@ -54,7 +54,7 @@
 
     <!-- Section title (above card groups, e.g. "Business Overview") -->
     <Style x:Key="SectionTitleStyle" TargetType="TextBlock">
-        <Setter Property="FontSize" Value="{StaticResource TextTitle}"/>
+        <Setter Property="FontSize" Value="{DynamicResource TextTitle}"/>
         <Setter Property="FontWeight" Value="SemiBold"/>
         <Setter Property="Foreground" Value="{DynamicResource TextPrimaryBrush}"/>
         <Setter Property="Margin"     Value="0,0,0,4"/>
@@ -62,7 +62,7 @@
 
     <!-- Section subtitle (small helper text under section title) -->
     <Style x:Key="SectionSubtitleStyle" TargetType="TextBlock">
-        <Setter Property="FontSize" Value="{StaticResource TextBody}"/>
+        <Setter Property="FontSize" Value="{DynamicResource TextBody}"/>
         <Setter Property="FontWeight" Value="Normal"/>
         <Setter Property="Foreground" Value="{DynamicResource TextSecondaryBrush}"/>
         <Setter Property="Margin"     Value="0,0,0,10"/>
@@ -70,14 +70,14 @@
 
     <!-- Card title (title inside a card, e.g. "Total Sales") -->
     <Style x:Key="CardTitleStyle" TargetType="TextBlock">
-        <Setter Property="FontSize" Value="{StaticResource TextBodyLarge}"/>
+        <Setter Property="FontSize" Value="{DynamicResource TextBodyLarge}"/>
         <Setter Property="FontWeight" Value="SemiBold"/>
         <Setter Property="Foreground" Value="{DynamicResource TextSecondaryBrush}"/>
     </Style>
 
     <!-- Card subtitle (small text under card value, e.g. "VAT inclusive") -->
     <Style x:Key="CardSubtitleStyle" TargetType="TextBlock">
-        <Setter Property="FontSize" Value="{StaticResource TextBody}"/>
+        <Setter Property="FontSize" Value="{DynamicResource TextBody}"/>
         <Setter Property="FontWeight"   Value="Normal"/>
         <Setter Property="Foreground"   Value="{DynamicResource TextSecondaryBrush}"/>
         <Setter Property="TextWrapping" Value="Wrap"/>
@@ -86,14 +86,14 @@
 
     <!-- Meta text (dates, tags, small footnotes) -->
     <Style x:Key="MetaTextStyle" TargetType="TextBlock">
-        <Setter Property="FontSize" Value="{StaticResource TextBody}"/>
+        <Setter Property="FontSize" Value="{DynamicResource TextBody}"/>
         <Setter Property="FontWeight" Value="Normal"/>
         <Setter Property="Foreground" Value="{DynamicResource TextSecondaryBrush}"/>
     </Style>
 
     <!-- Row title in list cards (e.g. task name, invoice number) -->
     <Style x:Key="RowTitleStyle" TargetType="TextBlock">
-        <Setter Property="FontSize" Value="{StaticResource TextSection}"/>
+        <Setter Property="FontSize" Value="{DynamicResource TextSection}"/>
         <Setter Property="FontWeight"   Value="SemiBold"/>
         <Setter Property="Foreground"   Value="{DynamicResource TextPrimaryBrush}"/>
         <Setter Property="TextTrimming" Value="CharacterEllipsis"/>
@@ -101,7 +101,7 @@
 
     <!-- Row subtitle in list cards (metadata under title) -->
     <Style x:Key="RowSubtitleStyle" TargetType="TextBlock">
-        <Setter Property="FontSize" Value="{StaticResource TextBody}"/>
+        <Setter Property="FontSize" Value="{DynamicResource TextBody}"/>
         <Setter Property="FontWeight"   Value="Normal"/>
         <Setter Property="Foreground"   Value="{DynamicResource TextSecondaryBrush}"/>
         <Setter Property="TextTrimming" Value="CharacterEllipsis"/>
@@ -110,14 +110,14 @@
 
     <!-- Percentage / trending indicator (small badge text) -->
     <Style x:Key="TrendingTextStyle" TargetType="TextBlock">
-        <Setter Property="FontSize" Value="{StaticResource TextBody}"/>
+        <Setter Property="FontSize" Value="{DynamicResource TextBody}"/>
         <Setter Property="FontWeight" Value="Bold"/>
         <Setter Property="Foreground" Value="{DynamicResource OnAccentForegroundBrush}"/>
     </Style>
 
     <!-- Table header text -->
     <Style x:Key="TableHeaderStyle" TargetType="TextBlock">
-        <Setter Property="FontSize" Value="{StaticResource TextBody}"/>
+        <Setter Property="FontSize" Value="{DynamicResource TextBody}"/>
         <Setter Property="FontWeight" Value="Bold"/>
         <Setter Property="Foreground" Value="{DynamicResource TextSecondaryBrush}"/>
         <Setter Property="Padding"    Value="8,6"/>
