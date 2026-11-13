@@ -63,15 +63,9 @@
         <Setter Property="TextWrapping" Value="Wrap"/>
         <Setter Property="Margin" Value="0,5,0,3"/>
     </Style>
-    <Style x:Key="Sl.Card" TargetType="Border">
-        <Setter Property="Background" Value="{DynamicResource Appearance.StudioFace}"/>
-        <Setter Property="BorderBrush" Value="{DynamicResource Appearance.StudioEdge}"/>
-        <Setter Property="BorderThickness" Value="1"/>
-        <Setter Property="CornerRadius" Value="18"/>
+    <Style x:Key="Sl.Card" TargetType="Border"
+           BasedOn="{StaticResource ProGlassRewriteCardStyle}">
         <Setter Property="Padding" Value="18"/>
-        <Setter Property="SnapsToDevicePixels" Value="False"/>
-        <Setter Property="RenderOptions.EdgeMode" Value="Unspecified"/>
-        <Setter Property="behaviors:RoundedEdgeStrokeBehavior.IsEnabled" Value="True"/>
     </Style>
     <Style x:Key="Sl.Hero" TargetType="Border" BasedOn="{StaticResource Sl.Card}">
         <Setter Property="Background" Value="{DynamicResource Ov.Accent}"/>

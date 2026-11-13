@@ -93,6 +93,24 @@ namespace ProGlassAutomation.Tests.Theme
         }
 
         [Fact]
+        public void Studio_list_cards_and_workspaces_use_rewrite_semantic_surfaces()
+        {
+            string listStyles = Read("Views/Shared/Lists/StudioListResources.xaml");
+            Assert.Contains("BasedOn=\"{StaticResource ProGlassRewriteCardStyle}\"", listStyles, StringComparison.Ordinal);
+            Assert.DoesNotContain("Appearance.StudioFace", listStyles, StringComparison.Ordinal);
+            Assert.DoesNotContain("Appearance.StudioEdge", listStyles, StringComparison.Ordinal);
+
+            foreach (var view in new[]
+            {
+                "Views/Inquiry/InquiryListView.xaml",
+                "Views/Specifications/SpecificationsCenterView.xaml",
+                "Views/SheetStore/SheetStoreView.xaml"
+            })
+                Assert.Contains("Background=\"{DynamicResource SurfaceWorkspaceBrush}\"",
+                    Read(view), StringComparison.Ordinal);
+        }
+
+        [Fact]
         public void ManagedKeys_ContainsEveryCrashCriticalBrush()
         {
             // ERR-50472F proved these must ALWAYS be family-managed:

@@ -13,10 +13,10 @@
     </Style>
 
     <Style x:Key="ProGlassRewriteCardStyle" TargetType="Border">
-        <Setter Property="Background" Value="{DynamicResource SurfacePrimaryBrush}"/>
+        <Setter Property="Background" Value="{DynamicResource SurfaceCardBrush}"/>
         <Setter Property="BorderBrush" Value="{DynamicResource BorderSubtleBrush}"/>
         <Setter Property="BorderThickness" Value="{DynamicResource CardEdgeThickness}"/>
-        <Setter Property="CornerRadius" Value="{DynamicResource CardCornerRadius}"/>
+        <Setter Property="CornerRadius" Value="{DynamicResource RadiusCard}"/>
         <Setter Property="Padding" Value="18"/>
         <Setter Property="Effect" Value="{DynamicResource ShadowSoft}"/>
         <Setter Property="SnapsToDevicePixels" Value="True"/>
@@ -25,31 +25,31 @@
 
     <Style x:Key="ProGlassRewriteRaisedCardStyle" TargetType="Border"
            BasedOn="{StaticResource ProGlassRewriteCardStyle}">
-        <Setter Property="Background" Value="{DynamicResource SurfaceSecondaryBrush}"/>
+        <Setter Property="Background" Value="{DynamicResource SurfaceElevatedBrush}"/>
         <Setter Property="Effect" Value="{DynamicResource ShadowElevated}"/>
     </Style>
 
     <Style x:Key="ProGlassRewriteInsetStyle" TargetType="Border">
-        <Setter Property="Background" Value="{DynamicResource SurfaceInputBrush}"/>
+        <Setter Property="Background" Value="{DynamicResource SurfaceWorkspaceBrush}"/>
         <Setter Property="BorderBrush" Value="{DynamicResource BorderSubtleBrush}"/>
         <Setter Property="BorderThickness" Value="1"/>
-        <Setter Property="CornerRadius" Value="{DynamicResource ControlCornerRadius}"/>
+        <Setter Property="CornerRadius" Value="{DynamicResource RadiusControl}"/>
         <Setter Property="Padding" Value="12"/>
         <Setter Property="SnapsToDevicePixels" Value="True"/>
     </Style>
 
     <Style x:Key="ProGlassRewriteToolbarStyle" TargetType="Border">
-        <Setter Property="Background" Value="{DynamicResource SurfaceSecondaryBrush}"/>
+        <Setter Property="Background" Value="{DynamicResource SurfaceElevatedBrush}"/>
         <Setter Property="BorderBrush" Value="{DynamicResource BorderSubtleBrush}"/>
         <Setter Property="BorderThickness" Value="1"/>
-        <Setter Property="CornerRadius" Value="{DynamicResource ControlCornerRadius}"/>
+        <Setter Property="CornerRadius" Value="{DynamicResource RadiusControl}"/>
         <Setter Property="Padding" Value="12,8"/>
         <Setter Property="SnapsToDevicePixels" Value="True"/>
     </Style>
 
     <Style x:Key="ProGlassRewritePageHeaderStyle" TargetType="Border"
            BasedOn="{StaticResource ProGlassRewriteCardStyle}">
-        <Setter Property="CornerRadius" Value="{DynamicResource CardCornerRadiusLarge}"/>
+        <Setter Property="CornerRadius" Value="{DynamicResource RadiusLarge}"/>
         <Setter Property="Padding" Value="20,16"/>
     </Style>
 

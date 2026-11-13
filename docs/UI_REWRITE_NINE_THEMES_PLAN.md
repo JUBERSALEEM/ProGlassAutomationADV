@@ -126,3 +126,12 @@ Theme-specific styling must be token-driven and use dynamic resource resolution 
 - Added source regression coverage for dictionary registration, component keys, and semantic token usage.
 - **Adoption status:** the primitives are available application-wide but have not yet been applied across module screens. The next migration step is to adopt them in a representative module without changing its ViewModel or workflow.
 - **Not yet verified:** Windows compilation, test execution, and visual screenshots.
+
+
+### Phase 4 — first ERP list-surface migration (source changes committed)
+- Migrated the shared Studio list-card primitive from its fixed Studio face/edge/radius to `ProGlassRewriteCardStyle`, so every consumer of `Sl.Card` inherits family-managed surface, border, geometry, and elevation tokens.
+- Migrated the Inquiry, Specifications, and Sheet Store workspace backgrounds to the active semantic workspace surface.
+- Updated the rewrite primitives to use the unique semantic aliases (`SurfaceCardBrush`, `SurfaceElevatedBrush`, `RadiusCard`, `RadiusControl`, `RadiusLarge`) rather than legacy keys shadowed by the list-local Studio dictionary.
+- Added regression checks for the shared card inheritance and the three workspace roots.
+- Business bindings, commands, data templates, filters, and list workflows were not changed.
+- **Not yet verified:** Windows compilation, test execution, and screenshots. The Studio accent/status palette and many inner control treatments remain to be migrated.
