@@ -170,7 +170,7 @@
         <Setter Property="Background" Value="{DynamicResource ThemeTableSurfaceBrush}"/>
         <Setter Property="Foreground" Value="{DynamicResource TextPrimaryBrush}"/>
         <Setter Property="BorderBrush" Value="{DynamicResource ThemeTableBorderBrush}"/>
-        <Setter Property="BorderThickness" Value="{DynamicResource Surface.Secondary.BorderThickness}"/>
+        <Setter Property="BorderThickness" Value="1"/>
         <Setter Property="RowHeight" Value="{DynamicResource DensityRowHeight}"/>
         <Setter Property="MinRowHeight" Value="28"/>
         <Setter Property="ColumnHeaderHeight" Value="34"/>
@@ -222,10 +222,10 @@
         <Setter Property="MinHeight" Value="{DynamicResource DensityRowHeight}"/>
         <Style.Triggers>
             <Trigger Property="IsMouseOver" Value="True">
-                <Setter Property="Background" Value="{DynamicResource SurfaceTertiaryBrush}"/>
+                <Setter Property="Background" Value="{DynamicResource ThemeTableRowHoverBrush}"/>
             </Trigger>
             <Trigger Property="IsSelected" Value="True">
-                <Setter Property="Background" Value="{DynamicResource SelectionBrush}"/>
+                <Setter Property="Background" Value="{DynamicResource ThemeTableSelectionBrush}"/>
             </Trigger>
         </Style.Triggers>
     </Style>
