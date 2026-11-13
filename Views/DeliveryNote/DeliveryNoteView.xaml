@@ -53,11 +53,7 @@
 
     <UserControl.Resources>
         <ResourceDictionary>
-            <ResourceDictionary.MergedDictionaries>
-                <ResourceDictionary Source="../Dashboard/Overview/IndigoStudioResources.xaml"/>
-            </ResourceDictionary.MergedDictionaries>
-
-            <!--
+<!--
                 DataTemplate tells WPF: "when Content is a DeliveryNoteDetailViewModel,
                 render it using DeliveryNoteDetailView."
                 The DataContext of the view is automatically set to the VM instance.
