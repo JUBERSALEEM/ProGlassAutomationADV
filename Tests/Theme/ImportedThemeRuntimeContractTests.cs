@@ -34,6 +34,11 @@ public sealed class ImportedThemeRuntimeContractTests
         Assert.Contains("SharedGeometry.Compose", runtime);
         Assert.Contains("ColorPlateState", runtime);
         Assert.Contains("IconService.Apply", runtime);
+        Assert.Contains("HasHostResource", runtime);
+        Assert.Contains("SurfacePrimaryBrush", runtime);
+        Assert.Contains("TypographyTitleSize", runtime);
+        Assert.Contains("PublishHostStyleAliases", runtime);
+        Assert.Contains("GetResource(object key)", File.ReadAllText(Path.Combine(root, "Theme/step1.a.ThemeEngine/step1.a.2.ThemeService.cs")));
         Assert.Contains("ImportedThemeRuntime.ApplyFromHost", pipeline);
         Assert.Contains("ImportedThemeRuntime.Initialize", startup);
         Assert.Contains("OpenImportedThemeStudioCommand", settings);

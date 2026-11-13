@@ -1,5 +1,6 @@
 using System.IO;
 using System.Windows;
+using System.Windows.Controls;
 using System.Windows.Media;
 using ProGlassAutomation.Customization;
 using ProGlassAutomation.ThemeClaymorphism;
@@ -179,38 +180,119 @@ public static class ImportedThemeRuntime
             ThemeManager.ApplyAccent(accent.Color, raiseEvent: false);
 
         var resources = app.Resources;
-        CopyBrush(engine, resources, "ApplicationBackground", "BackgroundBrush", "WindowBackgroundBrush");
-        CopyBrush(engine, resources, "SurfacePrimary", "ModuleBackgroundBrush");
-        CopyBrush(engine, resources, "SurfaceSecondary", "DialogInsetBrush");
-        CopyBrush(engine, resources, "SurfaceElevated", "ElevatedSurfaceBrush", "SideMenuBackgroundBrush", "DialogSurfaceBrush");
-        CopyBrush(engine, resources, "TextPrimary", "PrimaryForegroundBrush", "TextPrimaryBrush");
+        // Publish into the application's root as typed overrides. Most ERP keys
+        // live in MergedDictionaries, so ResourceDictionary.Contains on the root
+        // is not a reliable existence test; HasHostResource searches the full
+        // application resource graph before deliberately shadowing at the root.
+        CopyBrush(engine, resources, "HeroBackground", "HeroBackgroundBrush", "PgHeroBackgroundBrush");
+        CopyBrush(engine, resources, "HeroForeground", "HeroForegroundBrush", "PgHeroForegroundBrush");
+        CopyBrush(engine, resources, "HeroSecondaryText", "HeroSecondaryTextBrush");
+        CopyBrush(engine, resources, "HeroAccent", "HeroAccentBrush");
+        CopyBrush(engine, resources, "ApplicationBackground", "BackgroundBrush", "WindowBackgroundBrush", "WindowBackgroundBrush.Semantic");
+        CopyBrush(engine, resources, "SurfacePrimary", "ModuleBackgroundBrush", "SurfacePrimaryBrush", "SurfaceInputBrush", "Surface.WorkspaceBrush", "ReportPrimaryBrush");
+        CopyBrush(engine, resources, "SurfaceSecondary", "DialogInsetBrush", "SurfaceSecondaryBrush", "Surface.InputBrush", "ReportSecondaryBrush");
+        CopyBrush(engine, resources, "SurfaceElevated", "ElevatedSurfaceBrush", "SideMenuBackgroundBrush", "DialogSurfaceBrush", "SurfaceTertiaryBrush", "SurfaceOverlayBrush");
+        CopyBrush(engine, resources, "TextPrimary", "PrimaryForegroundBrush", "TextPrimaryBrush", "ReportTextBrush", "ReportHeaderBrush");
         CopyBrush(engine, resources, "TextSecondary", "SecondaryForegroundBrush", "TextSecondaryBrush");
-        CopyBrush(engine, resources, "TextMuted", "MutedForegroundBrush");
+        CopyBrush(engine, resources, "TextMuted", "MutedForegroundBrush", "TextTertiaryBrush");
+        CopyBrush(engine, resources, "TextOnAccent", "OnAccentForegroundBrush", "SelectionForegroundBrush");
+        CopyBrush(engine, resources, "AccentPrimary", "AccentBrush", "AccentColorBrush", "ReportAccentBrush", "TabActiveBrush");
+        CopyBrush(engine, resources, "AccentSecondary", "AccentSecondaryBrush");
+        CopyBrush(engine, resources, "AccentSoft", "AccentSoftBrush", "SelectionBrush", "TabHoverBrush");
         CopyBrush(engine, resources, "AccentHover", "AccentHoverBrush");
-        CopyBrush(engine, resources, "AccentPressed", "AccentPressedBrush");
-        CopyBrush(engine, resources, "FocusIndicator", "FocusIndicatorBrush");
-        CopyBrush(engine, resources, "BorderSubtle", "BorderBrush", "OutlineDefaultBrush", "DividerBrush");
-        CopyBrush(engine, resources, "StatusSuccess", "StatusSuccessBrush");
-        CopyBrush(engine, resources, "StatusWarning", "StatusWarningBrush");
-        CopyBrush(engine, resources, "StatusError", "StatusErrorBrush");
-        CopyBrush(engine, resources, "StatusInformation", "StatusInformationBrush");
+        CopyBrush(engine, resources, "AccentPressed", "AccentPressedBrush", "TabPressedBrush");
+        CopyBrush(engine, resources, "FocusIndicator", "FocusIndicatorBrush", "BorderFocusBrush", "InputFocusBorderBrush", "Input.FocusBrush", "TabFocusBrush");
+        CopyBrush(engine, resources, "BorderSubtle", "BorderBrush", "OutlineDefaultBrush", "DividerBrush", "BorderDefaultBrush", "ReportBorderBrush");
+        CopyBrush(engine, resources, "BorderStrong", "BorderStrongBrush", "OutlineStrongBrush", "InputBorderBrush");
+        CopyBrush(engine, resources, "StateHover", "StateHoverBrush");
+        CopyBrush(engine, resources, "StatePressed", "StatePressedBrush");
+        CopyBrush(engine, resources, "StateSelected", "StateSelectedBrush");
+        CopyBrush(engine, resources, "DisabledSurface", "DisabledSurfaceBrush");
+        CopyBrush(engine, resources, "DisabledText", "DisabledTextBrush", "TextDisabledBrush");
+        CopyBrush(engine, resources, "StatusSuccess", "StatusSuccessBrush", "SuccessBrush");
+        CopyBrush(engine, resources, "StatusSuccessSurface", "StatusSuccessSurfaceBrush", "SuccessSoftBrush");
+        CopyBrush(engine, resources, "StatusWarning", "StatusWarningBrush", "WarningBrush");
+        CopyBrush(engine, resources, "StatusWarningSurface", "StatusWarningSurfaceBrush", "WarningSoftBrush");
+        CopyBrush(engine, resources, "StatusError", "StatusErrorBrush", "DangerBrush");
+        CopyBrush(engine, resources, "StatusErrorSurface", "StatusErrorSurfaceBrush", "DangerSoftBrush");
+        CopyBrush(engine, resources, "StatusInformation", "StatusInformationBrush", "InfoBrush");
+        CopyBrush(engine, resources, "StatusInformationSurface", "StatusInformationSurfaceBrush", "InfoSoftBrush");
+        CopyBrush(engine, resources, "OverlayBrush", "OverlayBrush");
+        CopyBrush(engine, resources, "ChartAxis", "ChartAxisBrush");
+        CopyBrush(engine, resources, "ChartGrid", "ChartGridBrush");
+        CopyBrush(engine, resources, "ChartTooltipSurface", "ChartTooltipSurfaceBrush");
+        CopyBrush(engine, resources, "ChartTooltipText", "ChartTooltipTextBrush");
         for (int i = 1; i <= 4; i++) CopyBrush(engine, resources, $"ChartSeries{i}", $"ChartSeries{i}Brush");
-        CopyTyped(engine, resources, "FontFamilyBody", "AppFontFamily", "FontFamily.Body");
-        CopyTyped(engine, resources, "FontSizeBody", "FontSize.Body");
-        CopyTyped(engine, resources, "FontSizeTitle", "FontSize.Title");
-        CopyTyped(engine, resources, "FontSizeSection", "FontSize.Section");
-        CopyTyped(engine, resources, "FontSizeCaption", "FontSize.Caption");
-        CopyTyped(engine, resources, "CardCornerRadius", "CardCornerRadius", "Radius.Card");
-        CopyTyped(engine, resources, "ControlCornerRadius", "ControlCornerRadius", "Radius.Control");
+
+        CopyTyped(engine, resources, "FontFamilyBody", "AppFontFamily", "FontFamily.Body", "FontFamily.App");
+        CopyTyped(engine, resources, "FontFamilyMono", "FontFamily.Mono");
+        CopyTyped(engine, resources, "FontSizeDisplay", "FontSize.Display", "TypographyDisplaySize");
+        CopyTyped(engine, resources, "FontSizeTitle", "FontSize.Title", "TypographyTitleSize", "TypographyH1Size");
+        CopyTyped(engine, resources, "FontSizeSection", "FontSize.Section", "TypographyH2Size", "TypographySubtitleSize");
+        CopyTyped(engine, resources, "FontSizeBody", "FontSize.Body", "FontSize.Input", "FontSize.DataGrid", "TypographyBodySize");
+        CopyTyped(engine, resources, "FontSizeCaption", "FontSize.Caption", "TypographyCaptionSize", "TypographyLabelSize");
+        CopyTyped(engine, resources, "FontWeightHeading", "Weight.SemiBold", "TypographyHeadingWeight", "TypographyTitleWeight");
+        CopyTyped(engine, resources, "FontWeightBody", "Weight.Regular", "TypographyBodyWeight");
+        CopyTyped(engine, resources, "CardCornerRadius", "CardCornerRadius", "Radius.Card", "Radius.Panel");
+        CopyTyped(engine, resources, "ControlCornerRadius", "ControlCornerRadius", "Radius.Control", "Radius.Small");
+        CopyTyped(engine, resources, "ChipCornerRadius", "Radius.Chip", "Radius.Badge", "Radius.Tab");
+        CopyTyped(engine, resources, "ControlMinHeight", "Density.ControlHeight", "ControlHeight.Medium");
+        CopyTyped(engine, resources, "BentoRowHeight", "Density.RowHeight");
+        CopyTyped(engine, resources, "SpacingSmall", "Spacing.XS", "SpacingXS", "Space.Compact");
+        CopyTyped(engine, resources, "SpacingMedium", "Spacing.MD", "SpacingMD", "Space.Medium");
+        CopyTyped(engine, resources, "SpacingLarge", "Spacing.LG", "SpacingLG", "Space.Large");
+        CopyTyped(engine, resources, "SpacingSection", "Spacing.Section");
+        CopyTyped(engine, resources, "SpacingPage", "Spacing.Page");
+        CopyTyped(engine, resources, "PaddingControl", "Space.Control", "ControlPadding");
+        CopyTyped(engine, resources, "PaddingCard", "Space.Card", "CardPadding", "Density.CardPadding");
+        CopyTyped(engine, resources, "PaddingPage", "Space.Page", "PagePadding", "Density.PagePadding");
+        CopyTyped(engine, resources, "PaddingCompact", "Space.CompactPadding");
+        CopyTyped(engine, resources, "BorderThicknessControl", "Border.Default", "BorderThickness.Control");
+        CopyTyped(engine, resources, "FocusThickness", "Border.Focus", "FocusThickness");
+        CopyTyped(engine, resources, "DisabledOpacity", "Opacity.Disabled");
+        CopyTyped(engine, resources, "ChartPlotHeight", "Chart.PlotHeight");
+        CopyTyped(engine, resources, "ChartLineWidth", "Chart.LineWidth");
+        CopyTyped(engine, resources, "ChartPointSize", "Chart.PointSize");
+        PublishHostStyleAliases(resources);
     }
+
+    /// <summary>
+    /// Route the application's canonical explicit styles through the active
+    /// imported package. These are intentionally narrow aliases: TextBoxes,
+    /// editable ComboBoxes, DataGrids, and business-specific templates keep
+    /// their host contracts rather than being replaced with demo templates.
+    /// </summary>
+    private static void PublishHostStyleAliases(ResourceDictionary resources)
+    {
+        (string HostKey, object PackageKey)[] aliases =
+        [
+            ("PrimaryButtonStyle", "PrimaryButton"),
+            ("ModuleToolbarPrimaryButtonStyle", "PrimaryButton"),
+            ("Button.Primary", "PrimaryButton"),
+            ("SecondaryButtonStyle", typeof(Button)),
+            ("Button.Secondary", typeof(Button))
+        ];
+
+        foreach ((string hostKey, object packageKey) in aliases)
+        {
+            if (Application.Current?.TryFindResource(hostKey) is not Style hostStyle) continue;
+            if (engine.GetResource(packageKey) is not Style packageStyle ||
+                packageStyle.TargetType != hostStyle.TargetType) continue;
+            resources[hostKey] = packageStyle;
+        }
+    }
+
+    private static bool HasHostResource(string key) =>
+        Application.Current?.TryFindResource(key) is not null;
 
     private static void CopyBrush(ProGlassAutomation.Theming.ThemeService source, ResourceDictionary target, string sourceKey, params string[] targetKeys)
     {
         if (source.GetToken(sourceKey) is not Brush brush) return;
         foreach (string key in targetKeys)
         {
-            if (!target.Contains(key)) continue;
-            if (target[key] is Brush) target[key] = brush;
+            if (!HasHostResource(key)) continue;
+            object? existing = Application.Current?.TryFindResource(key);
+            if (existing is Brush) target[key] = brush;
         }
     }
 
@@ -219,8 +301,8 @@ public static class ImportedThemeRuntime
         object value = source.GetToken(sourceKey);
         foreach (string key in targetKeys)
         {
-            if (!target.Contains(key)) continue;
-            object existing = target[key];
+            if (!HasHostResource(key)) continue;
+            object? existing = Application.Current?.TryFindResource(key);
             if (existing is not null && existing.GetType() == value.GetType()) target[key] = value;
         }
     }

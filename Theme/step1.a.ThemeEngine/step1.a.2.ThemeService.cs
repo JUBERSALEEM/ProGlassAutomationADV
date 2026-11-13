@@ -102,6 +102,10 @@ public sealed class ThemeService : INotifyPropertyChanged
     public object GetToken(string key) => activeResources?[key]
         ?? throw new InvalidOperationException($"No active token named {key}.");
 
+    /// <summary>Returns an active package resource by string or WPF type key.</summary>
+    public object GetResource(object key) => activeResources?[key]
+        ?? throw new InvalidOperationException($"No active resource named {key}.");
+
     public static ResourceDictionary Load(Appearance appearance, string theme = Bento, Action<ResourceDictionary, Appearance>? configure = null)
     {
         if (!Enum.IsDefined(appearance)) throw new ArgumentOutOfRangeException(nameof(appearance));
