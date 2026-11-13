@@ -17,7 +17,7 @@
 
     <!-- ── TextBox ──────────────────────────────────────────────────── -->
     <Style x:Key="ModernTextBoxStyle" TargetType="TextBox">
-        <Setter Property="FontSize" Value="{StaticResource TextBodyLarge}"/>
+        <Setter Property="FontSize" Value="{DynamicResource TextBodyLarge}"/>
         <Setter Property="Foreground" Value="{DynamicResource TextPrimaryBrush}"/>
         <Setter Property="CaretBrush" Value="{DynamicResource TextPrimaryBrush}"/>
         <Setter Property="VerticalContentAlignment" Value="Center"/>
@@ -67,7 +67,7 @@
 
     <!-- ── PasswordBox ───────────────────────────────────────────────── -->
     <Style x:Key="ModernPasswordBoxStyle" TargetType="PasswordBox">
-        <Setter Property="FontSize" Value="{StaticResource TextBodyLarge}"/>
+        <Setter Property="FontSize" Value="{DynamicResource TextBodyLarge}"/>
         <Setter Property="Foreground" Value="{DynamicResource TextPrimaryBrush}"/>
         <Setter Property="CaretBrush" Value="{DynamicResource TextPrimaryBrush}"/>
         <Setter Property="VerticalContentAlignment" Value="Center"/>
@@ -119,7 +119,7 @@
          a VM string property) sees what the user types.
     ──────────────────────────────────────────────────────────────── -->
     <Style x:Key="ModernEditableComboBoxStyle" TargetType="ComboBox">
-        <Setter Property="FontSize" Value="{StaticResource TextBodyLarge}"/>
+        <Setter Property="FontSize" Value="{DynamicResource TextBodyLarge}"/>
         <Setter Property="Foreground" Value="{DynamicResource TextPrimaryBrush}"/>
         <!-- Same 2026-09-05 readability fix as the non-editable style. -->
         <Setter Property="Background" Value="{DynamicResource SurfaceOverlayBrush}"/>
@@ -136,7 +136,7 @@
 
     <!-- ── ComboBox ──────────────────────────────────────────────────── -->
     <Style x:Key="ModernComboBoxStyle" TargetType="ComboBox">
-        <Setter Property="FontSize" Value="{StaticResource TextBodyLarge}"/>
+        <Setter Property="FontSize" Value="{DynamicResource TextBodyLarge}"/>
         <Setter Property="Foreground" Value="{DynamicResource TextPrimaryBrush}"/>
         <!-- 2026-09-05 READABILITY FIX ("dropdowns are whitish, nothing
              visible"): the closed box used the GLASS WASH (~40% white,
@@ -278,7 +278,7 @@
         <Setter Property="Foreground" Value="{DynamicResource TextPrimaryBrush}"/>
         <Setter Property="Background" Value="Transparent"/>
         <Setter Property="Padding" Value="12,8"/>
-        <Setter Property="FontSize" Value="{StaticResource TextBodyLarge}"/>
+        <Setter Property="FontSize" Value="{DynamicResource TextBodyLarge}"/>
         <Setter Property="HorizontalContentAlignment" Value="Stretch"/>
         <Setter Property="SnapsToDevicePixels" Value="True"/>
         <Setter Property="Template">
