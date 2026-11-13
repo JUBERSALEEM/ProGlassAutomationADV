@@ -8,7 +8,7 @@ namespace ProGlassAutomation.Services.Theme.Engine
         Monet,
         Crystal,
         /// <summary>Legacy iOS 26 family retained for config migration only;
-        /// it is no longer one of the selectable eight theme families.</summary>
+        /// it is no longer one of the selectable nine theme families.</summary>
         Ios26,
         BentoGrid,
         SpatialImmersive,
@@ -17,7 +17,8 @@ namespace ProGlassAutomation.Services.Theme.Engine
         Neumorphism,
         Claymorphism,
         LiquidGlass,
-        Glassmorphism
+        Glassmorphism,
+        FluentAcrylic
     }
 
     public enum ProGlassThemeMode
