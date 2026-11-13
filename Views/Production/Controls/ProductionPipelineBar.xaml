@@ -70,7 +70,7 @@
                                             CornerRadius="12"
                                             Padding="10,6"
                                             Background="{DynamicResource SurfacePrimaryBrush}"
-                                            BorderBrush="{StaticResource OptIndigo}"
+                                            BorderBrush="{DynamicResource ThemeCardEdgeBrush}"
                                             BorderThickness="1.5"
                                             SnapsToDevicePixels="True">
                                         <StackPanel Orientation="Horizontal">

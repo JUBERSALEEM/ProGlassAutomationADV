@@ -710,6 +710,32 @@ namespace ProGlassAutomation.Tests.Theme
             Assert.DoesNotContain("#0F766E", xaml, StringComparison.OrdinalIgnoreCase);
         }
 
+        [Fact]
+        public void Production_kpi_badges_and_pipeline_chips_follow_family_materials()
+        {
+            string kpis = Read("Views/Production/Controls/ProductionKpiStrip.xaml");
+            string pipeline = Read("Views/Production/Controls/ProductionPipelineBar.xaml");
+            Assert.Contains("DynamicResource TintBlueBrush", kpis, StringComparison.Ordinal);
+            Assert.Contains("DynamicResource TintAmberBrush", kpis, StringComparison.Ordinal);
+            Assert.Contains("DynamicResource TintGreenBrush", kpis, StringComparison.Ordinal);
+            Assert.Contains("DynamicResource TextPrimaryBrush", kpis, StringComparison.Ordinal);
+            Assert.Contains("DynamicResource ThemeCardEdgeBrush", pipeline, StringComparison.Ordinal);
+            Assert.DoesNotContain("StaticResource OptSuccessBg", kpis, StringComparison.Ordinal);
+            Assert.DoesNotContain("StaticResource OptWarningBg", kpis, StringComparison.Ordinal);
+        }
+
+        [Fact]
+        public void Profitability_step_cards_use_nine_family_card_and_inset_materials()
+        {
+            string styles = Read("Themes/Styles/GlobalDesignSystem.xaml");
+            string profitLoss = Read("Views/ProformaInvoice/Step9ProfitLoss/ProfitLossStepView.xaml");
+            string sheetProfitability = Read("Views/ProformaInvoice/Step9ProfitLoss/SheetProfitabilityView.xaml");
+            Assert.Contains("x:Key=\"TgtCardStyle\" TargetType=\"Border\" BasedOn=\"{StaticResource ProGlassRewriteCardStyle}\"", styles, StringComparison.Ordinal);
+            Assert.Contains("x:Key=\"TgtInsetStyle\" TargetType=\"Border\" BasedOn=\"{StaticResource ProGlassRewriteInsetStyle}\"", styles, StringComparison.Ordinal);
+            Assert.Contains("TgtCardStyle", profitLoss, StringComparison.Ordinal);
+            Assert.Contains("TgtCardStyle", sheetProfitability, StringComparison.Ordinal);
+        }
+
         private static string ConstValue(string name)
         {
             var field = typeof(VisualThemeEngine).GetField(

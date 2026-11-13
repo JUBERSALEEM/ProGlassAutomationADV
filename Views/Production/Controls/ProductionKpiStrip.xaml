@@ -19,9 +19,9 @@
         <Border Style="{StaticResource OptKpiCard}" Margin="0,0,12,12">
             <StackPanel>
                 <StackPanel Orientation="Horizontal">
-                    <Border Style="{StaticResource OptKpiBadge}" Background="{StaticResource OptInfoBg}">
+                    <Border Style="{StaticResource OptKpiBadge}" Background="{DynamicResource TintBlueBrush}">
                         <TextBlock Text="&#xE8C6;" FontFamily="{DynamicResource FontFamily.Icon}" FontSize="16"
-                                   Foreground="{StaticResource OptInfoInk}"
+                                   Foreground="{DynamicResource TextPrimaryBrush}"
                                    HorizontalAlignment="Center" VerticalAlignment="Center"/>
                     </Border>
                     <TextBlock Text="In queue" Style="{StaticResource OptHeader}" VerticalAlignment="Center" Margin="12,0,0,0" TextWrapping="Wrap" MaxWidth="140"/>
@@ -34,9 +34,9 @@
         <Border Style="{StaticResource OptKpiCard}" Margin="0,0,12,12">
             <StackPanel>
                 <StackPanel Orientation="Horizontal">
-                    <Border Style="{StaticResource OptKpiBadge}" Background="{StaticResource OptWarningBg}">
+                    <Border Style="{StaticResource OptKpiBadge}" Background="{DynamicResource TintAmberBrush}">
                         <TextBlock Text="&#xE823;" FontFamily="{DynamicResource FontFamily.Icon}" FontSize="16"
-                                   Foreground="{StaticResource OptWarningInk}"
+                                   Foreground="{DynamicResource TextPrimaryBrush}"
                                    HorizontalAlignment="Center" VerticalAlignment="Center"/>
                     </Border>
                     <TextBlock Text="Pending" Style="{StaticResource OptHeader}" VerticalAlignment="Center" Margin="12,0,0,0" TextWrapping="Wrap" MaxWidth="140"/>
@@ -51,9 +51,9 @@
         <Border Style="{StaticResource OptKpiCard}" Margin="0,0,12,12">
             <StackPanel>
                 <StackPanel Orientation="Horizontal">
-                    <Border Style="{StaticResource OptKpiBadge}" Background="{StaticResource OptIndigoSoft}">
+                    <Border Style="{StaticResource OptKpiBadge}" Background="{DynamicResource TintIndigoBrush}">
                         <TextBlock Text="&#xE9D9;" FontFamily="{DynamicResource FontFamily.Icon}" FontSize="16"
-                                   Foreground="{StaticResource OptIndigo}"
+                                   Foreground="{DynamicResource TextPrimaryBrush}"
                                    HorizontalAlignment="Center" VerticalAlignment="Center"/>
                     </Border>
                     <TextBlock Text="In progress" Style="{StaticResource OptHeader}" VerticalAlignment="Center" Margin="12,0,0,0" TextWrapping="Wrap" MaxWidth="140"/>
@@ -68,9 +68,9 @@
         <Border Style="{StaticResource OptKpiCard}" Margin="0,0,12,12">
             <StackPanel>
                 <StackPanel Orientation="Horizontal">
-                    <Border Style="{StaticResource OptKpiBadge}" Background="{StaticResource OptSuccessBg}">
+                    <Border Style="{StaticResource OptKpiBadge}" Background="{DynamicResource TintGreenBrush}">
                         <TextBlock Text="&#xE73E;" FontFamily="{DynamicResource FontFamily.Icon}" FontSize="16"
-                                   Foreground="{StaticResource OptSuccessInk}"
+                                   Foreground="{DynamicResource TextPrimaryBrush}"
                                    HorizontalAlignment="Center" VerticalAlignment="Center"/>
                     </Border>
                     <TextBlock Text="Completed" Style="{StaticResource OptHeader}" VerticalAlignment="Center" Margin="12,0,0,0" TextWrapping="Wrap" MaxWidth="140"/>
@@ -85,9 +85,9 @@
         <Border Style="{StaticResource OptKpiCard}" Margin="0,0,12,12">
             <StackPanel>
                 <StackPanel Orientation="Horizontal">
-                    <Border Style="{StaticResource OptKpiBadge}" Background="{StaticResource OptAccentBg}">
+                    <Border Style="{StaticResource OptKpiBadge}" Background="{DynamicResource TintPurpleBrush}">
                         <TextBlock Text="&#xE9D2;" FontFamily="{DynamicResource FontFamily.Icon}" FontSize="16"
-                                   Foreground="{StaticResource OptAccentInk}"
+                                   Foreground="{DynamicResource TextPrimaryBrush}"
                                    HorizontalAlignment="Center" VerticalAlignment="Center"/>
                     </Border>
                     <TextBlock Text="Load" Style="{StaticResource OptHeader}" VerticalAlignment="Center" Margin="12,0,0,0" TextWrapping="Wrap" MaxWidth="140"/>
@@ -103,9 +103,9 @@
                 Visibility="{Binding ShowDispatchKpi, Converter={StaticResource BoolToVisibilityConverter}}">
             <StackPanel>
                 <StackPanel Orientation="Horizontal">
-                    <Border Style="{StaticResource OptKpiBadge}" Background="{StaticResource OptSuccessBg}">
+                    <Border Style="{StaticResource OptKpiBadge}" Background="{DynamicResource TintGreenBrush}">
                         <TextBlock Text="&#xE7BF;" FontFamily="{DynamicResource FontFamily.Icon}" FontSize="16"
-                                   Foreground="{StaticResource OptSuccessInk}"
+                                   Foreground="{DynamicResource TextPrimaryBrush}"
                                    HorizontalAlignment="Center" VerticalAlignment="Center"/>
                     </Border>
                     <TextBlock Text="Ready for dispatch" Style="{StaticResource OptHeader}" VerticalAlignment="Center" Margin="12,0,0,0" TextWrapping="Wrap" MaxWidth="140"/>

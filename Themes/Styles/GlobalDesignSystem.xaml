@@ -1235,9 +1235,9 @@
     <Style x:Key="SurfaceTextBox" TargetType="TextBox" BasedOn="{StaticResource Input.TextBox}"/>
     <Style x:Key="TableCellStyle" TargetType="TextBlock" BasedOn="{StaticResource Typography.Body}"/>
     <Style x:Key="TableSubTotalStyle" TargetType="TextBlock" BasedOn="{StaticResource Typography.Label}"/>
-    <Style x:Key="TgtCardStyle" TargetType="Border" BasedOn="{StaticResource SurfacePrimaryStyle}"/>
+    <Style x:Key="TgtCardStyle" TargetType="Border" BasedOn="{StaticResource ProGlassRewriteCardStyle}"/>
     <Style x:Key="TgtExportButton" TargetType="Button" BasedOn="{StaticResource Button.Primary}"/>
-    <Style x:Key="TgtInsetStyle" TargetType="Border" BasedOn="{StaticResource SurfaceSecondaryStyle}"/>
+    <Style x:Key="TgtInsetStyle" TargetType="Border" BasedOn="{StaticResource ProGlassRewriteInsetStyle}"/>
     <Style x:Key="TgtKvLabelStyle" TargetType="TextBlock" BasedOn="{StaticResource Typography.Label}"/>
     <Style x:Key="TgtKvValueStyle" TargetType="TextBlock" BasedOn="{StaticResource Typography.Body}"/>
     <Style x:Key="TgtMicroLabelStyle" TargetType="TextBlock" BasedOn="{StaticResource Typography.Caption}"/>

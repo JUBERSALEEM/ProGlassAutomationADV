@@ -212,3 +212,16 @@ Theme-specific styling must be token-driven and use dynamic resource resolution 
 - The cutting bed and piece fills now follow the active workspace surfaces; trim and breakout overlays use the live accent and amber tint; offcut and info states use live family-aware tints.
 - Cut labels use the active on-accent foreground, preserving contrast when the family accent changes.
 - Added regression coverage for the visualization's dynamic resource contract.
+
+
+### Production control status materials
+- Production KPI badge backgrounds now consume live blue, amber, indigo, green, and purple theme tints.
+- KPI badge foregrounds use the active theme text color rather than fixed optimization palette ink.
+- Production pipeline stage chips now use the family-owned card edge for their outlines.
+- Added regression checks for the production status and chip resource contract.
+
+
+### Internal profitability workspace card migration
+- The Proforma Invoice Step 9 profitability card aliases now inherit the nine-family rewrite card and inset styles instead of the generic legacy surface styles.
+- This updates the P&L, service profitability, and sheet profitability cards through their shared aliases without changing calculations, ViewModels, or financial data.
+- Added regression coverage for the shared profitability style contract.
