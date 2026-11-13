@@ -29,6 +29,7 @@ namespace ProGlassAutomation.Services.Theme.Engine
                 VisualThemeEngine.Claymorphism => ProGlassThemeFamily.Claymorphism,
                 VisualThemeEngine.LiquidGlass => ProGlassThemeFamily.LiquidGlass,
                 VisualThemeEngine.Glassmorphism => ProGlassThemeFamily.Glassmorphism,
+                VisualThemeEngine.FluentAcrylic => ProGlassThemeFamily.FluentAcrylic,
 
                 // Migrate old persisted identities and imported theme packs.
                 VisualThemeEngine.Monet => ProGlassThemeFamily.Claymorphism,
@@ -53,6 +54,7 @@ namespace ProGlassAutomation.Services.Theme.Engine
             ProGlassThemeFamily.Claymorphism => VisualThemeEngine.Claymorphism,
             ProGlassThemeFamily.LiquidGlass => VisualThemeEngine.LiquidGlass,
             ProGlassThemeFamily.Glassmorphism => VisualThemeEngine.Glassmorphism,
+            ProGlassThemeFamily.FluentAcrylic => VisualThemeEngine.FluentAcrylic,
             ProGlassThemeFamily.Monet => VisualThemeEngine.Claymorphism,
             ProGlassThemeFamily.Crystal or ProGlassThemeFamily.Ios26 => VisualThemeEngine.LiquidGlass,
             _ => VisualThemeEngine.BentoGrid
