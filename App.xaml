@@ -153,6 +153,9 @@
                      to the CrystalFluid environment dictionaries. -->
                 <ResourceDictionary Source="pack://application:,,,/Themes/Styles/MaterialTokens.xaml"/>
 
+                <!-- Shared token-driven components for the nine-theme rewrite. -->
+                <ResourceDictionary Source="pack://application:,,,/Themes/Styles/RewriteComponentStyles.xaml"/>
+
                 <!-- Modern rounded context-menu styles for every module's
                      right-click menu (Proforma / Job Order / Delivery Note /
                      Tax Invoice). -->

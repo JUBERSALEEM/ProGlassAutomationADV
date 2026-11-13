@@ -74,6 +74,25 @@ namespace ProGlassAutomation.Tests.Theme
         }
 
         [Fact]
+        public void Rewrite_component_primitives_are_merged_and_use_semantic_tokens()
+        {
+            string app = Read("App.xaml");
+            string styles = Read("Themes/Styles/RewriteComponentStyles.xaml");
+
+            Assert.Contains("Themes/Styles/RewriteComponentStyles.xaml", app, StringComparison.Ordinal);
+            Assert.Contains("x:Key=\"ProGlassRewriteWorkspaceStyle\"", styles, StringComparison.Ordinal);
+            Assert.Contains("x:Key=\"ProGlassRewriteCardStyle\"", styles, StringComparison.Ordinal);
+            Assert.Contains("x:Key=\"ProGlassRewriteRaisedCardStyle\"", styles, StringComparison.Ordinal);
+            Assert.Contains("x:Key=\"ProGlassRewriteInsetStyle\"", styles, StringComparison.Ordinal);
+            Assert.Contains("x:Key=\"ProGlassRewriteToolbarStyle\"", styles, StringComparison.Ordinal);
+            Assert.Contains("x:Key=\"ProGlassRewritePageHeaderStyle\"", styles, StringComparison.Ordinal);
+            Assert.Contains("DynamicResource SurfaceWorkspaceBrush", styles, StringComparison.Ordinal);
+            Assert.Contains("DynamicResource SurfacePrimaryBrush", styles, StringComparison.Ordinal);
+            Assert.Contains("DynamicResource CardCornerRadius", styles, StringComparison.Ordinal);
+            Assert.Contains("DynamicResource ControlCornerRadius", styles, StringComparison.Ordinal);
+        }
+
+        [Fact]
         public void ManagedKeys_ContainsEveryCrashCriticalBrush()
         {
             // ERR-50472F proved these must ALWAYS be family-managed:

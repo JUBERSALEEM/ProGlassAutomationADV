@@ -117,3 +117,12 @@ Theme-specific styling must be token-driven and use dynamic resource resolution 
 - Added a source regression test pinning the shell's use of dynamic geometry and surface tokens.
 - This is a deliberately small first shell migration: it preserves all named controls, popup anchors, DataTemplates, commands, and code-behind contracts.
 - **Not yet verified:** Windows compilation, test execution, and rendered shell screenshots. The changes are source-level only until a Windows runner validates them.
+
+
+### Phase 3 — shared rewrite component primitives (source changes committed)
+- Added `Themes/Styles/RewriteComponentStyles.xaml` with shared workspace, card, raised-card, inset, toolbar, page-header, section-title, body, and caption primitives.
+- Merged the dictionary after `MaterialTokens.xaml`, where its semantic surface and geometry dependencies are already available.
+- The styles resolve through the existing runtime theme tokens; they do not create a second theme engine or duplicate module views.
+- Added source regression coverage for dictionary registration, component keys, and semantic token usage.
+- **Adoption status:** the primitives are available application-wide but have not yet been applied across module screens. The next migration step is to adopt them in a representative module without changing its ViewModel or workflow.
+- **Not yet verified:** Windows compilation, test execution, and visual screenshots.
