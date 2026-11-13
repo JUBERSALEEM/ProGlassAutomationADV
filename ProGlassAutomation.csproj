@@ -79,6 +79,20 @@
 		<None Remove="Tests/**" />
 		<Page Remove="Tests/**" />
 		<Resource Remove="Tests/**" />
+
+		<!--
+		  Keep the imported theme engine's standalone test project out of
+		  the root WPF application's default SDK globs. In particular,
+		  generated files under Theme/step1.d.tests/obj/** contain their
+		  own TargetFramework and AssemblyInfo attributes; compiling them
+		  into ProGlassAutomation causes CS0579 duplicate-attribute errors.
+		  Exclude only the test project subtree so production Theme/** code
+		  remains part of the application.
+		-->
+		<Compile Remove="Theme/step1.d.tests/**" />
+		<None Remove="Theme/step1.d.tests/**" />
+		<Page Remove="Theme/step1.d.tests/**" />
+		<Resource Remove="Theme/step1.d.tests/**" />
 		<!--
 		  The licensing contract lives under Licensing/ as its OWN project
 		  (ProGlass.Licensing.csproj). SDK-style default globbing would
