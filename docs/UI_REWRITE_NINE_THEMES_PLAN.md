@@ -80,6 +80,20 @@ Theme-specific styling must be token-driven and use dynamic resource resolution 
 - Compare before/after workflows and record any known gaps.
 - Do not merge to the production branch until build/test evidence and owner review are complete.
 
+## Implementation log
+
+### Phase 1 — nine-theme catalogue integration (source changes committed)
+- The original application already contained eight selectable visual families; the ninth was missing.
+- Added **Fluent / Acrylic** to the existing family enum, persisted identity parsing, normalization, material palette, fallback palette, settings picker, config migration allowlist, and built-in wallpaper scene catalogue.
+- The Settings theme selector now presents nine cards in a 3×3 grid and labels the catalogue as nine visual systems.
+- Updated theme-registry and Settings source tests to include Fluent / Acrylic.
+- Static source checks confirm all nine IDs are present across normalization, painting, persistence, picker, and wallpaper catalogue.
+- **Not yet verified:** Windows compilation, unit-test execution, actual rendered Light/Dark screenshots, and live theme switching. No GitHub Actions run was available for this branch at the time of this update.
+
+### Default-theme decision
+- Existing config default remains **Liquid Glass** for compatibility.
+- **Bento Grid / Modular** remains the recommended new default, but it has not been switched in config because that would change the startup appearance for existing and new installations. Confirm before changing this persisted default.
+
 ## Non-negotiable safeguards
 - No database migration or schema change for visual redesign.
 - No edits to ViewModels/services/repositories unless a minimal presentation integration is essential and separately reviewed.
