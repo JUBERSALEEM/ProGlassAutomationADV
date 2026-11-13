@@ -390,6 +390,8 @@ namespace ProGlassAutomation.Services.Theme
             resources["Ios26TextBodyBrush"] = Solid(palette.Ink);
             resources["Ios26TextSecondaryBrush"] = Solid(palette.SecondaryInk);
             resources["Ios26TextMutedBrush"] = Solid(palette.MutedInk);
+            resources["Ios26TextFaintBrush"] = Alpha(palette.MutedInk, (byte)(dark ? 0xD0 : 0xB8));
+            resources["Ios26ValuePillBrush"] = Alpha(palette.Accent, (byte)(dark ? 0x34 : 0x1C));
 
             resources["LiquidGlassBrush"] = family == LiquidGlass
                 ? Gradient(
