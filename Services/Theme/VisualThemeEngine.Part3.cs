@@ -467,7 +467,7 @@ namespace ProGlassAutomation.Services.Theme
 
         private static string Normalize(string family)
         {
-            // Runtime identity is intentionally limited to the eight selectable
+            // Runtime identity is intentionally limited to the nine selectable
             // families. Old saved profiles and imported theme packs are mapped
             // to the nearest current material instead of reviving hidden themes.
             return family?.Trim() switch
@@ -480,6 +480,7 @@ namespace ProGlassAutomation.Services.Theme
                 Claymorphism => Claymorphism,
                 LiquidGlass => LiquidGlass,
                 Glassmorphism => Glassmorphism,
+                FluentAcrylic => FluentAcrylic,
 
                 // Compatibility mappings for configurations/theme packs created
                 // before the eight-family contract.
