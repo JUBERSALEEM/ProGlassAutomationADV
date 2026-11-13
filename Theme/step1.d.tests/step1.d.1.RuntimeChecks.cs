@@ -88,7 +88,8 @@ internal static class RuntimeChecks
                   ReferenceEquals(primaryStyle, ImportedThemeRuntime.Engine.GetResource("PrimaryButton")),
                 "host primary-button style resolves to the active imported family style");
             Check(app.TryFindResource("TextBoxStyle") is Style themedTextBox &&
-                  ReferenceEquals(themedTextBox.BasedOn, hostTextBoxStyle) && themedTextBox.Setters.Count > 0,
+                  ReferenceEquals(themedTextBox.BasedOn, hostTextBoxStyle) && themedTextBox.Setters.Count > 0 &&
+                  !themedTextBox.Setters.OfType<Setter>().Any(setter => setter.Property == Control.TemplateProperty),
                 "explicit ERP text-box style keeps its base contract and receives package presentation setters");
             Check(app.TryFindResource("ComboBoxStyle") is Style themedComboBox &&
                   ReferenceEquals(themedComboBox.BasedOn, hostComboBoxStyle) && themedComboBox.Setters.Count > 0,

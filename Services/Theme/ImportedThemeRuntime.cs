@@ -47,6 +47,7 @@ public static class ImportedThemeRuntime
                 catch (Exception ex) when (ex is IOException or ArgumentException or InvalidOperationException)
                 { Logging.AppLogService.Warning("Could not synchronize imported customization snapshot: " + ex.Message); }
             }
+            CaptureHostStyles(resources);
             engine.Initialize(resources, activeTheme, activeMode,
                 Configure(saved, activeTheme));
             engine.PackageChanged += OnPackageChanged;
@@ -260,61 +261,87 @@ public static class ImportedThemeRuntime
     }
 
     /// <summary>
-    /// Route the application's canonical explicit styles through the active
-    /// imported package. These are intentionally narrow aliases: TextBoxes,
-    /// editable ComboBoxes, DataGrids, and business-specific templates keep
-    /// their host contracts rather than being replaced with demo templates.
+    /// Adapt app-scoped explicit ERP styles to the active imported package.
+    /// Type-compatible host styles retain their existing templates and
+    /// interaction contracts while receiving safe package presentation setters.
     /// </summary>
+    private static void CaptureHostStyles(ResourceDictionary resources)
+    {
+        // Snapshot only the host graph, before the imported package is appended.
+        // This prevents package resources from being mistaken for ERP styles and
+        // lets us adapt explicit styles throughout shared app dictionaries.
+        CaptureHostStylesRecursive(resources);
+    }
+
+    private static void CaptureHostStylesRecursive(ResourceDictionary dictionary)
+    {
+        foreach (object key in dictionary.Keys)
+        {
+            if (key is not string name || hostBaseStyles.ContainsKey(name))
+                continue;
+            if (Application.Current?.TryFindResource(name) is Style style)
+                hostBaseStyles.Add(name, style);
+        }
+        foreach (ResourceDictionary merged in dictionary.MergedDictionaries)
+            CaptureHostStylesRecursive(merged);
+    }
+
     private static void PublishHostStyleAliases(ResourceDictionary resources)
     {
-        // Explicit host styles opt controls out of WPF's implicit style lookup.
-        // Preserve each ERP style as the BasedOn contract, then overlay only
-        // presentation properties from the active package's type styles. This
-        // intentionally leaves templates, bindings, validation, selection,
-        // editing and command behavior owned by the ERP.
-        (string HostKey, object PackageKey, bool FullPackageStyle)[] aliases =
-        [
-            ("PrimaryButtonStyle", "PrimaryButton", true),
-            ("ModuleToolbarPrimaryButtonStyle", "PrimaryButton", true),
-            ("Button.Primary", "PrimaryButton", true),
-            ("SecondaryButtonStyle", typeof(Button), true),
-            ("Button.Secondary", typeof(Button), true),
-            ("TextBoxStyle", typeof(TextBox), false),
-            ("Input.TextBox", typeof(TextBox), false),
-            ("SurfaceTextBox", typeof(TextBox), false),
-            ("Step4InputStyle", typeof(TextBox), false),
-            ("ComboBoxStyle", typeof(ComboBox), false),
-            ("ModernComboBoxStyle", typeof(ComboBox), false),
-            ("Step4ComboStyle", typeof(ComboBox), false),
-            ("SurfaceDataGrid", typeof(DataGrid), false),
-            ("GridHeaderCell", typeof(DataGridColumnHeader), false)
-        ];
-
-        foreach ((string hostKey, object packageKey, bool fullPackageStyle) in aliases)
+        // Explicit ERP styles opt out of WPF implicit-style lookup. For every
+        // host style whose target type has a corresponding imported type style,
+        // preserve the ERP style as BasedOn and add only allowlisted appearance
+        // setters. This reaches shared and module dictionaries without
+        // replacing templates, bindings, validation, selection, editing, or
+        // command behavior. The narrow primary-action styles deliberately keep
+        // the imported Button template as in the original adapter.
+        var fullPackageStyles = new HashSet<string>(StringComparer.Ordinal)
         {
-            if (Application.Current?.TryFindResource(hostKey) is not Style currentHostStyle)
-                continue;
-            if (!hostBaseStyles.TryGetValue(hostKey, out Style? baseStyle))
-                hostBaseStyles[hostKey] = baseStyle = currentHostStyle;
-            if (engine.GetResource(packageKey) is not Style packageStyle ||
-                packageStyle.TargetType != baseStyle.TargetType)
+            "PrimaryButtonStyle", "ModuleToolbarPrimaryButtonStyle", "Button.Primary",
+            "SecondaryButtonStyle", "Button.Secondary"
+        };
+
+        foreach ((string hostKey, Style baseStyle) in hostBaseStyles)
+        {
+            if (baseStyle.TargetType is not Type targetType ||
+                !TryGetPackageStyle(targetType, out Style packageStyle) ||
+                packageStyle.TargetType != targetType)
                 continue;
 
-            if (fullPackageStyle)
+            if (fullPackageStyles.Contains(hostKey) && targetType == typeof(Button))
             {
                 resources[hostKey] = packageStyle;
                 continue;
             }
 
-            var adapted = new Style(baseStyle.TargetType, baseStyle);
+            var adapted = new Style(targetType, baseStyle);
             foreach (SetterBase setterBase in packageStyle.Setters)
             {
                 if (setterBase is not Setter setter || !IsSafeThemeSetter(setter.Property))
                     continue;
                 adapted.Setters.Add(new Setter(setter.Property, setter.Value));
             }
-            resources[hostKey] = adapted;
+            if (adapted.Setters.Count > 0)
+                resources[hostKey] = adapted;
         }
+    }
+
+    private static bool TryGetPackageStyle(Type targetType, out Style style)
+    {
+        try
+        {
+            if (engine.GetResource(targetType) is Style found)
+            {
+                style = found;
+                return true;
+            }
+        }
+        catch (InvalidOperationException)
+        {
+            // Not every package defines an implicit style for every WPF type.
+        }
+        style = null!;
+        return false;
     }
 
     private static bool IsSafeThemeSetter(DependencyProperty property) =>
