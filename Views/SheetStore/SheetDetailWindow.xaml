@@ -12,7 +12,7 @@
         Width="1260" Height="880"
         MinWidth="980" MinHeight="640"
         ResizeMode="CanResizeWithGrip"
-        Background="{DynamicResource Ov.Canvas}"
+        Background="{DynamicResource SurfaceWorkspaceBrush}"
         FontFamily="{DynamicResource AppFontFamily}"
         TextOptions.TextFormattingMode="Ideal"
         TextOptions.TextRenderingMode="ClearType"
@@ -24,9 +24,6 @@
 
     <Window.Resources>
         <ResourceDictionary>
-            <ResourceDictionary.MergedDictionaries>
-                <ResourceDictionary Source="../Dashboard/Overview/IndigoStudioResources.xaml"/>
-            </ResourceDictionary.MergedDictionaries>
         </ResourceDictionary>
     </Window.Resources>
 
@@ -38,8 +35,8 @@
         </Grid.RowDefinitions>
 
         <!-- ═══ BENTO STATION HEADER ═════════════════════════════════ -->
-        <Border Grid.Row="0" Background="{DynamicResource Ov.Surface}"
-                BorderBrush="{DynamicResource Ov.Line}" BorderThickness="0,0,0,1"
+        <Border Grid.Row="0" Background="{DynamicResource ThemeCardFaceBrush}"
+                BorderBrush="{DynamicResource ThemeCardEdgeBrush}" BorderThickness="0,0,0,1"
                 Padding="24,14" MinHeight="64">
             <Grid>
                 <Grid.ColumnDefinitions>
@@ -48,15 +45,15 @@
                     <ColumnDefinition Width="Auto"/>
                 </Grid.ColumnDefinitions>
 
-                <Border Style="{StaticResource Ov.IconBox}" Grid.Column="0" Margin="0,0,12,0">
-                    <TextBlock Text="&#xE7B8;" Style="{StaticResource Ov.Glyph}"/>
+                <Border Style="{StaticResource ProGlassRewriteControlSurfaceStyle}" Grid.Column="0" Margin="0,0,12,0">
+                    <TextBlock Text="&#xE7B8;" Style="{StaticResource ProGlassRewriteCaptionStyle}"/>
                 </Border>
 
                 <StackPanel Grid.Column="1" VerticalAlignment="Center">
                     <TextBlock Text="{Binding HeaderTitle}"
-                               Style="{StaticResource Ov.CardTitle}" FontSize="{DynamicResource FontSize.H2}"/>
+                               Style="{StaticResource ProGlassRewriteSectionTitleStyle}" FontSize="{DynamicResource FontSize.H2}"/>
                     <TextBlock Text="{Binding HeaderSubtitle}"
-                               Style="{StaticResource Ov.Meta}"
+                               Style="{StaticResource ProGlassRewriteCaptionStyle}"
                                Margin="0,2,0,0"/>
                 </StackPanel>
 
@@ -70,8 +67,8 @@
 
         <!-- ═══ BENTO TAB RAIL ═══════════════════════════════════════ -->
         <Border Grid.Row="1"
-                Background="{DynamicResource Ov.Surface}"
-                BorderBrush="{DynamicResource Ov.Line}"
+                Background="{DynamicResource ThemeCardFaceBrush}"
+                BorderBrush="{DynamicResource ThemeCardEdgeBrush}"
                 BorderThickness="0,0,0,1"
                 Padding="24,8"
                 SnapsToDevicePixels="True">
@@ -278,7 +275,7 @@
         </Border>
 
         <!-- ═══ BENTO WORK DECK ═══════════════════════════════════════ -->
-        <Border Grid.Row="2" Background="{DynamicResource Ov.Canvas}" Padding="24,20">
+        <Border Grid.Row="2" Background="{DynamicResource SurfaceWorkspaceBrush}" Padding="24,20">
             <Grid>
 
                 <!-- ─── 1. OVERVIEW TAB ─── -->
@@ -303,48 +300,48 @@
                                 <ColumnDefinition Width="*"/>
                             </Grid.ColumnDefinitions>
 
-                            <Border Grid.Column="0" Style="{StaticResource Ov.CardMicro}" Margin="0,0,6,0">
+                            <Border Grid.Column="0" Style="{StaticResource ProGlassRewriteControlSurfaceStyle}" Margin="0,0,6,0">
                                 <StackPanel>
-                                    <TextBlock Text="STOCK" Style="{StaticResource Ov.Meta}"/>
+                                    <TextBlock Text="STOCK" Style="{StaticResource ProGlassRewriteCaptionStyle}"/>
                                     <Viewbox MaxHeight="26" HorizontalAlignment="Left" Margin="0,4,0,0">
-                                        <TextBlock Text="{Binding Sheet.Stock}" Style="{StaticResource Ov.Value}"/>
+                                        <TextBlock Text="{Binding Sheet.Stock}" Style="{StaticResource ProGlassRewriteBodyTextStyle}"/>
                                     </Viewbox>
                                 </StackPanel>
                             </Border>
 
-                            <Border Grid.Column="1" Style="{StaticResource Ov.CardMicro}" Margin="6,0">
+                            <Border Grid.Column="1" Style="{StaticResource ProGlassRewriteControlSurfaceStyle}" Margin="6,0">
                                 <StackPanel>
-                                    <TextBlock Text="USED" Style="{StaticResource Ov.Meta}"/>
+                                    <TextBlock Text="USED" Style="{StaticResource ProGlassRewriteCaptionStyle}"/>
                                     <Viewbox MaxHeight="26" HorizontalAlignment="Left" Margin="0,4,0,0">
-                                        <TextBlock Text="{Binding Sheet.Used}" Style="{StaticResource Ov.Value}" Foreground="{DynamicResource DangerBrush}"/>
+                                        <TextBlock Text="{Binding Sheet.Used}" Style="{StaticResource ProGlassRewriteBodyTextStyle}" Foreground="{DynamicResource DangerBrush}"/>
                                     </Viewbox>
                                 </StackPanel>
                             </Border>
 
-                            <Border Grid.Column="2" Style="{StaticResource Ov.CardMicro}" Margin="6,0">
+                            <Border Grid.Column="2" Style="{StaticResource ProGlassRewriteControlSurfaceStyle}" Margin="6,0">
                                 <StackPanel>
-                                    <TextBlock Text="BALANCE" Style="{StaticResource Ov.Meta}"/>
+                                    <TextBlock Text="BALANCE" Style="{StaticResource ProGlassRewriteCaptionStyle}"/>
                                     <Viewbox MaxHeight="26" HorizontalAlignment="Left" Margin="0,4,0,0">
-                                        <TextBlock Text="{Binding Sheet.Balance}" Style="{StaticResource Ov.Value}" Foreground="{DynamicResource SuccessBrush}"/>
+                                        <TextBlock Text="{Binding Sheet.Balance}" Style="{StaticResource ProGlassRewriteBodyTextStyle}" Foreground="{DynamicResource SuccessBrush}"/>
                                     </Viewbox>
                                 </StackPanel>
                             </Border>
 
-                            <Border Grid.Column="3" Style="{StaticResource Ov.CardMicro}" Margin="6,0,0,0">
+                            <Border Grid.Column="3" Style="{StaticResource ProGlassRewriteControlSurfaceStyle}" Margin="6,0,0,0">
                                 <StackPanel>
-                                    <TextBlock Text="SQM AVAILABLE" Style="{StaticResource Ov.Meta}"/>
+                                    <TextBlock Text="SQM AVAILABLE" Style="{StaticResource ProGlassRewriteCaptionStyle}"/>
                                     <Viewbox MaxHeight="26" HorizontalAlignment="Left" Margin="0,4,0,0">
-                                        <TextBlock Text="{Binding Sheet.TotalSqmBalance, StringFormat={}{0:N2}}" Style="{StaticResource Ov.Value}"/>
+                                        <TextBlock Text="{Binding Sheet.TotalSqmBalance, StringFormat={}{0:N2}}" Style="{StaticResource ProGlassRewriteBodyTextStyle}"/>
                                     </Viewbox>
                                 </StackPanel>
                             </Border>
                         </Grid>
 
                         <!-- Specification Bento Card -->
-                        <Border Style="{StaticResource Ov.CardCompact}">
+                        <Border Style="{StaticResource ProGlassRewriteInsetStyle}">
                             <StackPanel>
                                 <TextBlock Text="GLASS SPECIFICATION &amp; METRICS"
-                                           Style="{StaticResource Ov.Meta}"
+                                           Style="{StaticResource ProGlassRewriteCaptionStyle}"
                                            FontWeight="{DynamicResource Weight.Bold}"
                                            Foreground="{DynamicResource AccentBrush}"
                                            Margin="0,0,0,12"/>
@@ -363,44 +360,44 @@
                                         <RowDefinition Height="Auto"/>
                                     </Grid.RowDefinitions>
 
-                                    <Border Grid.Row="0" Grid.Column="0" Background="{DynamicResource Ov.Soft}" CornerRadius="{DynamicResource Radius.Medium}" Padding="12,10">
+                                    <Border Grid.Row="0" Grid.Column="0" Background="{DynamicResource ThemeControlFaceBrush}" CornerRadius="{DynamicResource Radius.Medium}" Padding="12,10">
                                         <StackPanel>
-                                            <TextBlock Text="CATEGORY" Style="{StaticResource Ov.Meta}"/>
+                                            <TextBlock Text="CATEGORY" Style="{StaticResource ProGlassRewriteCaptionStyle}"/>
                                             <TextBlock Text="{Binding Sheet.Category}" FontSize="{DynamicResource FontSize.Body}" FontWeight="{DynamicResource Weight.SemiBold}"/>
                                         </StackPanel>
                                     </Border>
 
-                                    <Border Grid.Row="0" Grid.Column="2" Background="{DynamicResource Ov.Soft}" CornerRadius="{DynamicResource Radius.Medium}" Padding="12,10">
+                                    <Border Grid.Row="0" Grid.Column="2" Background="{DynamicResource ThemeControlFaceBrush}" CornerRadius="{DynamicResource Radius.Medium}" Padding="12,10">
                                         <StackPanel>
-                                            <TextBlock Text="THICKNESS" Style="{StaticResource Ov.Meta}"/>
+                                            <TextBlock Text="THICKNESS" Style="{StaticResource ProGlassRewriteCaptionStyle}"/>
                                             <TextBlock Text="{Binding Sheet.ThicknessDisplay}" FontSize="{DynamicResource FontSize.Body}" FontWeight="{DynamicResource Weight.Bold}" Foreground="{DynamicResource AccentBrush}"/>
                                         </StackPanel>
                                     </Border>
 
-                                    <Border Grid.Row="0" Grid.Column="4" Background="{DynamicResource Ov.Soft}" CornerRadius="{DynamicResource Radius.Medium}" Padding="12,10">
+                                    <Border Grid.Row="0" Grid.Column="4" Background="{DynamicResource ThemeControlFaceBrush}" CornerRadius="{DynamicResource Radius.Medium}" Padding="12,10">
                                         <StackPanel>
-                                            <TextBlock Text="COLOUR" Style="{StaticResource Ov.Meta}"/>
+                                            <TextBlock Text="COLOUR" Style="{StaticResource ProGlassRewriteCaptionStyle}"/>
                                             <TextBlock Text="{Binding Sheet.Color}" FontSize="{DynamicResource FontSize.Body}" FontWeight="{DynamicResource Weight.SemiBold}"/>
                                         </StackPanel>
                                     </Border>
 
-                                    <Border Grid.Row="2" Grid.Column="0" Background="{DynamicResource Ov.Soft}" CornerRadius="{DynamicResource Radius.Medium}" Padding="12,10">
+                                    <Border Grid.Row="2" Grid.Column="0" Background="{DynamicResource ThemeControlFaceBrush}" CornerRadius="{DynamicResource Radius.Medium}" Padding="12,10">
                                         <StackPanel>
-                                            <TextBlock Text="SIZE (mm)" Style="{StaticResource Ov.Meta}"/>
+                                            <TextBlock Text="SIZE (mm)" Style="{StaticResource ProGlassRewriteCaptionStyle}"/>
                                             <TextBlock Text="{Binding Sheet.SizeDisplay}" FontSize="{DynamicResource FontSize.Body}" FontWeight="{DynamicResource Weight.SemiBold}"/>
                                         </StackPanel>
                                     </Border>
 
-                                    <Border Grid.Row="2" Grid.Column="2" Background="{DynamicResource Ov.Soft}" CornerRadius="{DynamicResource Radius.Medium}" Padding="12,10">
+                                    <Border Grid.Row="2" Grid.Column="2" Background="{DynamicResource ThemeControlFaceBrush}" CornerRadius="{DynamicResource Radius.Medium}" Padding="12,10">
                                         <StackPanel>
-                                            <TextBlock Text="SQM PER SHEET" Style="{StaticResource Ov.Meta}"/>
+                                            <TextBlock Text="SQM PER SHEET" Style="{StaticResource ProGlassRewriteCaptionStyle}"/>
                                             <TextBlock Text="{Binding Sheet.SqmPerSheet, StringFormat={}{0:N4}}" FontSize="{DynamicResource FontSize.Body}" FontWeight="{DynamicResource Weight.SemiBold}"/>
                                         </StackPanel>
                                     </Border>
 
-                                    <Border Grid.Row="2" Grid.Column="4" Background="{DynamicResource Ov.Soft}" CornerRadius="{DynamicResource Radius.Medium}" Padding="12,10">
+                                    <Border Grid.Row="2" Grid.Column="4" Background="{DynamicResource ThemeControlFaceBrush}" CornerRadius="{DynamicResource Radius.Medium}" Padding="12,10">
                                         <StackPanel>
-                                            <TextBlock Text="SUPPLIER" Style="{StaticResource Ov.Meta}"/>
+                                            <TextBlock Text="SUPPLIER" Style="{StaticResource ProGlassRewriteCaptionStyle}"/>
                                             <TextBlock Text="{Binding Sheet.Supplier}" FontSize="{DynamicResource FontSize.Body}" FontWeight="{DynamicResource Weight.SemiBold}" TextTrimming="CharacterEllipsis"/>
                                         </StackPanel>
                                     </Border>
@@ -433,36 +430,36 @@
                                 <ColumnDefinition Width="*"/>
                                 <ColumnDefinition Width="*"/>
                             </Grid.ColumnDefinitions>
-                            <Border Grid.Column="0" Style="{StaticResource Ov.CardMicro}" Margin="0,0,6,0">
+                            <Border Grid.Column="0" Style="{StaticResource ProGlassRewriteControlSurfaceStyle}" Margin="0,0,6,0">
                                 <StackPanel>
-                                    <TextBlock Text="QUANTITY" Style="{StaticResource Ov.Meta}"/>
-                                    <Viewbox MaxHeight="24" HorizontalAlignment="Left"><TextBlock Text="{Binding Quantity}" Style="{StaticResource Ov.Value}"/></Viewbox>
+                                    <TextBlock Text="QUANTITY" Style="{StaticResource ProGlassRewriteCaptionStyle}"/>
+                                    <Viewbox MaxHeight="24" HorizontalAlignment="Left"><TextBlock Text="{Binding Quantity}" Style="{StaticResource ProGlassRewriteBodyTextStyle}"/></Viewbox>
                                 </StackPanel>
                             </Border>
-                            <Border Grid.Column="1" Style="{StaticResource Ov.CardMicro}" Margin="6,0">
+                            <Border Grid.Column="1" Style="{StaticResource ProGlassRewriteControlSurfaceStyle}" Margin="6,0">
                                 <StackPanel>
-                                    <TextBlock Text="TOTAL SQM" Style="{StaticResource Ov.Meta}"/>
-                                    <Viewbox MaxHeight="24" HorizontalAlignment="Left"><TextBlock Text="{Binding TotalSqm, StringFormat={}{0:N2}}" Style="{StaticResource Ov.Value}"/></Viewbox>
+                                    <TextBlock Text="TOTAL SQM" Style="{StaticResource ProGlassRewriteCaptionStyle}"/>
+                                    <Viewbox MaxHeight="24" HorizontalAlignment="Left"><TextBlock Text="{Binding TotalSqm, StringFormat={}{0:N2}}" Style="{StaticResource ProGlassRewriteBodyTextStyle}"/></Viewbox>
                                 </StackPanel>
                             </Border>
-                            <Border Grid.Column="2" Style="{StaticResource Ov.CardMicro}" Margin="6,0">
+                            <Border Grid.Column="2" Style="{StaticResource ProGlassRewriteControlSurfaceStyle}" Margin="6,0">
                                 <StackPanel>
-                                    <TextBlock Text="TOTAL COST" Style="{StaticResource Ov.Meta}"/>
-                                    <Viewbox MaxHeight="24" HorizontalAlignment="Left"><TextBlock Text="{Binding TotalCost, StringFormat={}{0:N2} AED}" Style="{StaticResource Ov.Value}" Foreground="{DynamicResource AccentBrush}"/></Viewbox>
+                                    <TextBlock Text="TOTAL COST" Style="{StaticResource ProGlassRewriteCaptionStyle}"/>
+                                    <Viewbox MaxHeight="24" HorizontalAlignment="Left"><TextBlock Text="{Binding TotalCost, StringFormat={}{0:N2} AED}" Style="{StaticResource ProGlassRewriteBodyTextStyle}" Foreground="{DynamicResource AccentBrush}"/></Viewbox>
                                 </StackPanel>
                             </Border>
-                            <Border Grid.Column="3" Style="{StaticResource Ov.CardMicro}" Margin="6,0,0,0">
+                            <Border Grid.Column="3" Style="{StaticResource ProGlassRewriteControlSurfaceStyle}" Margin="6,0,0,0">
                                 <StackPanel>
-                                    <TextBlock Text="BALANCE AFTER" Style="{StaticResource Ov.Meta}"/>
-                                    <Viewbox MaxHeight="24" HorizontalAlignment="Left"><TextBlock Text="{Binding NewBalanceAfterBuy}" Style="{StaticResource Ov.Value}" Foreground="{DynamicResource SuccessBrush}"/></Viewbox>
+                                    <TextBlock Text="BALANCE AFTER" Style="{StaticResource ProGlassRewriteCaptionStyle}"/>
+                                    <Viewbox MaxHeight="24" HorizontalAlignment="Left"><TextBlock Text="{Binding NewBalanceAfterBuy}" Style="{StaticResource ProGlassRewriteBodyTextStyle}" Foreground="{DynamicResource SuccessBrush}"/></Viewbox>
                                 </StackPanel>
                             </Border>
                         </Grid>
 
                         <!-- Quantity Selector Card -->
-                        <Border Style="{StaticResource Ov.CardCompact}">
+                        <Border Style="{StaticResource ProGlassRewriteInsetStyle}">
                             <StackPanel>
-                                <TextBlock Text="QUANTITY TO BUY (SHEETS)" Style="{StaticResource Ov.Meta}" FontWeight="{DynamicResource Weight.Bold}" Margin="0,0,0,12"/>
+                                <TextBlock Text="QUANTITY TO BUY (SHEETS)" Style="{StaticResource ProGlassRewriteCaptionStyle}" FontWeight="{DynamicResource Weight.Bold}" Margin="0,0,0,12"/>
                                 <Grid HorizontalAlignment="Left">
                                     <Grid.ColumnDefinitions>
                                         <ColumnDefinition Width="48"/>
@@ -479,7 +476,7 @@
                                              FontSize="{DynamicResource FontSize.Display}" FontWeight="{DynamicResource Weight.Bold}"
                                              TextAlignment="Center" Height="40"
                                              VerticalContentAlignment="Center"
-                                             Background="{DynamicResource Ov.Soft}"
+                                             Background="{DynamicResource ThemeControlFaceBrush}"
                                              Foreground="{DynamicResource TextPrimaryBrush}"
                                              BorderThickness="0"/>
                                     <Button Grid.Column="2" Style="{StaticResource OutlinedPillButton}"
@@ -528,34 +525,34 @@
                                 <ColumnDefinition Width="*"/>
                                 <ColumnDefinition Width="*"/>
                             </Grid.ColumnDefinitions>
-                            <Border Grid.Column="0" Style="{StaticResource Ov.CardMicro}" Margin="0,0,6,0">
+                            <Border Grid.Column="0" Style="{StaticResource ProGlassRewriteControlSurfaceStyle}" Margin="0,0,6,0">
                                 <StackPanel>
-                                    <TextBlock Text="QUANTITY" Style="{StaticResource Ov.Meta}"/>
-                                    <Viewbox MaxHeight="24" HorizontalAlignment="Left"><TextBlock Text="{Binding Quantity}" Style="{StaticResource Ov.Value}"/></Viewbox>
+                                    <TextBlock Text="QUANTITY" Style="{StaticResource ProGlassRewriteCaptionStyle}"/>
+                                    <Viewbox MaxHeight="24" HorizontalAlignment="Left"><TextBlock Text="{Binding Quantity}" Style="{StaticResource ProGlassRewriteBodyTextStyle}"/></Viewbox>
                                 </StackPanel>
                             </Border>
-                            <Border Grid.Column="1" Style="{StaticResource Ov.CardMicro}" Margin="6,0">
+                            <Border Grid.Column="1" Style="{StaticResource ProGlassRewriteControlSurfaceStyle}" Margin="6,0">
                                 <StackPanel>
-                                    <TextBlock Text="TOTAL SQM" Style="{StaticResource Ov.Meta}"/>
-                                    <Viewbox MaxHeight="24" HorizontalAlignment="Left"><TextBlock Text="{Binding TotalSqm, StringFormat={}{0:N2}}" Style="{StaticResource Ov.Value}"/></Viewbox>
+                                    <TextBlock Text="TOTAL SQM" Style="{StaticResource ProGlassRewriteCaptionStyle}"/>
+                                    <Viewbox MaxHeight="24" HorizontalAlignment="Left"><TextBlock Text="{Binding TotalSqm, StringFormat={}{0:N2}}" Style="{StaticResource ProGlassRewriteBodyTextStyle}"/></Viewbox>
                                 </StackPanel>
                             </Border>
-                            <Border Grid.Column="2" Style="{StaticResource Ov.CardMicro}" Margin="6,0">
+                            <Border Grid.Column="2" Style="{StaticResource ProGlassRewriteControlSurfaceStyle}" Margin="6,0">
                                 <StackPanel>
-                                    <TextBlock Text="TOTAL VALUE" Style="{StaticResource Ov.Meta}"/>
-                                    <Viewbox MaxHeight="24" HorizontalAlignment="Left"><TextBlock Text="{Binding TotalValue, StringFormat={}{0:N2} AED}" Style="{StaticResource Ov.Value}" Foreground="{DynamicResource SuccessBrush}"/></Viewbox>
+                                    <TextBlock Text="TOTAL VALUE" Style="{StaticResource ProGlassRewriteCaptionStyle}"/>
+                                    <Viewbox MaxHeight="24" HorizontalAlignment="Left"><TextBlock Text="{Binding TotalValue, StringFormat={}{0:N2} AED}" Style="{StaticResource ProGlassRewriteBodyTextStyle}" Foreground="{DynamicResource SuccessBrush}"/></Viewbox>
                                 </StackPanel>
                             </Border>
-                            <Border Grid.Column="3" Style="{StaticResource Ov.CardMicro}" Margin="6,0,0,0">
+                            <Border Grid.Column="3" Style="{StaticResource ProGlassRewriteControlSurfaceStyle}" Margin="6,0,0,0">
                                 <StackPanel>
-                                    <TextBlock Text="BALANCE AFTER" Style="{StaticResource Ov.Meta}"/>
-                                    <Viewbox MaxHeight="24" HorizontalAlignment="Left"><TextBlock Text="{Binding RemainingBalance}" Style="{StaticResource Ov.Value}" Foreground="{DynamicResource SuccessBrush}"/></Viewbox>
+                                    <TextBlock Text="BALANCE AFTER" Style="{StaticResource ProGlassRewriteCaptionStyle}"/>
+                                    <Viewbox MaxHeight="24" HorizontalAlignment="Left"><TextBlock Text="{Binding RemainingBalance}" Style="{StaticResource ProGlassRewriteBodyTextStyle}" Foreground="{DynamicResource SuccessBrush}"/></Viewbox>
                                 </StackPanel>
                             </Border>
                         </Grid>
 
                         <!-- Error Blocker -->
-                        <Border Background="{DynamicResource Ov.DangerSoft}" BorderBrush="{DynamicResource DangerBrush}"
+                        <Border Background="{DynamicResource TintRedBrush}" BorderBrush="{DynamicResource DangerBrush}"
                                 BorderThickness="1" Padding="12,10" Margin="0,0,0,14" CornerRadius="{DynamicResource Radius.Medium}"
                                 Visibility="{Binding HasError, Converter={StaticResource BoolToVisibilityConverter}}">
                             <TextBlock Text="{Binding ErrorMessage}" TextWrapping="Wrap"
@@ -564,9 +561,9 @@
                         </Border>
 
                         <!-- Quantity Selector Card -->
-                        <Border Style="{StaticResource Ov.CardCompact}" Margin="0,0,0,14">
+                        <Border Style="{StaticResource ProGlassRewriteInsetStyle}" Margin="0,0,0,14">
                             <StackPanel>
-                                <TextBlock Text="QUANTITY TO USE (SHEETS)" Style="{StaticResource Ov.Meta}" FontWeight="{DynamicResource Weight.Bold}" Margin="0,0,0,12"/>
+                                <TextBlock Text="QUANTITY TO USE (SHEETS)" Style="{StaticResource ProGlassRewriteCaptionStyle}" FontWeight="{DynamicResource Weight.Bold}" Margin="0,0,0,12"/>
                                 <Grid HorizontalAlignment="Left">
                                     <Grid.ColumnDefinitions>
                                         <ColumnDefinition Width="48"/>
@@ -583,7 +580,7 @@
                                              FontSize="{DynamicResource FontSize.Display}" FontWeight="{DynamicResource Weight.Bold}"
                                              TextAlignment="Center" Height="40"
                                              VerticalContentAlignment="Center"
-                                             Background="{DynamicResource Ov.Soft}"
+                                             Background="{DynamicResource ThemeControlFaceBrush}"
                                              Foreground="{DynamicResource TextPrimaryBrush}"
                                              BorderThickness="0"/>
                                     <Button Grid.Column="2" Style="{StaticResource OutlinedPillButton}"
@@ -601,9 +598,9 @@
                         </Border>
 
                         <!-- Traceability Card -->
-                        <Border Style="{StaticResource Ov.CardCompact}">
+                        <Border Style="{StaticResource ProGlassRewriteInsetStyle}">
                             <StackPanel>
-                                <TextBlock Text="TRACEABILITY &amp; JOB ALLOCATION" Style="{StaticResource Ov.Meta}" FontWeight="{DynamicResource Weight.Bold}" Margin="0,0,0,12"/>
+                                <TextBlock Text="TRACEABILITY &amp; JOB ALLOCATION" Style="{StaticResource ProGlassRewriteCaptionStyle}" FontWeight="{DynamicResource Weight.Bold}" Margin="0,0,0,12"/>
                                 <Grid>
                                     <Grid.ColumnDefinitions>
                                         <ColumnDefinition Width="*"/>
@@ -619,27 +616,27 @@
                                     </Grid.RowDefinitions>
 
                                     <StackPanel Grid.Row="0" Grid.Column="0">
-                                        <TextBlock Text="JOB / INVOICE REF" Style="{StaticResource Ov.Meta}" Margin="0,0,0,4"/>
+                                        <TextBlock Text="JOB / INVOICE REF" Style="{StaticResource ProGlassRewriteCaptionStyle}" Margin="0,0,0,4"/>
                                         <TextBox Text="{Binding JobOrderReference, UpdateSourceTrigger=PropertyChanged}" Style="{StaticResource DetailEntry}"/>
                                     </StackPanel>
 
                                     <StackPanel Grid.Row="0" Grid.Column="2">
-                                        <TextBlock Text="CUSTOMER" Style="{StaticResource Ov.Meta}" Margin="0,0,0,4"/>
+                                        <TextBlock Text="CUSTOMER" Style="{StaticResource ProGlassRewriteCaptionStyle}" Margin="0,0,0,4"/>
                                         <TextBox Text="{Binding CustomerName, UpdateSourceTrigger=PropertyChanged}" Style="{StaticResource DetailEntry}"/>
                                     </StackPanel>
 
                                     <StackPanel Grid.Row="0" Grid.Column="4">
-                                        <TextBlock Text="PROJECT" Style="{StaticResource Ov.Meta}" Margin="0,0,0,4"/>
+                                        <TextBlock Text="PROJECT" Style="{StaticResource ProGlassRewriteCaptionStyle}" Margin="0,0,0,4"/>
                                         <TextBox Text="{Binding ProjectName, UpdateSourceTrigger=PropertyChanged}" Style="{StaticResource DetailEntry}"/>
                                     </StackPanel>
 
                                     <StackPanel Grid.Row="2" Grid.Column="0">
-                                        <TextBlock Text="SALESMAN" Style="{StaticResource Ov.Meta}" Margin="0,0,0,4"/>
+                                        <TextBlock Text="SALESMAN" Style="{StaticResource ProGlassRewriteCaptionStyle}" Margin="0,0,0,4"/>
                                         <TextBox Text="{Binding Salesman, UpdateSourceTrigger=PropertyChanged}" Style="{StaticResource DetailEntry}"/>
                                     </StackPanel>
 
                                     <StackPanel Grid.Row="2" Grid.Column="2">
-                                        <TextBlock Text="PANE POSITION" Style="{StaticResource Ov.Meta}" Margin="0,0,0,4"/>
+                                        <TextBlock Text="PANE POSITION" Style="{StaticResource ProGlassRewriteCaptionStyle}" Margin="0,0,0,4"/>
                                         <ComboBox Text="{Binding PanePosition, UpdateSourceTrigger=PropertyChanged}" Style="{StaticResource DetailCombo}">
                                             <ComboBoxItem Content="Outer"/>
                                             <ComboBoxItem Content="Inner"/>
@@ -672,9 +669,9 @@
                     </ScrollViewer.Style>
                     <StackPanel DataContext="{Binding Editor}">
                         <!-- Card 1: Identity -->
-                        <Border Style="{StaticResource Ov.CardCompact}" Margin="0,0,0,12">
+                        <Border Style="{StaticResource ProGlassRewriteInsetStyle}" Margin="0,0,0,12">
                             <StackPanel>
-                                <TextBlock Text="IDENTITY &amp; SPECIFICATIONS" Style="{StaticResource Ov.Meta}" FontWeight="{DynamicResource Weight.Bold}" Margin="0,0,0,12"/>
+                                <TextBlock Text="IDENTITY &amp; SPECIFICATIONS" Style="{StaticResource ProGlassRewriteCaptionStyle}" FontWeight="{DynamicResource Weight.Bold}" Margin="0,0,0,12"/>
                                 <Grid>
                                     <Grid.ColumnDefinitions>
                                         <ColumnDefinition Width="*"/>
@@ -685,7 +682,7 @@
                                     </Grid.ColumnDefinitions>
 
                                     <StackPanel Grid.Column="0">
-                                        <TextBlock Text="CATEGORY" Style="{StaticResource Ov.Meta}" Margin="0,0,0,4"/>
+                                        <TextBlock Text="CATEGORY" Style="{StaticResource ProGlassRewriteCaptionStyle}" Margin="0,0,0,4"/>
                                         <ComboBox ItemsSource="{Binding CategoryOptions}"
                                                   Text="{Binding Category, UpdateSourceTrigger=PropertyChanged}"
                                                   Style="{StaticResource DetailCombo}"
@@ -696,7 +693,7 @@
                                     </StackPanel>
 
                                     <StackPanel Grid.Column="2">
-                                        <TextBlock Text="THICKNESS (mm)" Style="{StaticResource Ov.Meta}" Margin="0,0,0,4"/>
+                                        <TextBlock Text="THICKNESS (mm)" Style="{StaticResource ProGlassRewriteCaptionStyle}" Margin="0,0,0,4"/>
                                         <ComboBox ItemsSource="{Binding ThicknessOptions}"
                                                   Text="{Binding ThicknessText, UpdateSourceTrigger=PropertyChanged}"
                                                   Style="{StaticResource DetailCombo}"
@@ -707,7 +704,7 @@
                                     </StackPanel>
 
                                     <StackPanel Grid.Column="4">
-                                        <TextBlock Text="COLOUR" Style="{StaticResource Ov.Meta}" Margin="0,0,0,4"/>
+                                        <TextBlock Text="COLOUR" Style="{StaticResource ProGlassRewriteCaptionStyle}" Margin="0,0,0,4"/>
                                         <ComboBox ItemsSource="{Binding ColorOptions}"
                                                   Text="{Binding Color, UpdateSourceTrigger=PropertyChanged}"
                                                   Style="{StaticResource DetailCombo}"
@@ -721,9 +718,9 @@
                         </Border>
 
                         <!-- Card 2: Dimensions & Supplier -->
-                        <Border Style="{StaticResource Ov.CardCompact}" Margin="0,0,0,12">
+                        <Border Style="{StaticResource ProGlassRewriteInsetStyle}" Margin="0,0,0,12">
                             <StackPanel>
-                                <TextBlock Text="DIMENSIONS &amp; SUPPLIER" Style="{StaticResource Ov.Meta}" FontWeight="{DynamicResource Weight.Bold}" Margin="0,0,0,12"/>
+                                <TextBlock Text="DIMENSIONS &amp; SUPPLIER" Style="{StaticResource ProGlassRewriteCaptionStyle}" FontWeight="{DynamicResource Weight.Bold}" Margin="0,0,0,12"/>
                                 <Grid>
                                     <Grid.ColumnDefinitions>
                                         <ColumnDefinition Width="*"/>
@@ -734,7 +731,7 @@
                                     </Grid.ColumnDefinitions>
 
                                     <StackPanel Grid.Column="0">
-                                        <TextBlock Text="WIDTH (mm)" Style="{StaticResource Ov.Meta}" Margin="0,0,0,4"/>
+                                        <TextBlock Text="WIDTH (mm)" Style="{StaticResource ProGlassRewriteCaptionStyle}" Margin="0,0,0,4"/>
                                         <ComboBox ItemsSource="{Binding WidthOptions}"
                                                   Text="{Binding WidthText, UpdateSourceTrigger=PropertyChanged}"
                                                   Style="{StaticResource DetailCombo}"
@@ -745,7 +742,7 @@
                                     </StackPanel>
 
                                     <StackPanel Grid.Column="2">
-                                        <TextBlock Text="HEIGHT (mm)" Style="{StaticResource Ov.Meta}" Margin="0,0,0,4"/>
+                                        <TextBlock Text="HEIGHT (mm)" Style="{StaticResource ProGlassRewriteCaptionStyle}" Margin="0,0,0,4"/>
                                         <ComboBox ItemsSource="{Binding HeightOptions}"
                                                   Text="{Binding HeightText, UpdateSourceTrigger=PropertyChanged}"
                                                   Style="{StaticResource DetailCombo}"
@@ -756,7 +753,7 @@
                                     </StackPanel>
 
                                     <StackPanel Grid.Column="4">
-                                        <TextBlock Text="SUPPLIER" Style="{StaticResource Ov.Meta}" Margin="0,0,0,4"/>
+                                        <TextBlock Text="SUPPLIER" Style="{StaticResource ProGlassRewriteCaptionStyle}" Margin="0,0,0,4"/>
                                         <ComboBox ItemsSource="{Binding SupplierOptions}"
                                                   Text="{Binding Supplier, UpdateSourceTrigger=PropertyChanged}"
                                                   Style="{StaticResource DetailCombo}"
@@ -770,9 +767,9 @@
                         </Border>
 
                         <!-- Card 3: Pricing & Stock -->
-                        <Border Style="{StaticResource Ov.CardCompact}">
+                        <Border Style="{StaticResource ProGlassRewriteInsetStyle}">
                             <StackPanel>
-                                <TextBlock Text="PRICING &amp; WAREHOUSE STOCK" Style="{StaticResource Ov.Meta}" FontWeight="{DynamicResource Weight.Bold}" Margin="0,0,0,12"/>
+                                <TextBlock Text="PRICING &amp; WAREHOUSE STOCK" Style="{StaticResource ProGlassRewriteCaptionStyle}" FontWeight="{DynamicResource Weight.Bold}" Margin="0,0,0,12"/>
                                 <Grid>
                                     <Grid.ColumnDefinitions>
                                         <ColumnDefinition Width="*"/>
@@ -783,7 +780,7 @@
                                     </Grid.ColumnDefinitions>
 
                                     <StackPanel Grid.Column="0">
-                                        <TextBlock Text="PURCHASE / SQM" Style="{StaticResource Ov.Meta}" Margin="0,0,0,4"/>
+                                        <TextBlock Text="PURCHASE / SQM" Style="{StaticResource ProGlassRewriteCaptionStyle}" Margin="0,0,0,4"/>
                                         <TextBox Text="{Binding PurchasePriceText, UpdateSourceTrigger=PropertyChanged}"
                                                  behaviors:TextBoxBehaviors.AcceptDecimals="True"
                                                  behaviors:TextBoxBehaviors.SelectAllOnFocus="True"
@@ -794,7 +791,7 @@
                                     </StackPanel>
 
                                     <StackPanel Grid.Column="2">
-                                        <TextBlock Text="SELL / SQM" Style="{StaticResource Ov.Meta}" Margin="0,0,0,4"/>
+                                        <TextBlock Text="SELL / SQM" Style="{StaticResource ProGlassRewriteCaptionStyle}" Margin="0,0,0,4"/>
                                         <TextBox Text="{Binding SellPriceText, UpdateSourceTrigger=PropertyChanged}"
                                                  behaviors:TextBoxBehaviors.AcceptDecimals="True"
                                                  behaviors:TextBoxBehaviors.SelectAllOnFocus="True"
@@ -805,7 +802,7 @@
                                     </StackPanel>
 
                                     <StackPanel Grid.Column="4">
-                                        <TextBlock Text="STOCK (SHEETS)" Style="{StaticResource Ov.Meta}" Margin="0,0,0,4"/>
+                                        <TextBlock Text="STOCK (SHEETS)" Style="{StaticResource ProGlassRewriteCaptionStyle}" Margin="0,0,0,4"/>
                                         <TextBox Text="{Binding StockText, UpdateSourceTrigger=PropertyChanged}"
                                                  behaviors:TextBoxBehaviors.AcceptIntegersOnly="True"
                                                  behaviors:TextBoxBehaviors.SelectAllOnFocus="True"
@@ -881,7 +878,7 @@
                     </TextBlock>
 
                     <!-- Movements Table -->
-                    <Border Style="{StaticResource Ov.Card}" Padding="0"
+                    <Border Style="{StaticResource ProGlassRewriteCardStyle}" Padding="0"
                             Visibility="{Binding HasNoMovements, Converter={StaticResource InverseBoolToVisibilityConverter}}">
                         <Grid>
                             <Grid.RowDefinitions>
@@ -921,8 +918,8 @@
                                 <ListView.ItemTemplate>
                                     <DataTemplate>
                                         <Border CornerRadius="{DynamicResource Radius.Medium}" Padding="10,6" Margin="0,0,0,4"
-                                                Background="{DynamicResource Ov.Surface}"
-                                                BorderBrush="{DynamicResource Ov.Line}"
+                                                Background="{DynamicResource ThemeCardFaceBrush}"
+                                                BorderBrush="{DynamicResource ThemeCardEdgeBrush}"
                                                 BorderThickness="1" SnapsToDevicePixels="True">
                                             <Grid>
                                                 <Grid.ColumnDefinitions>
@@ -993,38 +990,38 @@
                                 <ColumnDefinition Width="*"/>
                                 <ColumnDefinition Width="*"/>
                             </Grid.ColumnDefinitions>
-                            <Border Grid.Column="0" Style="{StaticResource Ov.CardMicro}" Margin="0,0,6,0">
+                            <Border Grid.Column="0" Style="{StaticResource ProGlassRewriteControlSurfaceStyle}" Margin="0,0,6,0">
                                 <StackPanel>
-                                    <TextBlock Text="BALANCE AT COST" Style="{StaticResource Ov.Meta}"/>
+                                    <TextBlock Text="BALANCE AT COST" Style="{StaticResource ProGlassRewriteCaptionStyle}"/>
                                     <Viewbox MaxHeight="26" HorizontalAlignment="Left" Margin="0,4,0,0">
-                                        <TextBlock Text="{Binding BalanceValueAtCost, StringFormat={}{0:N2} AED}" Style="{StaticResource Ov.Value}"/>
+                                        <TextBlock Text="{Binding BalanceValueAtCost, StringFormat={}{0:N2} AED}" Style="{StaticResource ProGlassRewriteBodyTextStyle}"/>
                                     </Viewbox>
                                 </StackPanel>
                             </Border>
-                            <Border Grid.Column="1" Style="{StaticResource Ov.CardMicro}" Margin="6,0">
+                            <Border Grid.Column="1" Style="{StaticResource ProGlassRewriteControlSurfaceStyle}" Margin="6,0">
                                 <StackPanel>
-                                    <TextBlock Text="BALANCE AT SELL" Style="{StaticResource Ov.Meta}"/>
+                                    <TextBlock Text="BALANCE AT SELL" Style="{StaticResource ProGlassRewriteCaptionStyle}"/>
                                     <Viewbox MaxHeight="26" HorizontalAlignment="Left" Margin="0,4,0,0">
-                                        <TextBlock Text="{Binding BalanceValueAtSell, StringFormat={}{0:N2} AED}" Style="{StaticResource Ov.Value}"/>
+                                        <TextBlock Text="{Binding BalanceValueAtSell, StringFormat={}{0:N2} AED}" Style="{StaticResource ProGlassRewriteBodyTextStyle}"/>
                                     </Viewbox>
                                 </StackPanel>
                             </Border>
-                            <Border Grid.Column="2" Style="{StaticResource Ov.CardMicro}" Margin="6,0,0,0">
+                            <Border Grid.Column="2" Style="{StaticResource ProGlassRewriteControlSurfaceStyle}" Margin="6,0,0,0">
                                 <StackPanel>
-                                    <TextBlock Text="POTENTIAL PROFIT" Style="{StaticResource Ov.Meta}"/>
+                                    <TextBlock Text="POTENTIAL PROFIT" Style="{StaticResource ProGlassRewriteCaptionStyle}"/>
                                     <Viewbox MaxHeight="26" HorizontalAlignment="Left" Margin="0,4,0,0">
-                                        <TextBlock Text="{Binding PotentialProfit, StringFormat={}{0:N2} AED}" Style="{StaticResource Ov.Value}" Foreground="{DynamicResource SuccessBrush}"/>
+                                        <TextBlock Text="{Binding PotentialProfit, StringFormat={}{0:N2} AED}" Style="{StaticResource ProGlassRewriteBodyTextStyle}" Foreground="{DynamicResource SuccessBrush}"/>
                                     </Viewbox>
                                 </StackPanel>
                             </Border>
                         </Grid>
 
                         <!-- Margin Card -->
-                        <Border Style="{StaticResource Ov.CardCompact}" Margin="0,0,0,12">
+                        <Border Style="{StaticResource ProGlassRewriteInsetStyle}" Margin="0,0,0,12">
                             <StackPanel>
-                                <TextBlock Text="PROFIT MARGIN" Style="{StaticResource Ov.Meta}" FontWeight="{DynamicResource Weight.Bold}" Margin="0,0,0,8"/>
+                                <TextBlock Text="PROFIT MARGIN" Style="{StaticResource ProGlassRewriteCaptionStyle}" FontWeight="{DynamicResource Weight.Bold}" Margin="0,0,0,8"/>
                                 <Viewbox MaxHeight="36" HorizontalAlignment="Left">
-                                    <TextBlock Text="{Binding MarginDisplay}" Style="{StaticResource Ov.Value}" Foreground="{DynamicResource AccentBrush}"/>
+                                    <TextBlock Text="{Binding MarginDisplay}" Style="{StaticResource ProGlassRewriteBodyTextStyle}" Foreground="{DynamicResource AccentBrush}"/>
                                 </Viewbox>
                                 <TextBlock TextWrapping="Wrap" Margin="0,8,0,0"
                                            FontSize="{DynamicResource FontSize.BodySmall}"
@@ -1045,9 +1042,9 @@
                         </Border>
 
                         <!-- Consumption Card -->
-                        <Border Style="{StaticResource Ov.CardCompact}">
+                        <Border Style="{StaticResource ProGlassRewriteInsetStyle}">
                             <StackPanel>
-                                <TextBlock Text="CONSUMPTION" Style="{StaticResource Ov.Meta}" FontWeight="{DynamicResource Weight.Bold}" Margin="0,0,0,8"/>
+                                <TextBlock Text="CONSUMPTION" Style="{StaticResource ProGlassRewriteCaptionStyle}" FontWeight="{DynamicResource Weight.Bold}" Margin="0,0,0,8"/>
                                 <TextBlock Text="{Binding ConsumptionPercent, StringFormat={}{0:N1}% of stock used}"
                                            FontSize="{DynamicResource FontSize.H2}" FontWeight="{DynamicResource Weight.Bold}"
                                            Foreground="{DynamicResource TextPrimaryBrush}"/>

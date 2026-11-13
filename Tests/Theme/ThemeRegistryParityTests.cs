@@ -861,6 +861,18 @@ namespace ProGlassAutomation.Tests.Theme
             }
         }
 
+        [Fact]
+        public void Sheet_detail_workspace_uses_nine_family_materials_without_indigo_palette()
+        {
+            string xaml = Read("Views/SheetStore/SheetDetailWindow.xaml");
+            Assert.DoesNotContain("IndigoStudioResources.xaml", xaml, StringComparison.Ordinal);
+            Assert.DoesNotContain("Ov.", xaml, StringComparison.Ordinal);
+            Assert.Contains("DynamicResource SurfaceWorkspaceBrush", xaml, StringComparison.Ordinal);
+            Assert.Contains("ProGlassRewriteCardStyle", xaml, StringComparison.Ordinal);
+            Assert.Contains("ProGlassRewriteInsetStyle", xaml, StringComparison.Ordinal);
+            Assert.Contains("ProGlassRewriteControlSurfaceStyle", xaml, StringComparison.Ordinal);
+        }
+
         private static string ConstValue(string name)
         {
             var field = typeof(VisualThemeEngine).GetField(

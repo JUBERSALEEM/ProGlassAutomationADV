@@ -269,3 +269,9 @@ Theme-specific styling must be token-driven and use dynamic resource resolution 
 - Buy Stock, Use Stock, consumable Item Movement, and CSV Duplicate Resolution dialogs now use nine-family inset/control surfaces, typography, and semantic status tints instead of legacy Ov.* component tokens.
 - Stock quantity, valuation, audit, and import-resolution bindings and commands are unchanged.
 - Added regression coverage for all four dialog resource contracts.
+
+
+### Sheet Detail workspace theme migration
+- The full Sheet Detail workspace no longer merges the fixed Indigo dashboard palette or references its Ov.* brushes/styles.
+- Its card, compact card, icon tile, metadata, value, and inset surfaces now use the nine-family shared component styles and active theme materials.
+- Sheet identity, tab navigation, purchase/use/edit/movement workflows, inventory calculations, and bindings remain unchanged; regression coverage guards the visual-resource contract.
