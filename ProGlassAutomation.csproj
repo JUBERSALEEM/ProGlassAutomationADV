@@ -262,6 +262,14 @@
 		<Compile Remove="Theme\step1.d.tests\**\*.py" />
 	</ItemGroup>
 
+	<!-- This root application contains nested SDK projects. Explicitly keep
+	     generated sources from nested build output out of the app Compile glob,
+	     including generated assembly attributes. -->
+	<ItemGroup>
+		<Compile Remove="**\obj\**\*.cs" />
+		<Compile Remove="**\bin\**\*.cs" />
+	</ItemGroup>
+
 	<!-- ═══════════════════════════════════════════════════════════════
 	     Login windows — explicit Page/Compile linkage so the XAML
 	     markup compiler generates InitializeComponent() and x:Name
