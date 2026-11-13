@@ -42,8 +42,8 @@
 
     <Grid>
         <Grid.RowDefinitions>
-            <RowDefinition Hnine="Auto"/>
-            <RowDefinition Hnine="*"/>
+            <RowDefinition Height="Auto"/>
+            <RowDefinition Height="*"/>
         </Grid.RowDefinitions>
 
 
@@ -186,7 +186,7 @@
                                 <ListBox.ItemTemplate>
                                     <DataTemplate>
                                         <StackPanel>
-                                            <Border Hnine="6" CornerRadius="3" Background="{Binding Swatch}" Margin="0,0,0,9"/>
+                                            <Border Height="6" CornerRadius="3" Background="{Binding Swatch}" Margin="0,0,0,9"/>
                                             <TextBlock Text="{Binding Display}"
                                                        Style="{StaticResource SettingsRowTitleStyle}"
                                                        TextWrapping="Wrap"/>
@@ -216,17 +216,17 @@
                                 <StackPanel Grid.Column="1" Orientation="Horizontal" VerticalAlignment="Center">
                                     <Button AutomationProperties.AutomationId="Settings.ExportThemePackStudio"
                                             Command="{Binding ExportThemeProfileCommand}"
-                                            Style="{StaticResource RowOutlinedButton}" Hnine="28" Padding="10,0" Margin="{StaticResource SettingsInlineGap6R}"
+                                            Style="{StaticResource RowOutlinedButton}" Height="28" Padding="10,0" Margin="{StaticResource SettingsInlineGap6R}"
                                             ToolTip="Export theme pack configuration to clipboard"
                                             Content="Export Pack"/>
                                     <Button AutomationProperties.AutomationId="Settings.ImportThemePackStudio"
                                             Command="{Binding ImportThemeProfileCommand}"
-                                            Style="{StaticResource RowOutlinedButton}" Hnine="28" Padding="10,0" Margin="{StaticResource SettingsInlineGap6R}"
+                                            Style="{StaticResource RowOutlinedButton}" Height="28" Padding="10,0" Margin="{StaticResource SettingsInlineGap6R}"
                                             ToolTip="Import theme pack configuration from clipboard"
                                             Content="Import Pack"/>
                                     <Button AutomationProperties.AutomationId="Settings.ResetThemeFamilyStudio"
                                             Command="{Binding ResetThemeFamilyCommand}"
-                                            Style="{StaticResource RowOutlinedButton}" Hnine="28" Padding="10,0"
+                                            Style="{StaticResource RowOutlinedButton}" Height="28" Padding="10,0"
                                             Content="{DynamicResource Settings.ResetThemeFamily}"/>
                                 </StackPanel>
                             </Grid>
@@ -246,7 +246,7 @@
                                                 CommandParameter="{Binding Key}"
                                                 Style="{StaticResource AccentChipStyle}">
                                             <StackPanel Orientation="Horizontal">
-                                                <Ellipse Width="11" Hnine="11" Fill="{Binding Swatch}"
+                                                <Ellipse Width="11" Height="11" Fill="{Binding Swatch}"
                                                          VerticalAlignment="Center" Margin="{StaticResource SettingsInlineGap8R}"/>
                                                 <TextBlock Text="{Binding DisplayName}" VerticalAlignment="Center" TextWrapping="Wrap"/>
                                             </StackPanel>
@@ -261,8 +261,8 @@
                                     CornerRadius="{DynamicResource CardCornerRadius}">
                                 <Grid>
                                     <Grid.RowDefinitions>
-                                        <RowDefinition Hnine="Auto"/>
-                                        <RowDefinition Hnine="Auto"/>
+                                        <RowDefinition Height="Auto"/>
+                                        <RowDefinition Height="Auto"/>
                                     </Grid.RowDefinitions>
                                     <Grid.ColumnDefinitions>
                                         <ColumnDefinition Width="*"/>
@@ -271,7 +271,7 @@
 
                                     <StackPanel Grid.Row="0" Grid.Column="0">
                                         <StackPanel Orientation="Horizontal" VerticalAlignment="Center">
-                                            <Border Width="10" Hnine="10" CornerRadius="{DynamicResource Radius.Small}" Background="{DynamicResource AccentBrush}" Margin="{StaticResource SettingsInlineGap8R}"/>
+                                            <Border Width="10" Height="10" CornerRadius="{DynamicResource Radius.Small}" Background="{DynamicResource AccentBrush}" Margin="{StaticResource SettingsInlineGap8R}"/>
                                             <TextBlock Text="Live Studio Specimen" FontSize="{DynamicResource FontSize.Body}" FontWnine="SemiBold" Foreground="{DynamicResource TextPrimaryBrush}"/>
                                         </StackPanel>
                                         <TextBlock Text="Real-time theme engine tokens verified with automatic WCAG contrast derivation."
@@ -301,7 +301,7 @@
                                                 <TextBlock Text="Tokens active across all sales, production, about, and settings views."
                                                            FontSize="{DynamicResource FontSize.Caption}" Foreground="{DynamicResource TextSecondaryBrush}" VerticalAlignment="Center"/>
                                             </StackPanel>
-                                            <Button Grid.Column="1" Style="{StaticResource PrimaryPillButton}" Hnine="26" Padding="14,0" Content="Test State" VerticalAlignment="Center"/>
+                                            <Button Grid.Column="1" Style="{StaticResource PrimaryPillButton}" Height="26" Padding="14,0" Content="Test State" VerticalAlignment="Center"/>
                                         </Grid>
                                     </Border>
                                 </Grid>
@@ -330,7 +330,7 @@
                         </StackPanel>
                         <TextBlock Style="{StaticResource SettingsRowMetaStyle}"
                                    Text="Wallpapers and background scenes are managed centrally in Appearance to keep your workspace streamlined."/>
-                        <Button Style="{StaticResource RowOutlinedButton}" Hnine="30" Padding="14,0" HorizontalAlignment="Left" Margin="{StaticResource SettingsStackGap8}"
+                        <Button Style="{StaticResource RowOutlinedButton}" Height="30" Padding="14,0" HorizontalAlignment="Left" Margin="{StaticResource SettingsStackGap8}"
                                 Command="{Binding SwitchSettingsPageCommand}" CommandParameter="Appearance"
                                 Content="Open Wallpapers in Appearance"/>
                     </StackPanel>

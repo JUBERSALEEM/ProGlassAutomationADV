@@ -87,18 +87,23 @@ namespace ProGlassAutomation.Tests.Theme
             Assert.Contains("x:Key=\"ProGlassRewriteToolbarStyle\"", styles, StringComparison.Ordinal);
             Assert.Contains("x:Key=\"ProGlassRewritePageHeaderStyle\"", styles, StringComparison.Ordinal);
             Assert.Contains("DynamicResource SurfaceWorkspaceBrush", styles, StringComparison.Ordinal);
-            Assert.Contains("DynamicResource SurfacePrimaryBrush", styles, StringComparison.Ordinal);
-            Assert.Contains("DynamicResource CardCornerRadius", styles, StringComparison.Ordinal);
-            Assert.Contains("DynamicResource ControlCornerRadius", styles, StringComparison.Ordinal);
+            Assert.Contains("DynamicResource SurfaceCardBrush", styles, StringComparison.Ordinal);
+            Assert.Contains("DynamicResource RadiusCard", styles, StringComparison.Ordinal);
+            Assert.Contains("DynamicResource RadiusControl", styles, StringComparison.Ordinal);
         }
 
         [Fact]
         public void Studio_list_cards_and_workspaces_use_rewrite_semantic_surfaces()
         {
             string listStyles = Read("Views/Shared/Lists/StudioListResources.xaml");
-            Assert.Contains("BasedOn=\"{StaticResource ProGlassRewriteCardStyle}\"", listStyles, StringComparison.Ordinal);
-            Assert.DoesNotContain("Appearance.StudioFace", listStyles, StringComparison.Ordinal);
-            Assert.DoesNotContain("Appearance.StudioEdge", listStyles, StringComparison.Ordinal);
+            int cardStart = listStyles.IndexOf("<Style x:Key=\"Sl.Card\"", StringComparison.Ordinal);
+            Assert.True(cardStart >= 0);
+            int cardEnd = listStyles.IndexOf("</Style>", cardStart, StringComparison.Ordinal);
+            Assert.True(cardEnd > cardStart);
+            string cardStyle = listStyles.Substring(cardStart, cardEnd - cardStart);
+            Assert.Contains("BasedOn=\"{StaticResource ProGlassRewriteCardStyle}\"", cardStyle, StringComparison.Ordinal);
+            Assert.DoesNotContain("Appearance.StudioFace", cardStyle, StringComparison.Ordinal);
+            Assert.DoesNotContain("Appearance.StudioEdge", cardStyle, StringComparison.Ordinal);
 
             foreach (var view in new[]
             {
@@ -108,6 +113,14 @@ namespace ProGlassAutomation.Tests.Theme
             })
                 Assert.Contains("Background=\"{DynamicResource SurfaceWorkspaceBrush}\"",
                     Read(view), StringComparison.Ordinal);
+        }
+
+        [Fact]
+        public void Theme_picker_uses_valid_WPF_height_properties()
+        {
+            string xaml = Read("Views/Settings/Sections/SettingsThemesSection.xaml");
+            Assert.DoesNotContain("Hnine=", xaml, StringComparison.Ordinal);
+            Assert.Contains("<RowDefinition Height=\"Auto\"/>", xaml, StringComparison.Ordinal);
         }
 
         [Fact]

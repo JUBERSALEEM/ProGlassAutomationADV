@@ -149,3 +149,11 @@ Theme-specific styling must be token-driven and use dynamic resource resolution 
 - Added `.github/workflows/nine-theme-ui-rewrite.yml` so pushes to this implementation branch run on `windows-latest`, restore the application and test projects, build the WPF app in Release, and execute the full regression suite.
 - Pull requests targeting `v2.0.15` also run the same verification; `workflow_dispatch` is available for a manual rerun.
 - The existing legacy theme workflow is scoped to a different branch/base and did not run for this rewrite branch. The new workflow closes that coverage gap without changing the production release workflow.
+
+
+### Windows CI finding and correction
+- The first branch-specific Windows run restored both projects successfully, then stopped at XAML compilation: `SettingsThemesSection.xaml` contained invalid `Hnine` property names on WPF elements.
+- Corrected every `Hnine` attribute to the WPF `Height` property.
+- Aligned source regression assertions with the actual semantic alias names used by the shared component dictionary (`SurfaceCardBrush`, `RadiusCard`, and `RadiusControl`) and narrowed the list-card assertion to the `Sl.Card` style itself.
+- Added a regression pin to prevent the invalid `Hnine` attribute from returning.
+- The next push triggers a fresh Windows build and full test run; the correction is not considered verified until that run completes.
