@@ -362,3 +362,13 @@ Theme-specific styling must be token-driven and use dynamic resource resolution 
 - Optimization selected navigation and primary action states now use the active family selection brush instead of fixed Indigo. The hero-pill foreground remains on the active accent token to preserve contrast on its light surface.
 - Scope: 13 XAML/resource files; no ViewModel, workflow, production data, or glass-processing logic changed.
 - Source re-fetch confirmed the migrated production views no longer contain the fixed `OptOnIndigo*` hero references. Windows build, regression execution, and rendered theme-switch screenshots remain pending.
+
+### Follow-up integration audit — shared component consumers
+- Cross-checked the separate `JUBERSALEEM/ProGlassAutomation` reference branch `arena/f1e0ac70-proglassautomation`. Its Theme Studio architecture is not a drop-in nine-theme engine: its own Stage B freeze lists five complete packages (Bento, Clay, Fluent, Neumorphism, Liquid Glass) and four planned identities. Its shared engine is non-visual and its theme packages own visuals. Do not copy its five-theme catalog as a false nine-theme implementation or transplant its sample-app root/window into this ERP.
+- The ADV target remains the application being modified. Its nine family identities/painters and `ThemePipeline` are retained; compatible component ownership principles are being applied to ADV's existing WPF styles.
+- `Themes/Styles/DataGridStyles.xaml` previously described `ErpDataGridStyle` as opt-in. Added implicit defaults for DataGrid, DataGridColumnHeader, DataGridCell and DataGridRow so existing uncustomized grids consume the active family's `ThemeTable*` tokens. Explicit per-view styles still override these defaults.
+- `Themes/Styles/SharedSectionStyles.xaml`: SpecGroupCard, SectionHeader and CompactStatTile now consume live family card/control face, edge and thickness resources.
+- `Themes/Styles/ModuleTabStyles.xaml`: replaced the static ShadowSoft reference with DynamicResource.
+- `Styles/ButtonStyles.xaml`: shared pill template now consumes family-owned `ControlCornerRadius` and `ThemeCardHighlightBrush`, so geometry/highlight are no longer fixed across families.
+- `Themes/Styles/CardStyles.xaml`: Base/Elevated/Stat/Task/ListRow styles now consume family-owned card/control materials (commit eac0d458).
+- Source verification after each push is required; Windows build, runtime screenshots, all 18 family/mode combinations, and explicit-style override regression remain pending. These source changes are partial component integration, not a 100% completion claim.
