@@ -8,7 +8,7 @@ namespace ProGlassAutomation.Services.Theme
     public static partial class VisualThemeEngine
     {
         /// <summary>
-        /// Applies the approved eight-family material layer after the legacy
+        /// Applies the approved nine-family material layer after the legacy
         /// painter has seeded every required resource. This keeps the existing
         /// theme lifecycle, wallpaper pipeline, and DynamicResource contract
         /// intact while giving each approved family its own visual language.
