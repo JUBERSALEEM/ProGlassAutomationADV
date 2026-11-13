@@ -74,9 +74,9 @@ namespace ProGlassAutomation.Services.Theme
                     f == VisualThemeEngine.Glassmorphism)
                     return CrystalFluidScene(dark);
                 if (f == VisualThemeEngine.FluentAcrylic)
-                    return Diagonal((Parse(dark ? "#101820" : "#F2F5F9"), 0.0),
-                        (Parse(dark ? "#1B2633" : "#E7EDF4"), 0.58),
-                        (Parse(dark ? "#0B121A" : "#FFFFFF"), 1.0));
+                    return Diagonal((Parse(dark ? "#1C1C1C" : "#F3F5F7"), 0.0),
+                        (Parse(dark ? "#2C2C2C" : "#F0F2F4"), 0.58),
+                        (Parse(dark ? "#1C1C1C" : "#FFFFFF"), 1.0));
                 if (f == VisualThemeEngine.SpatialImmersive)
                     return Diagonal((Parse(dark ? "#06111D" : "#E7F5F8"), 0.0),
                         (Parse(dark ? "#0F3344" : "#BDE8EF"), 0.55),
