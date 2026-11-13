@@ -335,6 +335,7 @@ namespace ProGlassAutomation.Services.Theme
             resources["SettingsHeroOverlayEdgeBrush"] = Alpha(settingsHeroOverlay, (byte)0x38);
             resources["SettingsCardFaceBrush"] = settingsFace;
             resources["SettingsCardEdgeBrush"] = settingsEdge;
+            resources["SettingsInnerFaceBrush"] = themeControlFace;
             resources["SettingsInnerEdgeBrush"] = settingsInnerEdge;
             // Stable family-owned aliases used when the Appearance surface
             // composer restores factory defaults after a custom plate/edge edit.
