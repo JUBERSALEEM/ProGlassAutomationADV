@@ -370,5 +370,6 @@ Theme-specific styling must be token-driven and use dynamic resource resolution 
 - `Themes/Styles/SharedSectionStyles.xaml`: SpecGroupCard, SectionHeader and CompactStatTile now consume live family card/control face, edge and thickness resources.
 - `Themes/Styles/ModuleTabStyles.xaml`: replaced the static ShadowSoft reference with DynamicResource.
 - `Styles/ButtonStyles.xaml`: shared pill template now consumes family-owned `ControlCornerRadius` and `ThemeCardHighlightBrush`, so geometry/highlight are no longer fixed across families.
+- `Themes/Styles/NavigationRailStyles.xaml`: the shared rail toggle now uses family-owned control face/edge and navigation hover/selected materials instead of generic semantic surfaces.
 - `Themes/Styles/CardStyles.xaml`: Base/Elevated/Stat/Task/ListRow styles now consume family-owned card/control materials (commit eac0d458).
 - Source verification after each push is required; Windows build, runtime screenshots, all 18 family/mode combinations, and explicit-style override regression remain pending. These source changes are partial component integration, not a 100% completion claim.
