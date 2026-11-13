@@ -4,20 +4,20 @@
     <ResourceDictionary.MergedDictionaries>
         <ResourceDictionary Source="../../Dashboard/Overview/IndigoStudioResources.xaml"/>
     </ResourceDictionary.MergedDictionaries>
-    <SolidColorBrush x:Key="ModuleBackgroundBrush" Color="{Binding Color, Source={StaticResource Ov.Surface}}"/>
-    <SolidColorBrush x:Key="SurfaceSecondaryBrush" Color="{Binding Color, Source={StaticResource Ov.Surface}}"/>
-    <SolidColorBrush x:Key="PopupSurfaceBrush" Color="{Binding Color, Source={StaticResource Ov.Surface}}"/>
-    <SolidColorBrush x:Key="OutlineBrush" Color="{Binding Color, Source={StaticResource Ov.Line}}"/>
-    <SolidColorBrush x:Key="InputBorderBrush" Color="{Binding Color, Source={StaticResource Ov.Line}}"/>
-    <SolidColorBrush x:Key="BorderFocusBrush" Color="{Binding Color, Source={StaticResource Ov.Accent}}"/>
-    <SolidColorBrush x:Key="AccentBrush" Color="{Binding Color, Source={StaticResource Ov.Accent}}"/>
-    <SolidColorBrush x:Key="MenuHoverBrush" Color="{Binding Color, Source={StaticResource Ov.Soft}}"/>
-    <SolidColorBrush x:Key="TintIndigoBrush" Color="{Binding Color, Source={StaticResource Ov.Soft}}"/>
-    <SolidColorBrush x:Key="PrimaryForegroundBrush" Color="{Binding Color, Source={StaticResource Ov.Ink}}"/>
-    <SolidColorBrush x:Key="SecondaryForegroundBrush" Color="{Binding Color, Source={StaticResource Ov.Muted}}"/>
-    <SolidColorBrush x:Key="MutedForegroundBrush" Color="{Binding Color, Source={StaticResource Ov.Muted}}"/>
-    <SolidColorBrush x:Key="TextPrimaryBrush" Color="{Binding Color, Source={StaticResource Ov.Ink}}"/>
-    <SolidColorBrush x:Key="TextSecondaryBrush" Color="{Binding Color, Source={StaticResource Ov.Muted}}"/>
-    <SolidColorBrush x:Key="TextTertiaryBrush" Color="{Binding Color, Source={StaticResource Ov.Muted}}"/>
-    <SolidColorBrush x:Key="OnAccentForegroundBrush" Color="{Binding Color, Source={StaticResource Ov.OnAccent}}"/>
+    <SolidColorBrush x:Key="ModuleBackgroundBrush" Color="{DynamicResource Ov.SurfaceColor}"/>
+    <SolidColorBrush x:Key="SurfaceSecondaryBrush" Color="{DynamicResource Ov.SurfaceColor}"/>
+    <SolidColorBrush x:Key="PopupSurfaceBrush" Color="{DynamicResource Ov.SurfaceColor}"/>
+    <SolidColorBrush x:Key="OutlineBrush" Color="{DynamicResource Ov.LineColor}"/>
+    <SolidColorBrush x:Key="InputBorderBrush" Color="{DynamicResource Ov.LineColor}"/>
+    <SolidColorBrush x:Key="BorderFocusBrush" Color="{DynamicResource Ov.AccentColor}"/>
+    <SolidColorBrush x:Key="AccentBrush" Color="{DynamicResource Ov.AccentColor}"/>
+    <SolidColorBrush x:Key="MenuHoverBrush" Color="{DynamicResource Ov.SoftColor}"/>
+    <SolidColorBrush x:Key="TintIndigoBrush" Color="{DynamicResource Ov.SoftColor}"/>
+    <SolidColorBrush x:Key="PrimaryForegroundBrush" Color="{DynamicResource Ov.InkColor}"/>
+    <SolidColorBrush x:Key="SecondaryForegroundBrush" Color="{DynamicResource Ov.MutedColor}"/>
+    <SolidColorBrush x:Key="MutedForegroundBrush" Color="{DynamicResource Ov.MutedColor}"/>
+    <SolidColorBrush x:Key="TextPrimaryBrush" Color="{DynamicResource Ov.InkColor}"/>
+    <SolidColorBrush x:Key="TextSecondaryBrush" Color="{DynamicResource Ov.MutedColor}"/>
+    <SolidColorBrush x:Key="TextTertiaryBrush" Color="{DynamicResource Ov.MutedColor}"/>
+    <SolidColorBrush x:Key="OnAccentForegroundBrush" Color="{DynamicResource Ov.OnAccentColor}"/>
 </ResourceDictionary>
