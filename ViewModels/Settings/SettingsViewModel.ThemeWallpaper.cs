@@ -76,7 +76,7 @@ namespace ProGlassAutomation.ViewModels.Settings
                     var k when k == ProGlassAutomation.Services.Theme.VisualThemeEngine.LiquidGlass =>
                         (Color.FromRgb(26, 197, 226), "Near-clear panes and liquid highlights"),
                     var k when k == ProGlassAutomation.Services.Theme.VisualThemeEngine.FluentAcrylic =>
-                        (Color.FromRgb(37, 99, 235), "Windows-inspired acrylic surfaces and clear focus states"),
+                        (Color.FromRgb(10, 92, 168), "Windows-inspired acrylic surfaces and clear focus states"),
                     _ => (Color.FromRgb(72, 169, 232), "Frosted layers with restrained blur")
                 };
                 Description = description;
