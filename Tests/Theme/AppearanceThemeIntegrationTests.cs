@@ -273,6 +273,11 @@ namespace ProGlassAutomation.Tests.Theme
                 publisher!.Invoke(null, new object[] { resources, family });
 
                 Assert.Equal(family, resources["ThemeFamilyId"]);
+                Assert.Same(resources["ThemeControlFaceBrush"], resources["SettingsInnerFaceBrush"]);
+                Assert.Same(resources["SettingsInnerFaceBrush"], resources["ThemeSettingsInnerFaceBrush"]);
+                Assert.Same(resources["SettingsCardFaceBrush"], resources["ThemeSettingsCardFaceBrush"]);
+                Assert.Same(resources["SettingsCardEdgeBrush"], resources["ThemeSettingsCardEdgeBrush"]);
+                Assert.Same(resources["SettingsInnerEdgeBrush"], resources["ThemeSettingsInnerEdgeBrush"]);
                 Brush familyFace = Assert.IsAssignableFrom<Brush>(resources["ThemeCardFaceBrush"]);
                 Brush navigation = Assert.IsAssignableFrom<Brush>(resources["ThemeNavigationSelectedBrush"]);
                 Brush controlFace = Assert.IsAssignableFrom<Brush>(resources["ThemeControlFaceBrush"]);
