@@ -1119,6 +1119,19 @@ namespace ProGlassAutomation.Tests.Theme
             }
         }
 
+        [Fact]
+        public void Indigo_dashboard_component_library_does_not_shadow_engine_semantic_brushes()
+        {
+            string engine = Read("Services/Theme/Engine/ProGlassThemeEngine.Indigo.cs");
+            string dashboard = Read("Views/Dashboard/IndigoDashboardResources.xaml");
+            Assert.Contains("CopyBrush(resources, \"InfoBrush\", \"AccentBrush\"", engine, StringComparison.Ordinal);
+            Assert.DoesNotContain("x:Key=\"AccentBrush\"", dashboard, StringComparison.Ordinal);
+            Assert.DoesNotContain("x:Key=\"SuccessBrush\"", dashboard, StringComparison.Ordinal);
+            Assert.DoesNotContain("x:Key=\"PrimaryForegroundBrush\"", dashboard, StringComparison.Ordinal);
+            Assert.DoesNotContain("x:Key=\"PopupSurfaceBrush\"", dashboard, StringComparison.Ordinal);
+            Assert.Contains("DynamicResource Ov.Accent", dashboard, StringComparison.Ordinal);
+        }
+
         private static string ConstValue(string name)
         {
             var field = typeof(VisualThemeEngine).GetField(

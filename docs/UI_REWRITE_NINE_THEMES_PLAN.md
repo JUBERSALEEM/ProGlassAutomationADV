@@ -348,3 +348,9 @@ Theme-specific styling must be token-driven and use dynamic resource resolution 
 ### Tax Invoice and Order Report page roots
 - Tax Invoice Report and Order Report generator/list roots now use the family-aware workspace surface directly rather than the legacy Ov.Canvas alias.
 - All report data, preview, execution, filters, and navigation bindings are preserved; added regression coverage.
+
+
+### Indigo dashboard module alias cleanup
+- Removed page-local copies of Accent, Info, Success, Warning, Danger, foreground, text, and popup brushes from the six-module Indigo dashboard dictionary.
+- The dashboard chart and module templates now resolve the engine-published semantic resources, preventing local StaticResource brush snapshots from becoming stale after theme switches.
+- Preserved the six dashboard page templates, KPI layouts, chart templates, and sizing resources; added regression coverage.
