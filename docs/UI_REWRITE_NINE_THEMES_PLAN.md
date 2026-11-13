@@ -135,3 +135,11 @@ Theme-specific styling must be token-driven and use dynamic resource resolution 
 - Added regression checks for the shared card inheritance and the three workspace roots.
 - Business bindings, commands, data templates, filters, and list workflows were not changed.
 - **Not yet verified:** Windows compilation, test execution, and screenshots. The Studio accent/status palette and many inner control treatments remain to be migrated.
+
+
+### Phase 4b — additional core workspace surfaces (source changes committed)
+- Migrated the Proforma Invoice, Sales Report, Diagnostics, and User Center workspace roots from the fixed Indigo Studio canvas to `SurfaceWorkspaceBrush`.
+- The Proforma Invoice list state now uses the same theme-managed workspace surface as its surrounding PI experience.
+- This migration changes only view-level presentation properties; all module ViewModels, command bindings, pricing/calculation logic, and user-management workflows remain untouched.
+- Added source regression coverage for the four workspace roots.
+- **Not yet verified:** Windows compilation, test execution, and screenshots. Inner card, table, input, and accent treatments still require migration.

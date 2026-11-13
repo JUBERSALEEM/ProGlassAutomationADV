@@ -27,7 +27,7 @@
              TextOptions.TextRenderingMode="ClearType"
              UseLayoutRounding="True"
              SnapsToDevicePixels="True"
-             Background="{DynamicResource Ov.Canvas}">
+             Background="{DynamicResource SurfaceWorkspaceBrush}">
 
     <UserControl.Resources>
         <ResourceDictionary>
@@ -40,7 +40,7 @@
     <Grid Background="Transparent">
 
         <!-- LIST -->
-        <Grid Background="{DynamicResource Ov.Canvas}">
+        <Grid Background="{DynamicResource SurfaceWorkspaceBrush}">
             <Grid.Resources>
                 <ResourceDictionary>
                     <ResourceDictionary.MergedDictionaries>

@@ -111,6 +111,20 @@ namespace ProGlassAutomation.Tests.Theme
         }
 
         [Fact]
+        public void Additional_core_module_workspaces_use_the_semantic_workspace_surface()
+        {
+            foreach (var view in new[]
+            {
+                "Views/ProformaInvoice/ProformaInvoiceView.xaml",
+                "Views/Reports/SalesReportView.xaml",
+                "Views/Diagnostics/DiagnosticsView.xaml",
+                "Views/UserCenter/UserCenterView.xaml"
+            })
+                Assert.Contains("Background=\"{DynamicResource SurfaceWorkspaceBrush}\"",
+                    Read(view), StringComparison.Ordinal);
+        }
+
+        [Fact]
         public void ManagedKeys_ContainsEveryCrashCriticalBrush()
         {
             // ERR-50472F proved these must ALWAYS be family-managed:
