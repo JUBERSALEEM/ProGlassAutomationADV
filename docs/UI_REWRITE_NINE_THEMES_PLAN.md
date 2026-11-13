@@ -275,3 +275,9 @@ Theme-specific styling must be token-driven and use dynamic resource resolution 
 - The full Sheet Detail workspace no longer merges the fixed Indigo dashboard palette or references its Ov.* brushes/styles.
 - Its card, compact card, icon tile, metadata, value, and inset surfaces now use the nine-family shared component styles and active theme materials.
 - Sheet identity, tab navigation, purchase/use/edit/movement workflows, inventory calculations, and bindings remain unchanged; regression coverage guards the visual-resource contract.
+
+
+### Job Order saved list and God View theme migration
+- Job Order saved list and God View now use active family workspace, text, accent, control-edge, and semantic danger/status brushes rather than the fixed Indigo dashboard palette.
+- Existing shared list card templates, KPI bindings, filters, search, open/history actions, and navigation remain unchanged.
+- Added regression coverage for both Job Order list surfaces.

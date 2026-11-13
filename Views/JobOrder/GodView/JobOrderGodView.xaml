@@ -16,8 +16,8 @@
              TextOptions.TextHintingMode="Fixed"
              UseLayoutRounding="True"
              SnapsToDevicePixels="True"
-             Background="{DynamicResource Ov.Canvas}"
-             Foreground="{DynamicResource Ov.Ink}">
+             Background="{DynamicResource SurfaceWorkspaceBrush}"
+             Foreground="{DynamicResource TextPrimaryBrush}">
 
     <UserControl.Resources>
         <ResourceDictionary>
@@ -68,15 +68,15 @@
                     </Grid.ColumnDefinitions>
                     <TextBlock Text="&#xE721;"
                                FontFamily="Segoe MDL2 Assets"
-                               Foreground="{DynamicResource Ov.Muted}"
+                               Foreground="{DynamicResource TextSecondaryBrush}"
                                VerticalAlignment="Center"
                                Margin="0,0,8,0"/>
                     <TextBox Grid.Column="1"
                              Text="{Binding SearchText, UpdateSourceTrigger=PropertyChanged, Delay=200}"
                              BorderThickness="0"
                              Background="Transparent"
-                             Foreground="{DynamicResource Ov.Ink}"
-                             CaretBrush="{DynamicResource Ov.Accent}"
+                             Foreground="{DynamicResource TextPrimaryBrush}"
+                             CaretBrush="{DynamicResource AccentBrush}"
                              FontSize="{DynamicResource FontSize.Body}"
                              VerticalAlignment="Center"
                              ToolTip="{DynamicResource God.JoSearch}"/>
@@ -116,8 +116,8 @@
                             <Border Grid.Column="0"
                                     Width="40" Height="40"
                                     CornerRadius="10"
-                                    Background="{DynamicResource Ov.Soft}"
-                                    BorderBrush="{DynamicResource Ov.Line}"
+                                    Background="{DynamicResource ThemeControlFaceBrush}"
+                                    BorderBrush="{DynamicResource ThemeControlEdgeBrush}"
                                     BorderThickness="1"
                                     VerticalAlignment="Center">
                                 <TextBlock Text="{Binding Icon}"

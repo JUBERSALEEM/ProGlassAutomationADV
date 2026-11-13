@@ -873,6 +873,20 @@ namespace ProGlassAutomation.Tests.Theme
             Assert.Contains("ProGlassRewriteControlSurfaceStyle", xaml, StringComparison.Ordinal);
         }
 
+        [Fact]
+        public void Job_order_god_view_and_saved_list_use_live_theme_materials()
+        {
+            string godView = Read("Views/JobOrder/GodView/JobOrderGodView.xaml");
+            string savedList = Read("Views/JobOrder/SavedJobOrdersList/SavedJobOrdersListView.xaml");
+            foreach (string xaml in new[] { godView, savedList })
+            {
+                Assert.Contains("DynamicResource SurfaceWorkspaceBrush", xaml, StringComparison.Ordinal);
+                Assert.Contains("DynamicResource TextPrimaryBrush", xaml, StringComparison.Ordinal);
+                Assert.Contains("DynamicResource ThemeControlEdgeBrush", xaml, StringComparison.Ordinal);
+                Assert.DoesNotContain("DynamicResource Ov.", xaml, StringComparison.Ordinal);
+            }
+        }
+
         private static string ConstValue(string name)
         {
             var field = typeof(VisualThemeEngine).GetField(
