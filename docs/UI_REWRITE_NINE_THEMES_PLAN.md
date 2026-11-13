@@ -143,3 +143,9 @@ Theme-specific styling must be token-driven and use dynamic resource resolution 
 - This migration changes only view-level presentation properties; all module ViewModels, command bindings, pricing/calculation logic, and user-management workflows remain untouched.
 - Added source regression coverage for the four workspace roots.
 - **Not yet verified:** Windows compilation, test execution, and screenshots. Inner card, table, input, and accent treatments still require migration.
+
+
+### Verification pipeline — branch-specific Windows CI
+- Added `.github/workflows/nine-theme-ui-rewrite.yml` so pushes to this implementation branch run on `windows-latest`, restore the application and test projects, build the WPF app in Release, and execute the full regression suite.
+- Pull requests targeting `v2.0.15` also run the same verification; `workflow_dispatch` is available for a manual rerun.
+- The existing legacy theme workflow is scoped to a different branch/base and did not run for this rewrite branch. The new workflow closes that coverage gap without changing the production release workflow.

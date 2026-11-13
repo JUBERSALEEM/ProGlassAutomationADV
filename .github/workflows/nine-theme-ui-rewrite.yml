@@ -1,0 +1,43 @@
+name: Nine-theme UI rewrite verification
+
+on:
+  push:
+    branches:
+      - ui-rewrite/nine-themes
+  pull_request:
+    branches:
+      - v2.0.15
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: nine-theme-ui-rewrite-${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  wpf:
+    name: Windows build and regression tests
+    runs-on: windows-latest
+    timeout-minutes: 50
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Setup .NET 8
+        uses: actions/setup-dotnet@v4
+        with:
+          dotnet-version: 8.0.x
+
+      - name: Restore application
+        run: dotnet restore ProGlassAutomation.csproj
+
+      - name: Restore regression tests
+        run: dotnet restore Tests/ProGlassAutomation.Tests.csproj
+
+      - name: Build WPF application
+        run: dotnet build ProGlassAutomation.csproj --configuration Release --no-restore
+
+      - name: Run full regression test suite
+        run: dotnet test Tests/ProGlassAutomation.Tests.csproj --configuration Release --no-restore
