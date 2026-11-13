@@ -653,6 +653,7 @@ namespace ProGlassAutomation.Services.Theme
                         case Neumorphism:
                         case Claymorphism:
                         case Glassmorphism:
+                        case FluentAcrylic:
                         case NormalIndustrial:
                             ApplyIndustrial(resources);
                             break;
