@@ -194,6 +194,12 @@ namespace ProGlassAutomation.Services.Theme
             resources["ThemeControlFaceBrush"] = themeControlFace;
             resources["ThemeControlEdgeBrush"] = themeControlEdge;
             resources["ThemeCardHighlightBrush"] = themeCardHighlight;
+            // Dense ERP tables remain opaque; only their chrome changes by family.
+            resources["ThemeTableSurfaceBrush"] = Solid(palette.Surface);
+            resources["ThemeTableHeaderBrush"] = Solid(palette.Inset);
+            resources["ThemeTableRowHoverBrush"] = Alpha(palette.Accent, (byte)(dark ? 0x38 : 0x20));
+            resources["ThemeTableSelectionBrush"] = Alpha(palette.Accent, (byte)(dark ? 0x78 : 0x58));
+            resources["ThemeTableBorderBrush"] = edge;
             resources["ThemeFamilyId"] = family;
             resources["ThemeMaterialProfile"] = family switch
             {

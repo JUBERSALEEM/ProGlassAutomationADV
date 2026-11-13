@@ -19,6 +19,11 @@
     <SolidColorBrush x:Key="ThemeControlFaceBrush" Color="#FFF4F6FA"/>
     <SolidColorBrush x:Key="ThemeControlEdgeBrush" Color="#FFD8DEE8"/>
     <SolidColorBrush x:Key="ThemeCardHighlightBrush" Color="#22FFFFFF"/>
+    <SolidColorBrush x:Key="ThemeTableSurfaceBrush" Color="#FFFFFFFF"/>
+    <SolidColorBrush x:Key="ThemeTableHeaderBrush" Color="#FFF2F4F8"/>
+    <SolidColorBrush x:Key="ThemeTableRowHoverBrush" Color="#182D6CDF"/>
+    <SolidColorBrush x:Key="ThemeTableSelectionBrush" Color="#663D6DCC"/>
+    <SolidColorBrush x:Key="ThemeTableBorderBrush" Color="#FFD8DEE8"/>
 
     <Style x:Key="ProGlassRewriteCardStyle" TargetType="Border">
         <Setter Property="Background" Value="{DynamicResource ThemeCardFaceBrush}"/>

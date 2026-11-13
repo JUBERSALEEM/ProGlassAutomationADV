@@ -344,6 +344,33 @@ namespace ProGlassAutomation.Tests.Theme
             Assert.Contains("DynamicResource ThemeControlEdgeBrush", buttons, StringComparison.Ordinal);
         }
 
+
+        [Fact]
+        public void Dense_data_grids_use_opaque_family_table_materials()
+        {
+            string overlay = Read("Services/Theme/VisualThemeEngine.EightThemes.cs");
+            foreach (var key in new[]
+            {
+                "ThemeTableSurfaceBrush", "ThemeTableHeaderBrush",
+                "ThemeTableRowHoverBrush", "ThemeTableSelectionBrush",
+                "ThemeTableBorderBrush"
+            })
+                Assert.Contains("resources[\"" + key + "\"]", overlay, StringComparison.Ordinal);
+
+            string styles = Read("Themes/Styles/RewriteComponentStyles.xaml");
+            Assert.Contains("x:Key=\"ThemeTableSurfaceBrush\"", styles, StringComparison.Ordinal);
+            string global = Read("Themes/Styles/GlobalDesignSystem.xaml");
+            Assert.Contains("x:Key=\"DataGrid.ColumnHeader\"", global, StringComparison.Ordinal);
+            Assert.Contains("x:Key=\"DataGrid.Row\"", global, StringComparison.Ordinal);
+            Assert.Contains("DynamicResource ThemeTableHeaderBrush", global, StringComparison.Ordinal);
+            Assert.Contains("DynamicResource ThemeTableRowHoverBrush", global, StringComparison.Ordinal);
+            Assert.Contains("DynamicResource ThemeTableSelectionBrush", global, StringComparison.Ordinal);
+            int start = global.IndexOf("<Style x:Key=\"DataGrid.Canonical\"", StringComparison.Ordinal);
+            int end = global.IndexOf("</Style>", start, StringComparison.Ordinal);
+            Assert.True(start >= 0 && end > start);
+            Assert.Contains("DynamicResource ThemeTableSurfaceBrush", global.Substring(start, end - start), StringComparison.Ordinal);
+        }
+
         [Fact]
         public void Every_approved_family_has_separate_light_and_dark_palette_recipes()
         {
