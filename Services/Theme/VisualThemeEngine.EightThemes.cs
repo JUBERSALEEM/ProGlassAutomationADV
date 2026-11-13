@@ -332,6 +332,10 @@ namespace ProGlassAutomation.Services.Theme
             resources["SettingsCardFaceBrush"] = settingsFace;
             resources["SettingsCardEdgeBrush"] = settingsEdge;
             resources["SettingsInnerEdgeBrush"] = settingsInnerEdge;
+            // Stable family-owned aliases used when the Appearance surface
+            // composer restores factory defaults after a custom plate edit.
+            resources["ThemeSettingsCardFaceBrush"] = settingsFace;
+            resources["ThemeSettingsInnerFaceBrush"] = themeControlFace;
             resources["SettingsCardShadow"] = CreateThemeShadow(
                 family == HolographicIridescent || family == LiquidGlass || family == Glassmorphism
                     ? palette.Accent
