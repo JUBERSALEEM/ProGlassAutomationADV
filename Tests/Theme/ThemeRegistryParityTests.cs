@@ -31,7 +31,7 @@ namespace ProGlassAutomation.Tests.Theme
 {
     public class ThemeRegistryParityTests
     {
-        // Canonical selectable contract: eight material families, each
+        // Canonical selectable contract: nine material families, each
         // with Light and Dark palette recipes. Older Industrial, Monet,
         // Crystal Fluid, and iOS identities are migration inputs only.
         private static readonly string[] AllFamilies =
@@ -44,6 +44,7 @@ namespace ProGlassAutomation.Tests.Theme
             VisualThemeEngine.Claymorphism,
             VisualThemeEngine.LiquidGlass,
             VisualThemeEngine.Glassmorphism,
+            VisualThemeEngine.FluentAcrylic,
         };
 
         // ── F-01: the managed-key contract ──────────────────────────────
@@ -163,14 +164,14 @@ namespace ProGlassAutomation.Tests.Theme
         }
 
         [Fact]
-        public void Eight_theme_material_overlay_defines_all_families_and_both_modes()
+        public void Nine_theme_material_overlay_defines_all_families_and_both_modes()
         {
             string overlay = Read("Services/Theme/VisualThemeEngine.EightThemes.cs");
             foreach (var family in new[]
             {
                 "BentoGrid", "SpatialImmersive", "SwissInternational",
                 "HolographicIridescent", "Neumorphism", "Claymorphism",
-                "LiquidGlass", "Glassmorphism"
+                "LiquidGlass", "Glassmorphism", "FluentAcrylic"
             })
                 Assert.Contains(family, overlay, StringComparison.Ordinal);
 
