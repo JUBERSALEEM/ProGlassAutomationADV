@@ -906,6 +906,28 @@ namespace ProGlassAutomation.Tests.Theme
             }
         }
 
+        [Fact]
+        public void Tax_invoice_and_delivery_note_use_nine_family_detail_materials()
+        {
+            string taxStyles = Read("Views/TaxInvoice/TaxInvoiceDetail/Sections/TiSectionStyles.xaml");
+            string deliveryStyles = Read("Views/DeliveryNote/DeliveryNoteDetail/Sections/DnSectionStyles.xaml");
+            string taxList = Read("Views/TaxInvoice/TaxInvoiceView.xaml");
+            string deliveryList = Read("Views/DeliveryNote/DeliveryNoteView.xaml");
+            string taxDetail = Read("Views/TaxInvoice/TaxInvoiceDetail/TaxInvoiceDetailView.xaml");
+            string deliveryDetail = Read("Views/DeliveryNote/DeliveryNoteDetail/DeliveryNoteDetailView.xaml");
+            foreach (string styles in new[] { taxStyles, deliveryStyles })
+            {
+                Assert.DoesNotContain("IndigoStudioResources.xaml", styles, StringComparison.Ordinal);
+                Assert.DoesNotContain("Ov.", styles, StringComparison.Ordinal);
+                Assert.Contains("ProGlassRewriteCardStyle", styles, StringComparison.Ordinal);
+                Assert.Contains("ThemeCardEdgeBrush", styles, StringComparison.Ordinal);
+            }
+            Assert.Contains("DynamicResource SurfaceWorkspaceBrush", taxList, StringComparison.Ordinal);
+            Assert.Contains("DynamicResource SurfaceWorkspaceBrush", deliveryList, StringComparison.Ordinal);
+            Assert.Contains("DynamicResource SurfaceWorkspaceBrush", taxDetail, StringComparison.Ordinal);
+            Assert.Contains("DynamicResource SurfaceWorkspaceBrush", deliveryDetail, StringComparison.Ordinal);
+        }
+
         private static string ConstValue(string name)
         {
             var field = typeof(VisualThemeEngine).GetField(

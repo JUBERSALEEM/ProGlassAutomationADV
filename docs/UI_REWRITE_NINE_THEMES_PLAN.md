@@ -287,3 +287,10 @@ Theme-specific styling must be token-driven and use dynamic resource resolution 
 - Job Order, Proforma Invoice, and Sheet Store dashboards now resolve workspace, text, accent, control, warning, success, and danger brushes from the active nine-family theme resources.
 - Existing dashboard-specific chart templates, status converters, KPI bindings, and navigation are retained; no financial or operational metrics were changed.
 - Added regression coverage for the three dashboard palette boundaries.
+
+
+### Tax Invoice and Delivery Note theme migration
+- Tax Invoice and Delivery Note list/detail workspaces now use the active nine-family workspace surface.
+- Their detail style dictionaries no longer merge the Indigo-only dashboard palette or shadow global text, accent, status, border, and surface tokens with static aliases.
+- Document cards, inset panels, section headers, hero strips, and text styles now resolve through the shared family-aware component styles and semantic resources.
+- Document numbering, tax calculations, delivery quantities, status logic, commands, and ViewModel bindings are unchanged; added regression checks for both modules.
