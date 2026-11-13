@@ -185,8 +185,19 @@ namespace ProGlassAutomation.Tests.Theme
                 "Views/Settings/Sections/Cards/AppearanceDensityCard.xaml",
                 "Views/Settings/Sections/Cards/AppearanceSplashCard.xaml",
                 "Views/Settings/Sections/Cards/AppearanceThemeLayoutCard.xaml",
+                "Views/Settings/Sections/Cards/AppearanceLanguageCard.xaml",
+                "Views/Settings/Sections/Cards/AppearanceAccentFontCard.xaml",
+                "Views/Settings/Sections/Cards/AppearanceWallpapersCard.xaml",
+                "Views/Settings/Sections/Cards/AppearanceFrostTile.xaml",
+                "Views/Settings/Sections/Cards/AppearanceCardEdgesTile.xaml",
+                "Views/Settings/Sections/Cards/AppearanceGradientTile.xaml",
+                "Views/Settings/Sections/Cards/AppearanceRadiusTile.xaml",
+                "Views/Settings/Sections/Cards/AppearanceFontColorTile.xaml",
+                "Views/Settings/Sections/Cards/AppearancePreviewTile.xaml",
+                "Views/Settings/Sections/Cards/AppearanceCrystalTile.xaml",
                 "Views/Settings/SettingsCardStyles.xaml",
-                "Views/Settings/SettingsSectionStyles.xaml"
+                "Views/Settings/SettingsSectionStyles.xaml",
+                "Views/Settings/SettingsView.xaml"
             })
             {
                 var document = new XmlDocument();
