@@ -285,14 +285,10 @@
         <Setter Property="CornerRadius" Value="{DynamicResource Radius.Small}"/>
     </Style>
 
-    <!-- ═══ OVERVIEW HERO BENTO CARD (Signature purple hero masthead) ═══ -->
-    <LinearGradientBrush x:Key="SettingsHeroBrush" StartPoint="0,0" EndPoint="1,1">
-        <GradientStop Color="#6744B9" Offset="0"/>
-        <GradientStop Color="#493080" Offset="1"/>
-    </LinearGradientBrush>
-    <SolidColorBrush x:Key="SettingsOnAccentBrush" Color="#FFFFFF"/>
-    <SolidColorBrush x:Key="SettingsOnAccentMutedBrush" Color="#E3DAF7"/>
-
+    <!-- Hero brush/foreground keys are intentionally NOT defined locally.
+         VisualThemeEngine publishes them into Application.Resources for each
+         family+mode. A local fallback here would shadow those live resources
+         and keep the Appearance hero purple after a family switch. -->
     <Style x:Key="SettingsHeroCardStyle" TargetType="Border">
         <Setter Property="Background" Value="{DynamicResource SettingsHeroBrush}"/>
         <Setter Property="BorderThickness" Value="0"/>
