@@ -170,8 +170,8 @@
                             <Setter TargetName="Root" Property="Background" Value="{DynamicResource ThemeCardHighlightBrush}"/>
                         </Trigger>
                         <Trigger Property="IsChecked" Value="True">
-                            <Setter TargetName="Root" Property="Background" Value="{StaticResource OptIndigo}"/>
-                            <Setter TargetName="Root" Property="BorderBrush" Value="{StaticResource OptIndigo}"/>
+                            <Setter TargetName="Root" Property="Background" Value="{DynamicResource ThemeNavigationSelectedBrush}"/>
+                            <Setter TargetName="Root" Property="BorderBrush" Value="{DynamicResource ThemeNavigationSelectedBrush}"/>
                             <Setter Property="Foreground" Value="{DynamicResource ThemeNavigationSelectedForegroundBrush}"/>
                             <Setter TargetName="Icon" Property="Foreground" Value="{DynamicResource ThemeNavigationSelectedForegroundBrush}"/>
                             <Setter TargetName="Label" Property="TextElement.Foreground" Value="{DynamicResource ThemeNavigationSelectedForegroundBrush}"/>
@@ -425,9 +425,9 @@
 
     <!-- ══ Studio Bento Buttons ══════════════════════════════════════ -->
     <Style x:Key="OptPrimaryButton" TargetType="Button">
-        <Setter Property="Background" Value="{StaticResource OptIndigo}"/>
+        <Setter Property="Background" Value="{DynamicResource ThemeNavigationSelectedBrush}"/>
         <Setter Property="Foreground" Value="{DynamicResource ThemeNavigationSelectedForegroundBrush}"/>
-        <Setter Property="BorderBrush" Value="{StaticResource OptIndigo}"/>
+        <Setter Property="BorderBrush" Value="{DynamicResource ThemeNavigationSelectedBrush}"/>
         <Setter Property="BorderThickness" Value="1"/>
         <Setter Property="Height" Value="36"/>
         <Setter Property="Padding" Value="16,0"/>
@@ -643,7 +643,7 @@
     <!-- ROW 3 · the one primary action — solid white pill, indigo text -->
     <Style x:Key="OptHeroPillButton" TargetType="Button">
         <Setter Property="Background" Value="{DynamicResource ThemeNavigationSelectedForegroundBrush}"/>
-        <Setter Property="Foreground" Value="{StaticResource OptIndigo}"/>
+        <Setter Property="Foreground" Value="{DynamicResource ThemeNavigationSelectedBrush}"/>
         <Setter Property="BorderBrush" Value="{DynamicResource ThemeNavigationSelectedForegroundBrush}"/>
         <Setter Property="BorderThickness" Value="1"/>
         <Setter Property="Height" Value="36"/>
