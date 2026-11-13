@@ -231,6 +231,34 @@ namespace ProGlassAutomation.Tests.Theme
         }
 
         [Fact]
+        public void Appearance_cards_and_chips_consume_live_family_surface_tokens()
+        {
+            string styles = Read("Views/Settings/SettingsCardStyles.xaml");
+            string sectionStyles = Read("Views/Settings/SettingsSectionStyles.xaml");
+            string engine = Read("Services/Theme/VisualThemeEngine.EightThemes.cs");
+
+            foreach (var key in new[]
+            {
+                "SettingsCardFaceBrush", "SettingsCardEdgeBrush", "SettingsInnerFaceBrush",
+                "SettingsInnerEdgeBrush", "Ios26AccentSoftBrush", "Ios26AccentSoftTextBrush",
+                "Ios26TextTitleBrush", "Ios26TextMutedBrush", "Ios26RadiusCard",
+                "Ios26RadiusInner", "Ios26RadiusTile"
+            })
+                Assert.Contains($"resources[\"{key}\"]", engine, StringComparison.Ordinal);
+
+            foreach (var key in new[]
+            {
+                "SettingsCardFaceBrush", "SettingsCardEdgeBrush", "Ios26RadiusCard",
+                "Ios26RadiusInner", "Ios26AccentSoftBrush", "Ios26AccentSoftTextBrush",
+                "Ios26TextTitleBrush", "Ios26TextMutedBrush"
+            })
+            {
+                Assert.Contains($"{{DynamicResource {key}}}", styles + sectionStyles,
+                    StringComparison.Ordinal);
+            }
+        }
+
+        [Fact]
         public void Live_family_preview_uses_the_same_tokens_as_erp_components()
         {
             string layout = Read("Views/Settings/Sections/Cards/AppearanceThemeLayoutCard.xaml");
@@ -240,7 +268,9 @@ namespace ProGlassAutomation.Tests.Theme
                 "ThemeCardFaceBrush", "ThemeCardEdgeBrush",
                 "ThemeControlFaceBrush", "ThemeControlEdgeBrush",
                 "ThemeCardHighlightBrush", "ThemeNavigationSelectedBrush",
-                "ThemeNavigationSelectedForegroundBrush", "ThemeTableBorderBrush"
+                "ThemeNavigationSelectedForegroundBrush", "ThemeNavigationHoverBrush",
+                "ThemeNavigationHoverForegroundBrush", "ThemeTableSurfaceBrush",
+                "ThemeTableHeaderBrush", "ThemeTableSelectionBrush", "ThemeTableBorderBrush"
             })
                 Assert.Contains($"{{DynamicResource {key}}}", layout, StringComparison.Ordinal);
         }
