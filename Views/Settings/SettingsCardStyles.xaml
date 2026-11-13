@@ -294,7 +294,7 @@
     <SolidColorBrush x:Key="SettingsOnAccentMutedBrush" Color="#E3DAF7"/>
 
     <Style x:Key="SettingsHeroCardStyle" TargetType="Border">
-        <Setter Property="Background" Value="{StaticResource SettingsHeroBrush}"/>
+        <Setter Property="Background" Value="{DynamicResource SettingsHeroBrush}"/>
         <Setter Property="BorderThickness" Value="0"/>
         <Setter Property="CornerRadius" Value="{DynamicResource Ios26RadiusCard}"/>
         <Setter Property="Padding" Value="{StaticResource SettingsCardPadding}"/>
@@ -308,8 +308,8 @@
         <Setter Property="Width" Value="38"/>
         <Setter Property="Height" Value="38"/>
         <Setter Property="CornerRadius" Value="{DynamicResource ControlCornerRadius}"/>
-        <Setter Property="Background" Value="#33FFFFFF"/>
-        <Setter Property="BorderBrush" Value="#44FFFFFF"/>
+        <Setter Property="Background" Value="{DynamicResource SettingsHeroOverlayBrush}"/>
+        <Setter Property="BorderBrush" Value="{DynamicResource SettingsHeroOverlayEdgeBrush}"/>
         <Setter Property="BorderThickness" Value="1"/>
         <Setter Property="SnapsToDevicePixels" Value="True"/>
         <Setter Property="VerticalAlignment" Value="Center"/>
@@ -318,7 +318,7 @@
     <Style x:Key="SettingsHeroIconGlyphStyle" TargetType="TextBlock">
         <Setter Property="FontFamily" Value="{DynamicResource FontFamily.Icon}"/>
         <Setter Property="FontSize" Value="{DynamicResource Ios26FontSizeH2}"/>
-        <Setter Property="Foreground" Value="{StaticResource SettingsOnAccentBrush}"/>
+        <Setter Property="Foreground" Value="{DynamicResource SettingsOnAccentBrush}"/>
         <Setter Property="HorizontalAlignment" Value="Center"/>
         <Setter Property="VerticalAlignment" Value="Center"/>
     </Style>
@@ -327,20 +327,20 @@
         <Setter Property="FontFamily" Value="{DynamicResource AppFontFamily}"/>
         <Setter Property="FontSize" Value="{DynamicResource Ios26FontSizeH2}"/>
         <Setter Property="FontWeight" Value="{DynamicResource Weight.Bold}"/>
-        <Setter Property="Foreground" Value="{StaticResource SettingsOnAccentBrush}"/>
+        <Setter Property="Foreground" Value="{DynamicResource SettingsOnAccentBrush}"/>
     </Style>
 
     <Style x:Key="SettingsHeroNoteStyle" TargetType="TextBlock">
         <Setter Property="FontFamily" Value="{DynamicResource AppFontFamily}"/>
         <Setter Property="FontSize" Value="{DynamicResource Ios26FontSizeBody}"/>
-        <Setter Property="Foreground" Value="{StaticResource SettingsOnAccentMutedBrush}"/>
+        <Setter Property="Foreground" Value="{DynamicResource SettingsOnAccentMutedBrush}"/>
         <Setter Property="TextWrapping" Value="Wrap"/>
         <Setter Property="Margin" Value="{StaticResource SettingsStackGap4}"/>
     </Style>
 
     <Style x:Key="SettingsHeroBadgeStyle" TargetType="Border">
-        <Setter Property="Background" Value="#33FFFFFF"/>
-        <Setter Property="BorderBrush" Value="#44FFFFFF"/>
+        <Setter Property="Background" Value="{DynamicResource SettingsHeroOverlayBrush}"/>
+        <Setter Property="BorderBrush" Value="{DynamicResource SettingsHeroOverlayEdgeBrush}"/>
         <Setter Property="BorderThickness" Value="1"/>
         <Setter Property="CornerRadius" Value="{DynamicResource ControlCornerRadius}"/>
         <Setter Property="Padding" Value="12,5"/>
@@ -351,7 +351,7 @@
         <Setter Property="FontFamily" Value="{DynamicResource AppFontFamily}"/>
         <Setter Property="FontSize" Value="{DynamicResource Ios26FontSizeCaption}"/>
         <Setter Property="FontWeight" Value="{DynamicResource Weight.Bold}"/>
-        <Setter Property="Foreground" Value="{StaticResource SettingsOnAccentBrush}"/>
+        <Setter Property="Foreground" Value="{DynamicResource SettingsOnAccentBrush}"/>
     </Style>
 
     <!-- Card frames that need no shadow: the action bar and any card the
