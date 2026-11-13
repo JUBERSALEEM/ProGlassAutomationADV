@@ -21,15 +21,15 @@ namespace ProGlassAutomation.Services.Theme.Engine
             CopyBrush(resources, "Ov.Accent", "AccentBrush", "AccentBrush");
             CopyBrush(resources, "Ov.AccentHover", "AccentHoverBrush", "AccentBrush");
             CopyBrush(resources, "Ov.AreaEnd", "AccentBrush", "AccentBrush");
-            CopyBrush(resources, "Ov.OnAccent", "OnAccentForegroundBrush", "PrimaryForegroundBrush");
-            CopyBrush(resources, "Ov.OnAccentMuted", "TextSecondaryBrush", "SecondaryForegroundBrush");
+            CopyBrush(resources, "Ov.OnAccent", "ThemeNavigationSelectedForegroundBrush", "OnAccentForegroundBrush");
+            CopyBrush(resources, "Ov.OnAccentMuted", "ThemeNavigationSelectedForegroundBrush", "OnAccentForegroundBrush");
             CopyBrush(resources, "Ov.Success", "SuccessBrush", "AccentBrush");
             CopyBrush(resources, "Ov.Danger", "DangerBrush", "AccentBrush");
             CopyBrush(resources, "Ov.DangerSoft", "TintRedBrush", "DangerSoftBrush");
             CopyBrush(resources, "Ov.Warning", "WarningBrush", "AccentBrush");
             CopyBrush(resources, "Ov.SuccessSoft", "TintGreenBrush", "SuccessSoftBrush");
             CopyBrush(resources, "Ov.WarningSoft", "TintAmberBrush", "WarningSoftBrush");
-            CopyBrush(resources, "Ov.Hero", "ThemeCardFaceBrush", "SurfaceElevatedBrush");
+            CopyBrush(resources, "Ov.Hero", "ThemeNavigationSelectedBrush", "AccentBrush");
         }
     }
 }

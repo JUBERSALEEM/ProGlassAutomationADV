@@ -1068,6 +1068,8 @@ namespace ProGlassAutomation.Tests.Theme
             Assert.Contains("CopyBrush(resources, \"Ov.Surface\", \"ThemeCardFaceBrush\"", bridge, StringComparison.Ordinal);
             Assert.Contains("CopyBrush(resources, \"Ov.Accent\", \"AccentBrush\"", bridge, StringComparison.Ordinal);
             Assert.Contains("CopyBrush(resources, \"Ov.SuccessSoft\", \"TintGreenBrush\"", bridge, StringComparison.Ordinal);
+            Assert.Contains("CopyBrush(resources, \"Ov.Hero\", \"ThemeNavigationSelectedBrush\"", bridge, StringComparison.Ordinal);
+            Assert.Contains("CopyBrush(resources, \"Ov.OnAccent\", \"ThemeNavigationSelectedForegroundBrush\"", bridge, StringComparison.Ordinal);
             Assert.DoesNotContain("x:Key=\"Ov.Canvas\"", components, StringComparison.Ordinal);
             Assert.DoesNotContain("x:Key=\"Ov.Accent\"", components, StringComparison.Ordinal);
             Assert.DoesNotContain("#F3F0FA", components, StringComparison.Ordinal);

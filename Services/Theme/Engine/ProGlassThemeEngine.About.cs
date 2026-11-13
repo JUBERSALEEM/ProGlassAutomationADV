@@ -6,7 +6,7 @@ namespace ProGlassAutomation.Services.Theme.Engine
     {
         private static void PublishAboutAliases(ResourceDictionary resources)
         {
-            CopyBrush(resources, "Ios26CardBrush", "ThemeCardFaceBrush", "SurfacePrimaryBrush");
+            CopyBrush(resources, "Ios26CardBrush", "SettingsCardFaceBrush", "ThemeCardFaceBrush");
             CopyBrush(resources, "Ios26TextTitleBrush", "TextPrimaryBrush", "PrimaryForegroundBrush");
             CopyBrush(resources, "Ios26TextMutedBrush", "TextSecondaryBrush", "SecondaryForegroundBrush");
             CopyBrush(resources, "Ios26TextBodyBrush", "TextPrimaryBrush", "PrimaryForegroundBrush");
