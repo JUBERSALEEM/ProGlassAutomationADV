@@ -14,41 +14,39 @@
 
 
     <!-- Scoped aliases for existing native input and context-menu templates. -->
-    <SolidColorBrush x:Key="TextPrimaryBrush" Color="{Binding Color, Source={StaticResource Ov.Ink}}"/>
-    <SolidColorBrush x:Key="TextSecondaryBrush" Color="{Binding Color, Source={StaticResource Ov.Muted}}"/>
-    <SolidColorBrush x:Key="TextTertiaryBrush" Color="{Binding Color, Source={StaticResource Ov.Muted}}"/>
-    <SolidColorBrush x:Key="PrimaryForegroundBrush" Color="{Binding Color, Source={StaticResource Ov.Ink}}"/>
-    <SolidColorBrush x:Key="SecondaryForegroundBrush" Color="{Binding Color, Source={StaticResource Ov.Muted}}"/>
-    <SolidColorBrush x:Key="AccentBrush" Color="{Binding Color, Source={StaticResource Ov.Accent}}"/>
-    <SolidColorBrush x:Key="AccentHoverBrush" Color="{Binding Color, Source={StaticResource Ov.AccentHover}}"/>
-    <SolidColorBrush x:Key="AccentDarkBrush" Color="{Binding Color, Source={StaticResource Ov.AccentHover}}"/>
-    <SolidColorBrush x:Key="SuccessBrush" Color="{Binding Color, Source={StaticResource Ov.Success}}"/>
-    <SolidColorBrush x:Key="WarningBrush" Color="{Binding Color, Source={StaticResource Ov.Warning}}"/>
-    <SolidColorBrush x:Key="DangerBrush" Color="{Binding Color, Source={StaticResource Ov.Danger}}"/>
+    <SolidColorBrush x:Key="TextPrimaryBrush" Color="{DynamicResource Ov.InkColor}"/>
+    <SolidColorBrush x:Key="TextSecondaryBrush" Color="{DynamicResource Ov.MutedColor}"/>
+    <SolidColorBrush x:Key="TextTertiaryBrush" Color="{DynamicResource Ov.MutedColor}"/>
+    <SolidColorBrush x:Key="PrimaryForegroundBrush" Color="{DynamicResource Ov.InkColor}"/>
+    <SolidColorBrush x:Key="SecondaryForegroundBrush" Color="{DynamicResource Ov.MutedColor}"/>
+    <SolidColorBrush x:Key="AccentBrush" Color="{DynamicResource Ov.AccentColor}"/>
+    <SolidColorBrush x:Key="AccentHoverBrush" Color="{DynamicResource Ov.AccentHoverColor}"/>
+    <SolidColorBrush x:Key="AccentDarkBrush" Color="{DynamicResource Ov.AccentHoverColor}"/>
+    <SolidColorBrush x:Key="SuccessBrush" Color="{DynamicResource Ov.SuccessColor}"/>
+    <SolidColorBrush x:Key="WarningBrush" Color="{DynamicResource Ov.WarningColor}"/>
+    <SolidColorBrush x:Key="DangerBrush" Color="{DynamicResource Ov.DangerColor}"/>
     <SolidColorBrush x:Key="BorderDefaultBrush" Color="{DynamicResource Appearance.StudioEdgeColor}"/>
     <SolidColorBrush x:Key="BorderBrush" Color="{DynamicResource Appearance.StudioEdgeColor}"/>
     <SolidColorBrush x:Key="SurfacePrimaryBrush" Color="{DynamicResource Appearance.StudioFaceColor}"/>
     <SolidColorBrush x:Key="SurfaceSecondaryBrush" Color="{DynamicResource Appearance.StudioFaceColor}"/>
-    <SolidColorBrush x:Key="SurfaceTertiaryBrush" Color="{Binding Color, Source={StaticResource Ov.Soft}}"/>
-    <SolidColorBrush x:Key="PopupSurfaceBrush" Color="{Binding Color, Source={StaticResource Ov.Surface}}"/>
-    <SolidColorBrush x:Key="OnAccentForegroundBrush" Color="{Binding Color, Source={StaticResource Ov.OnAccent}}"/>
-    <SolidColorBrush x:Key="TintIndigoBrush" Color="{Binding Color, Source={StaticResource Ov.Soft}}"/>
-    <SolidColorBrush x:Key="TintBlueBrush" Color="{Binding Color, Source={StaticResource Ov.Soft}}"/>
-    <SolidColorBrush x:Key="TintGrayBrush" Color="{Binding Color, Source={StaticResource Ov.Soft}}"/>
-    <SolidColorBrush x:Key="TintRedBrush" Color="{Binding Color, Source={StaticResource Ov.DangerSoft}}"/>
-    <SolidColorBrush x:Key="TintAmberBrush" Color="{Binding Color, Source={StaticResource Ov.WarningSoft}}"/>
-    <SolidColorBrush x:Key="TintGreenBrush" Color="{Binding Color, Source={StaticResource Ov.SuccessSoft}}"/>
+    <SolidColorBrush x:Key="SurfaceTertiaryBrush" Color="{DynamicResource Ov.SoftColor}"/>
+    <SolidColorBrush x:Key="PopupSurfaceBrush" Color="{DynamicResource Ov.SurfaceColor}"/>
+    <SolidColorBrush x:Key="OnAccentForegroundBrush" Color="{DynamicResource Ov.OnAccentColor}"/>
+    <SolidColorBrush x:Key="TintIndigoBrush" Color="{DynamicResource Ov.SoftColor}"/>
+    <SolidColorBrush x:Key="TintBlueBrush" Color="{DynamicResource Ov.SoftColor}"/>
+    <SolidColorBrush x:Key="TintGrayBrush" Color="{DynamicResource Ov.SoftColor}"/>
+    <SolidColorBrush x:Key="TintRedBrush" Color="{DynamicResource Ov.DangerSoftColor}"/>
+    <SolidColorBrush x:Key="TintAmberBrush" Color="{DynamicResource Ov.WarningSoftColor}"/>
+    <SolidColorBrush x:Key="TintGreenBrush" Color="{DynamicResource Ov.SuccessSoftColor}"/>
     <SolidColorBrush x:Key="Surface.Primary.BackgroundBrush" Color="{DynamicResource Appearance.StudioFaceColor}"/>
     <SolidColorBrush x:Key="Surface.Secondary.BackgroundBrush" Color="{DynamicResource Appearance.StudioFaceColor}"/>
 
-    <SolidColorBrush x:Key="ModuleBackgroundBrush" Color="{Binding Color, Source={StaticResource Ov.Surface}}"/>
+    <SolidColorBrush x:Key="ModuleBackgroundBrush" Color="{DynamicResource Ov.SurfaceColor}"/>
     <SolidColorBrush x:Key="OutlineBrush" Color="{DynamicResource Appearance.StudioEdgeColor}"/>
-    <SolidColorBrush x:Key="MutedForegroundBrush" Color="{Binding Color, Source={StaticResource Ov.Muted}}"/>
-    <SolidColorBrush x:Key="SurfaceInputBrush" Color="{Binding Color, Source={StaticResource Ov.Surface}}"/>
-    <SolidColorBrush x:Key="InputBorderBrush" Color="{Binding Color, Source={StaticResource Ov.Line}}"/>
-    <SolidColorBrush x:Key="BorderFocusBrush" Color="{Binding Color, Source={StaticResource Ov.Accent}}"/>
-    <CornerRadius x:Key="ControlCornerRadius">6</CornerRadius>
-    <CornerRadius x:Key="CardCornerRadius">18</CornerRadius>
+    <SolidColorBrush x:Key="MutedForegroundBrush" Color="{DynamicResource Ov.MutedColor}"/>
+    <SolidColorBrush x:Key="SurfaceInputBrush" Color="{DynamicResource Ov.SurfaceColor}"/>
+    <SolidColorBrush x:Key="InputBorderBrush" Color="{DynamicResource Ov.LineColor}"/>
+    <SolidColorBrush x:Key="BorderFocusBrush" Color="{DynamicResource Ov.AccentColor}"/>
     <Style x:Key="Sl.Title" TargetType="TextBlock" BasedOn="{StaticResource Ov.Title}">
         <Setter Property="FontSize" Value="28"/>
     </Style>
@@ -158,7 +156,7 @@
         <Setter Property="Template">
             <Setter.Value><ControlTemplate TargetType="Button">
                 <Border x:Name="Chrome" Background="{TemplateBinding Background}" BorderBrush="{TemplateBinding BorderBrush}"
-                        BorderThickness="{TemplateBinding BorderThickness}" CornerRadius="9" Padding="{TemplateBinding Padding}">
+                        BorderThickness="{TemplateBinding BorderThickness}" CornerRadius="{DynamicResource ControlCornerRadius}" Padding="{TemplateBinding Padding}">
                     <StackPanel Orientation="Horizontal" HorizontalAlignment="Center" VerticalAlignment="Center">
                         <TextBlock x:Name="Glyph" FontFamily="Segoe MDL2 Assets" VerticalAlignment="Center"
                                    Text="{Binding Tag, RelativeSource={RelativeSource TemplatedParent}, Converter={StaticResource Sl.TagGlyph}}"/>
@@ -195,7 +193,7 @@
         <Setter Property="Padding" Value="12,9"/>
         <Setter Property="Cursor" Value="Hand"/>
         <Setter Property="Template"><Setter.Value><ControlTemplate TargetType="RadioButton">
-            <Border x:Name="TabChrome" CornerRadius="10" Background="{DynamicResource Ov.Surface}"
+            <Border x:Name="TabChrome" CornerRadius="{DynamicResource ControlCornerRadius}" Background="{DynamicResource Ov.Surface}"
                     BorderBrush="{DynamicResource Ov.Line}" BorderThickness="1" Padding="{TemplateBinding Padding}">
                 <StackPanel Orientation="Horizontal">
                     <ContentPresenter RecognizesAccessKey="True" VerticalAlignment="Center"/>
@@ -224,9 +222,9 @@
                 </ResourceDictionary.MergedDictionaries>
             </ResourceDictionary>
         </Style.Resources>
-        <Setter Property="Background" Value="{StaticResource Ov.Surface}"/>
-        <Setter Property="Foreground" Value="{StaticResource Ov.Ink}"/>
-        <Setter Property="BorderBrush" Value="{StaticResource Ov.Line}"/>
+        <Setter Property="Background" Value="{DynamicResource Ov.Surface}"/>
+        <Setter Property="Foreground" Value="{DynamicResource Ov.Ink}"/>
+        <Setter Property="BorderBrush" Value="{DynamicResource Ov.Line}"/>
     </Style>
     <Style x:Key="Sl.MenuItem" TargetType="MenuItem" BasedOn="{StaticResource ModernMenuItemStyle}">
         <Style.Resources>
