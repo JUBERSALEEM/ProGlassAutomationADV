@@ -312,3 +312,9 @@ Theme-specific styling must be token-driven and use dynamic resource resolution 
 - The main Dashboard shell no longer merges the Indigo-only palette or consumes Ov.* brushes/styles.
 - Module segment navigation, user badge, hidden header surfaces, separators, and typography now use the active nine-family semantic resources and shared typography/button styles.
 - All seven dashboard page DataTemplates, bindings, navigation commands, and page selection behavior are preserved; added regression coverage.
+
+
+### Personal GlassBlush theme-engine bridge
+- The Personal UI's legacy GlassBlush token plane is now republished by the authoritative ProGlassThemeEngine on every theme publish.
+- Personal surfaces, rail, borders, text, accents, status colors, atmospheric layers, and night-production brushes now alias the active nine-family Light/Dark palette instead of retaining the original fixed sapphire/azure palette.
+- Existing GlassBlush component styles and all Personal view bindings remain intact; the bridge changes only resource values. Added engine/token regression coverage.

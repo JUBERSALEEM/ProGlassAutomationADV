@@ -961,6 +961,23 @@ namespace ProGlassAutomation.Tests.Theme
             Assert.Contains("StaticResource Typography.Caption", dashboard, StringComparison.Ordinal);
         }
 
+        [Fact]
+        public void Personal_glass_blush_token_plane_is_published_by_the_nine_family_engine()
+        {
+            string engine = Read("Services/Theme/Engine/ProGlassThemeEngine.cs");
+            string bridge = Read("Services/Theme/Engine/ProGlassThemeEngine.GlassBlush.cs");
+            string tokens = Read("Themes/GlassBlush/GlassBlushTokens.xaml");
+            Assert.Contains("PublishGlassBlushAliases(resources)", engine, StringComparison.Ordinal);
+            Assert.Contains("public static partial class ProGlassThemeEngine", engine, StringComparison.Ordinal);
+            Assert.Contains("GlassBlush.Background", bridge, StringComparison.Ordinal);
+            Assert.Contains("GlassBlush.Surface", bridge, StringComparison.Ordinal);
+            Assert.Contains("GlassBlush.Accent", bridge, StringComparison.Ordinal);
+            Assert.Contains("GlassBlush.Success", bridge, StringComparison.Ordinal);
+            Assert.Contains("GlassBlushNight.Background", bridge, StringComparison.Ordinal);
+            Assert.Contains("GlassBlush.Surface", tokens, StringComparison.Ordinal);
+            Assert.Contains("GlassBlush.Accent", tokens, StringComparison.Ordinal);
+        }
+
         private static string ConstValue(string name)
         {
             var field = typeof(VisualThemeEngine).GetField(
