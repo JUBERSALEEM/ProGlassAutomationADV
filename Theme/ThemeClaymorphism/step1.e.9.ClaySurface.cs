@@ -1,0 +1,184 @@
+using System.Windows;
+using System.Windows.Controls;
+using System.Windows.Media;
+using System.Windows.Media.Effects;
+
+namespace ProGlassAutomation.ThemeClaymorphism;
+
+public enum ClayRank { Chip, Control, Card }
+
+/// <summary>
+/// Inflated clay host. Decorative chrome is a sibling of content so text is never inside an Effect.
+/// Clay-owned. Not a Bento type, not Neumorph gray plates, not CSS.
+/// </summary>
+public sealed class ClaySurface : ContentControl
+{
+    public static readonly DependencyProperty CornerRadiusProperty = DependencyProperty.Register(
+        nameof(CornerRadius), typeof(CornerRadius), typeof(ClaySurface),
+        new FrameworkPropertyMetadata(new CornerRadius(32)));
+    public static readonly DependencyProperty ConcaveProperty = DependencyProperty.Register(
+        nameof(Concave), typeof(bool), typeof(ClaySurface),
+        new FrameworkPropertyMetadata(false));
+    public static readonly DependencyProperty LiftedProperty = DependencyProperty.Register(
+        nameof(Lifted), typeof(bool), typeof(ClaySurface),
+        new FrameworkPropertyMetadata(false));
+    public static readonly DependencyProperty RankProperty = DependencyProperty.Register(
+        nameof(Rank), typeof(ClayRank), typeof(ClaySurface),
+        new FrameworkPropertyMetadata(ClayRank.Card));
+    public static readonly DependencyProperty DropBrushProperty = DependencyProperty.Register(
+        nameof(DropBrush), typeof(Brush), typeof(ClaySurface));
+    public static readonly DependencyProperty ShadeBrushProperty = DependencyProperty.Register(
+        nameof(ShadeBrush), typeof(Brush), typeof(ClaySurface));
+    public static readonly DependencyProperty LightBrushProperty = DependencyProperty.Register(
+        nameof(LightBrush), typeof(Brush), typeof(ClaySurface));
+    public static readonly DependencyProperty ShowDropProperty = DependencyProperty.Register(
+        nameof(ShowDrop), typeof(bool), typeof(ClaySurface),
+        new FrameworkPropertyMetadata(true));
+
+    public ClaySurface()
+    {
+        Focusable = false;
+        UseLayoutRounding = true;
+        SnapsToDevicePixels = true;
+        ClipToBounds = false;
+    }
+
+    public CornerRadius CornerRadius { get => (CornerRadius)GetValue(CornerRadiusProperty); set => SetValue(CornerRadiusProperty, value); }
+    public bool Concave { get => (bool)GetValue(ConcaveProperty); set => SetValue(ConcaveProperty, value); }
+    public bool Lifted { get => (bool)GetValue(LiftedProperty); set => SetValue(LiftedProperty, value); }
+    public ClayRank Rank { get => (ClayRank)GetValue(RankProperty); set => SetValue(RankProperty, value); }
+    public bool ShowDrop { get => (bool)GetValue(ShowDropProperty); set => SetValue(ShowDropProperty, value); }
+    public Brush DropBrush { get => (Brush)GetValue(DropBrushProperty); set => SetValue(DropBrushProperty, value); }
+    public Brush ShadeBrush { get => (Brush)GetValue(ShadeBrushProperty); set => SetValue(ShadeBrushProperty, value); }
+    public Brush LightBrush { get => (Brush)GetValue(LightBrushProperty); set => SetValue(LightBrushProperty, value); }
+}
+
+/// <summary>Only decorative geometry. Never put text below an Effect: presenters are siblings of this chrome.</summary>
+public sealed class ClayChrome : FrameworkElement
+{
+    private static DependencyProperty Property<T>(string name, T value) => DependencyProperty.Register(
+        name, typeof(T), typeof(ClayChrome),
+        new FrameworkPropertyMetadata(value, FrameworkPropertyMetadataOptions.AffectsRender, (d, _) => ((ClayChrome)d)._drawing = null));
+
+    private DrawingGroup? _drawing;
+    private Size _drawingSize;
+    private DpiScale _drawingDpi;
+
+    public static readonly DependencyProperty SurfaceShadowTintProperty = Property(nameof(SurfaceShadowTint), 0d);
+    public double SurfaceShadowTint { get => (double)GetValue(SurfaceShadowTintProperty); set => SetValue(SurfaceShadowTintProperty, value); }
+
+    public static readonly DependencyProperty ShadowProperty = DependencyProperty.Register(
+        nameof(Shadow), typeof(DropShadowEffect), typeof(ClayChrome),
+        new FrameworkPropertyMetadata((object?)null, (d, _) => ((ClayChrome)d).UpdateShadow()));
+    public DropShadowEffect? Shadow { get => (DropShadowEffect?)GetValue(ShadowProperty); set => SetValue(ShadowProperty, value); }
+
+    protected override void OnPropertyChanged(DependencyPropertyChangedEventArgs e)
+    {
+        base.OnPropertyChanged(e);
+        if (Shadow != null && (e.Property == FillProperty || e.Property == SurfaceShadowTintProperty)) UpdateShadow();
+    }
+
+    public static Color TintedShadow(Color source, Color surface, double amount) =>
+        ClayColor.Mix(source, ClayColor.Mix(surface, Colors.Black, .48), Math.Clamp(amount, 0, 1));
+
+    private void UpdateShadow()
+    {
+        if (Shadow == null) { SetCurrentValue(EffectProperty, null); return; }
+        var effect = Shadow.CloneCurrentValue();
+        if (Fill is SolidColorBrush fill) effect.Color = TintedShadow(effect.Color, fill.Color, SurfaceShadowTint);
+        effect.Freeze();
+        SetCurrentValue(EffectProperty, effect);
+    }
+
+    public static readonly DependencyProperty LightingProperty = Property(nameof(Lighting), ClayLighting.Directional);
+    public static readonly DependencyProperty ReliefProperty = Property(nameof(Relief), ClayRelief.Raised);
+    public static readonly DependencyProperty RimOpacityProperty = Property(nameof(RimOpacity), .35d);
+    public static readonly DependencyProperty ShadeColorProperty = Property(nameof(ShadeColor), Color.FromRgb(82, 98, 126));
+    public ClayLighting Lighting { get => (ClayLighting)GetValue(LightingProperty); set => SetValue(LightingProperty, value); }
+    public ClayRelief Relief { get => (ClayRelief)GetValue(ReliefProperty); set => SetValue(ReliefProperty, value); }
+    public double RimOpacity { get => (double)GetValue(RimOpacityProperty); set => SetValue(RimOpacityProperty, value); }
+    public Color ShadeColor { get => (Color)GetValue(ShadeColorProperty); set => SetValue(ShadeColorProperty, value); }
+    public static readonly DependencyProperty LightElevationProperty = Property(nameof(LightElevation), 45d);
+    public double LightElevation { get => (double)GetValue(LightElevationProperty); set => SetValue(LightElevationProperty, value); }
+    public static readonly DependencyProperty GlossProperty = Property(nameof(Gloss), .22d);
+    public double Gloss { get => (double)GetValue(GlossProperty); set => SetValue(GlossProperty, value); }
+    public static readonly DependencyProperty GlossFocusProperty = Property(nameof(GlossFocus), 28d);
+    public double GlossFocus { get => (double)GetValue(GlossFocusProperty); set => SetValue(GlossFocusProperty, value); }
+    public static readonly DependencyProperty CurvatureProperty = Property(nameof(Curvature), 1.2d);
+    public double Curvature { get => (double)GetValue(CurvatureProperty); set => SetValue(CurvatureProperty, value); }
+    public static readonly DependencyProperty FillProperty = Property<Brush>(nameof(Fill), Brushes.White);
+    public static readonly DependencyProperty EdgeProperty = Property<Brush>(nameof(Edge), Brushes.Gray);
+    public static readonly DependencyProperty RadiusProperty = Property(nameof(Radius), new CornerRadius(14));
+    public static readonly DependencyProperty LineWidthProperty = Property(nameof(LineWidth), 1d);
+    public static readonly DependencyProperty InsetProperty = Property(nameof(Inset), 5d);
+    public static readonly DependencyProperty HighlightProperty = Property(nameof(Highlight), .4d);
+    public static readonly DependencyProperty ShadeProperty = Property(nameof(Shade), .12d);
+    public static readonly DependencyProperty LightAngleProperty = Property(nameof(LightAngle), 135d);
+    public Brush Fill { get => (Brush)GetValue(FillProperty); set => SetValue(FillProperty, value); }
+    public Brush Edge { get => (Brush)GetValue(EdgeProperty); set => SetValue(EdgeProperty, value); }
+    public CornerRadius Radius { get => (CornerRadius)GetValue(RadiusProperty); set => SetValue(RadiusProperty, value); }
+    public double LineWidth { get => (double)GetValue(LineWidthProperty); set => SetValue(LineWidthProperty, value); }
+    public double Inset { get => (double)GetValue(InsetProperty); set => SetValue(InsetProperty, value); }
+    public double Highlight { get => (double)GetValue(HighlightProperty); set => SetValue(HighlightProperty, value); }
+    public double Shade { get => (double)GetValue(ShadeProperty); set => SetValue(ShadeProperty, value); }
+    public double LightAngle { get => (double)GetValue(LightAngleProperty); set => SetValue(LightAngleProperty, value); }
+
+    public ClayChrome() { IsHitTestVisible = false; }
+
+    protected override void OnRender(DrawingContext dc)
+    {
+        if (ActualWidth < 1 || ActualHeight < 1) return;
+        var dpi = VisualTreeHelper.GetDpi(this);
+        if (_drawing == null || _drawingSize != RenderSize || _drawingDpi.DpiScaleX != dpi.DpiScaleX || _drawingDpi.DpiScaleY != dpi.DpiScaleY)
+        {
+            _drawingSize = RenderSize;
+            _drawingDpi = dpi;
+            _drawing = BuildMaterial();
+            if (_drawing.CanFreeze) _drawing.Freeze();
+        }
+        dc.DrawDrawing(_drawing);
+    }
+
+    protected override void OnDpiChanged(DpiScale oldDpi, DpiScale newDpi)
+    {
+        base.OnDpiChanged(oldDpi, newDpi);
+        _drawing = null;
+        InvalidateVisual();
+    }
+
+    private DrawingGroup BuildMaterial()
+    {
+        var drawing = new DrawingGroup();
+        using var dc = drawing.Open();
+        var bounds = new Rect(RenderSize);
+        var radius = ClayGeometry.Normalize(bounds, Radius);
+        var geometry = ClayGeometry.Rounded(bounds, radius);
+        dc.DrawGeometry(Fill?.CloneCurrentValue(), null, geometry);
+        dc.PushClip(geometry);
+        if (Fill is SolidColorBrush { Opacity: 1 } solid && solid.Color.A == 255)
+        {
+            var material = new ClayMaterialSettings(
+                solid.Color,
+                TintedShadow(ShadeColor, solid.Color, SurfaceShadowTint),
+                Math.Max(0, Inset),
+                LightAngle,
+                LightElevation,
+                Math.Clamp(Highlight, 0, 1),
+                Math.Clamp(Shade, 0, 1),
+                Math.Clamp(Gloss, 0, 1),
+                GlossFocus,
+                Curvature,
+                Lighting == ClayLighting.Balanced,
+                Relief == ClayRelief.Inset);
+            ClayBevelRenderer.Draw(dc, RenderSize, radius, material, _drawingDpi);
+        }
+        if (LineWidth > 0 && RimOpacity > 0)
+        {
+            dc.PushOpacity(Math.Clamp(RimOpacity, 0, 1));
+            dc.DrawGeometry(null, new Pen(Edge?.CloneCurrentValue(), LineWidth * 2), geometry);
+            dc.Pop();
+        }
+        dc.Pop();
+        return drawing;
+    }
+}

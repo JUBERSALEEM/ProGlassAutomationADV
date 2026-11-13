@@ -642,21 +642,21 @@
                                 <!-- 1. Dashboard -->
                                 <Button Style="{StaticResource PgSidebarItemStyle}"
                                         Content="{DynamicResource Nav.Dashboard}"
-                                        Tag="&#xE80F;"
+                                        Tag="Dashboard"
                                         Command="{Binding NavigateCommand}"
                                         CommandParameter="Dashboard"/>
 
                                 <!-- 2. Sheet Store -->
                                 <Button Style="{StaticResource PgSidebarItemStyle}"
                                         Content="{DynamicResource Nav.SheetStore}"
-                                        Tag="&#xE7B8;"
+                                        Tag="SheetStore"
                                         Command="{Binding NavigateCommand}"
                                         CommandParameter="SheetStore"/>
 
                                 <!-- 3. Specifications -->
                                 <Button Style="{StaticResource PgSidebarItemStyle}"
                                         Content="{DynamicResource Nav.Specifications}"
-                                        Tag="&#xE8F1;"
+                                        Tag="Specifications"
                                         Command="{Binding NavigateCommand}"
                                         CommandParameter="Specifications"/>
 
@@ -665,7 +665,7 @@
                                     <ToggleButton x:Name="SalesGroup"
                                                   Style="{StaticResource PgSidebarGroupToggleStyle}"
                                                   Content="{DynamicResource Nav.SalesOrders}"
-                                                  Tag="&#xE8A5;"
+                                                  Tag="SalesOrders"
                                                   IsChecked="True"
                                                   behaviors:AccordionBehavior.Group="Sidebar"/>
                                     <Border Style="{StaticResource PgSidebarSubListStyle}"
@@ -704,7 +704,7 @@
                                     <ToggleButton x:Name="ProductionGroup"
                                                   Style="{StaticResource PgSidebarGroupToggleStyle}"
                                                   Content="{DynamicResource Nav.ProductionItems}"
-                                                  Tag="&#xE8C6;"
+                                                  Tag="Production"
                                                   behaviors:AccordionBehavior.Group="Sidebar"/>
                                     <Border Style="{StaticResource PgSidebarSubListStyle}"
                                             Visibility="{Binding IsChecked, ElementName=ProductionGroup,
@@ -763,7 +763,7 @@
                                     <ToggleButton x:Name="DispatchGroup"
                                                   Style="{StaticResource PgSidebarGroupToggleStyle}"
                                                   Content="{DynamicResource Nav.Dispatch}"
-                                                  Tag="&#xE7F4;"
+                                                  Tag="Inventory"
                                                   behaviors:AccordionBehavior.Group="Sidebar"/>
                                     <Border Style="{StaticResource PgSidebarSubListStyle}"
                                             Visibility="{Binding IsChecked, ElementName=DispatchGroup,
@@ -782,7 +782,7 @@
                                     <ToggleButton x:Name="FinanceGroup"
                                                   Style="{StaticResource PgSidebarGroupToggleStyle}"
                                                   Content="{DynamicResource Nav.FinanceAccounting}"
-                                                  Tag="&#xE90E;"
+                                                  Tag="Delivery"
                                                   behaviors:AccordionBehavior.Group="Sidebar"/>
                                     <Border Style="{StaticResource PgSidebarSubListStyle}"
                                             Visibility="{Binding IsChecked, ElementName=FinanceGroup,
@@ -813,7 +813,7 @@
                                     <ToggleButton x:Name="ReportsGroup"
                                                   Style="{StaticResource PgSidebarGroupToggleStyle}"
                                                   Content="{DynamicResource Nav.Reports}"
-                                                  Tag="&#xE9F9;"
+                                                  Tag="Reports"
                                                   behaviors:AccordionBehavior.Group="Sidebar"/>
                                     <Border Style="{StaticResource PgSidebarSubListStyle}"
                                             Visibility="{Binding IsChecked, ElementName=ReportsGroup,
@@ -852,7 +852,7 @@
                                     <ToggleButton x:Name="MasterDataGroup"
                                                   Style="{StaticResource PgSidebarGroupToggleStyle}"
                                                   Content="{DynamicResource Nav.MasterDataItems}"
-                                                  Tag="&#xE822;"
+                                                  Tag="Users"
                                                   behaviors:AccordionBehavior.Group="Sidebar"/>
                                     <Border Style="{StaticResource PgSidebarSubListStyle}"
                                             Visibility="{Binding IsChecked, ElementName=MasterDataGroup,
@@ -875,7 +875,7 @@
                                     <ToggleButton x:Name="SystemGroup"
                                                   Style="{StaticResource PgSidebarGroupToggleStyle}"
                                                   Content="{DynamicResource Nav.System}"
-                                                  Tag="&#xE713;"
+                                                  Tag="Settings"
                                                   behaviors:AccordionBehavior.Group="Sidebar"/>
                                     <Border Style="{StaticResource PgSidebarSubListStyle}"
                                             Visibility="{Binding IsChecked, ElementName=SystemGroup,

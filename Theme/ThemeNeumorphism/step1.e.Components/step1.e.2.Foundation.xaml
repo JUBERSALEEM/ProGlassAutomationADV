@@ -1,0 +1,223 @@
+<ResourceDictionary xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation" xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml" xmlns:neu="clr-namespace:ProGlassAutomation.ThemeNeumorphism">
+ <Style x:Key="KeyboardFocus" TargetType="Control">
+  <Setter Property="Template"><Setter.Value><ControlTemplate TargetType="Control">
+   <Border Margin="{DynamicResource MarginFocus}" BorderBrush="{DynamicResource FocusIndicator}" BorderThickness="{DynamicResource FocusThickness}" CornerRadius="{DynamicResource ControlCornerRadius}" />
+  </ControlTemplate></Setter.Value></Setter>
+ </Style>
+ <Style x:Key="ThemedWindow" TargetType="Window">
+  <Setter Property="Background" Value="{DynamicResource ApplicationBackground}" />
+  <Setter Property="Foreground" Value="{DynamicResource TextPrimary}" />
+  <Setter Property="FontWeight" Value="{DynamicResource FontWeightBody}" />
+  <Setter Property="FontFamily" Value="{DynamicResource FontFamilyBody}" />
+  <Setter Property="FontSize" Value="{DynamicResource FontSizeBody}" />
+  <Setter Property="FontStyle" Value="{DynamicResource FontStyleBody}" />
+  <Setter Property="UseLayoutRounding" Value="True" />
+  <Setter Property="SnapsToDevicePixels" Value="True" />
+ </Style>
+ <Style TargetType="TextBlock">
+  <Setter Property="Foreground" Value="{DynamicResource TextPrimary}" />
+  <Setter Property="FontWeight" Value="{DynamicResource FontWeightBody}" />
+  <Setter Property="FontFamily" Value="{DynamicResource FontFamilyBody}" />
+  <Setter Property="FontSize" Value="{DynamicResource FontSizeBody}" />
+  <Setter Property="FontStyle" Value="{DynamicResource FontStyleBody}" />
+  <Setter Property="TextDecorations" Value="{DynamicResource TextDecorationsBody}" />
+  <Setter Property="TextWrapping" Value="Wrap" />
+ </Style>
+ <Style x:Key="Caption" TargetType="TextBlock" BasedOn="{StaticResource {x:Type TextBlock}}">
+  <Setter Property="FontSize" Value="{DynamicResource FontSizeCaption}" />
+  <Setter Property="Foreground" Value="{DynamicResource TextMuted}" />
+ </Style>
+ <Style x:Key="SectionHeading" TargetType="TextBlock" BasedOn="{StaticResource {x:Type TextBlock}}">
+  <Setter Property="FontSize" Value="{DynamicResource FontSizeSection}" />
+  <Setter Property="FontWeight" Value="{DynamicResource FontWeightHeading}" />
+  <Setter Property="FontStyle" Value="Normal" />
+  <Setter Property="TextDecorations" Value="{x:Null}" />
+  <Setter Property="Margin" Value="{DynamicResource MarginItem}" />
+ </Style>
+ <Style x:Key="PageHeading" TargetType="TextBlock" BasedOn="{StaticResource SectionHeading}">
+  <Setter Property="FontSize" Value="{DynamicResource FontSizeDisplay}" />
+ </Style>
+ <Style TargetType="neu:NeumorphSurface">
+  <Setter Property="Focusable" Value="False" />
+  <Setter Property="SnapsToDevicePixels" Value="True" />
+  <Setter Property="ClipToBounds" Value="False" />
+  <Setter Property="HorizontalContentAlignment" Value="Stretch" />
+  <Setter Property="VerticalContentAlignment" Value="Stretch" />
+  <Setter Property="LightBrush" Value="{DynamicResource NeumorphLightBrush}" />
+  <Setter Property="DarkBrush" Value="{DynamicResource NeumorphDarkBrush}" />
+  <Setter Property="RimLightBrush" Value="{DynamicResource NeumorphRimLightBrush}" />
+  <Setter Property="RimShadeBrush" Value="{DynamicResource NeumorphRimShadeBrush}" />
+  <Setter Property="Template"><Setter.Value><ControlTemplate TargetType="neu:NeumorphSurface">
+   <Grid ClipToBounds="False">
+    <Grid x:Name="Volume" Margin="{DynamicResource NeumorphGutter}" ClipToBounds="False">
+     <Border x:Name="DarkGlow" Margin="{DynamicResource NeumorphSpreadMargin}" Background="{TemplateBinding Background}" CornerRadius="{TemplateBinding CornerRadius}" IsHitTestVisible="False">
+      <Border.Effect>
+       <DropShadowEffect Color="{DynamicResource NeumorphDarkColor}" BlurRadius="{DynamicResource NeumorphBlur}" ShadowDepth="{DynamicResource NeumorphDistance}" Direction="305" Opacity="{DynamicResource NeumorphDarkOpacity}" RenderingBias="Quality" />
+      </Border.Effect>
+     </Border>
+     <Border x:Name="LightGlow" Margin="{DynamicResource NeumorphSpreadMargin}" Background="{TemplateBinding Background}" CornerRadius="{TemplateBinding CornerRadius}" IsHitTestVisible="False">
+      <Border.Effect>
+       <DropShadowEffect Color="{DynamicResource NeumorphLightColor}" BlurRadius="{DynamicResource NeumorphBlur}" ShadowDepth="{DynamicResource NeumorphDistance}" Direction="125" Opacity="{DynamicResource NeumorphLightOpacity}" RenderingBias="Quality" />
+      </Border.Effect>
+     </Border>
+     <Border x:Name="DarkGlowControl" Visibility="Collapsed" Margin="{DynamicResource NeumorphSpreadMargin}" Background="{TemplateBinding Background}" CornerRadius="{TemplateBinding CornerRadius}" IsHitTestVisible="False">
+      <Border.Effect>
+       <DropShadowEffect Color="{DynamicResource NeumorphDarkColor}" BlurRadius="10" ShadowDepth="4" Direction="305" Opacity="{DynamicResource NeumorphDarkOpacity}" RenderingBias="Quality" />
+      </Border.Effect>
+     </Border>
+     <Border x:Name="LightGlowControl" Visibility="Collapsed" Margin="{DynamicResource NeumorphSpreadMargin}" Background="{TemplateBinding Background}" CornerRadius="{TemplateBinding CornerRadius}" IsHitTestVisible="False">
+      <Border.Effect>
+       <DropShadowEffect Color="{DynamicResource NeumorphLightColor}" BlurRadius="10" ShadowDepth="4" Direction="125" Opacity="{DynamicResource NeumorphLightOpacity}" RenderingBias="Quality" />
+      </Border.Effect>
+     </Border>
+     <Border x:Name="DarkGlowChip" Visibility="Collapsed" Margin="{DynamicResource NeumorphSpreadMargin}" Background="{TemplateBinding Background}" CornerRadius="{TemplateBinding CornerRadius}" IsHitTestVisible="False">
+      <Border.Effect>
+       <DropShadowEffect Color="{DynamicResource NeumorphDarkColor}" BlurRadius="6" ShadowDepth="2" Direction="305" Opacity="{DynamicResource NeumorphDarkOpacity}" RenderingBias="Quality" />
+      </Border.Effect>
+     </Border>
+     <Border x:Name="LightGlowChip" Visibility="Collapsed" Margin="{DynamicResource NeumorphSpreadMargin}" Background="{TemplateBinding Background}" CornerRadius="{TemplateBinding CornerRadius}" IsHitTestVisible="False">
+      <Border.Effect>
+       <DropShadowEffect Color="{DynamicResource NeumorphLightColor}" BlurRadius="6" ShadowDepth="2" Direction="125" Opacity="{DynamicResource NeumorphLightOpacity}" RenderingBias="Quality" />
+      </Border.Effect>
+     </Border>
+     <Border x:Name="DarkGlowLift" Visibility="Collapsed" Margin="{DynamicResource NeumorphSpreadMargin}" Background="{TemplateBinding Background}" CornerRadius="{TemplateBinding CornerRadius}" IsHitTestVisible="False">
+      <Border.Effect>
+       <DropShadowEffect Color="{DynamicResource NeumorphDarkColor}" BlurRadius="{DynamicResource NeumorphBlur}" ShadowDepth="{DynamicResource NeumorphLiftDistance}" Direction="305" Opacity="{DynamicResource NeumorphDarkOpacity}" RenderingBias="Quality" />
+      </Border.Effect>
+     </Border>
+     <Border x:Name="LightGlowLift" Visibility="Collapsed" Margin="{DynamicResource NeumorphSpreadMargin}" Background="{TemplateBinding Background}" CornerRadius="{TemplateBinding CornerRadius}" IsHitTestVisible="False">
+      <Border.Effect>
+       <DropShadowEffect Color="{DynamicResource NeumorphLightColor}" BlurRadius="{DynamicResource NeumorphBlur}" ShadowDepth="{DynamicResource NeumorphLiftDistance}" Direction="125" Opacity="{DynamicResource NeumorphLightOpacity}" RenderingBias="Quality" />
+      </Border.Effect>
+     </Border>
+     <Border x:Name="DarkSpread" BorderBrush="{DynamicResource NeumorphDarkBrush}" BorderThickness="{DynamicResource NeumorphSpreadThickness}" Background="{DynamicResource TransparentBrush}" CornerRadius="{TemplateBinding CornerRadius}" IsHitTestVisible="False" />
+     <Border x:Name="LightSpread" BorderBrush="{DynamicResource NeumorphLightBrush}" BorderThickness="{DynamicResource NeumorphSpreadThickness}" Background="{DynamicResource TransparentBrush}" CornerRadius="{TemplateBinding CornerRadius}" IsHitTestVisible="False" />
+     <Border x:Name="Face" Background="{DynamicResource NeumorphSheenBrush}" CornerRadius="{TemplateBinding CornerRadius}" Margin="0">
+      <Grid>
+       <Border x:Name="InsetHost" Visibility="Collapsed" Opacity="0" BorderThickness="6" Background="{DynamicResource TransparentBrush}" CornerRadius="{TemplateBinding CornerRadius}" IsHitTestVisible="False">
+        <Border.BorderBrush>
+         <LinearGradientBrush StartPoint="0.21,0.09" EndPoint="0.79,0.91">
+          <GradientStop Color="{DynamicResource NeumorphDarkColor}" Offset="0" />
+          <GradientStop Color="#00000000" Offset="0.5" />
+          <GradientStop Color="{DynamicResource NeumorphLightColor}" Offset="1" />
+         </LinearGradientBrush>
+        </Border.BorderBrush>
+        <Border.Effect>
+         <BlurEffect Radius="12" KernelType="Gaussian" />
+        </Border.Effect>
+       </Border>
+       <ContentPresenter Margin="{TemplateBinding Padding}" HorizontalAlignment="{TemplateBinding HorizontalContentAlignment}" VerticalAlignment="{TemplateBinding VerticalContentAlignment}" />
+      </Grid>
+     </Border>
+    </Grid>
+   </Grid>
+   <ControlTemplate.Triggers>
+    <Trigger Property="Rank" Value="Control">
+     <Setter TargetName="Volume" Property="Margin" Value="0" />
+     <Setter TargetName="Face" Property="Margin" Value="0" />
+     <Setter TargetName="DarkGlow" Property="Visibility" Value="Collapsed" />
+     <Setter TargetName="LightGlow" Property="Visibility" Value="Collapsed" />
+     <Setter TargetName="DarkGlowControl" Property="Visibility" Value="Visible" />
+     <Setter TargetName="LightGlowControl" Property="Visibility" Value="Visible" />
+     <Setter TargetName="DarkGlowChip" Property="Visibility" Value="Collapsed" />
+     <Setter TargetName="LightGlowChip" Property="Visibility" Value="Collapsed" />
+     <Setter TargetName="DarkGlowLift" Property="Visibility" Value="Collapsed" />
+     <Setter TargetName="LightGlowLift" Property="Visibility" Value="Collapsed" />
+    </Trigger>
+    <Trigger Property="Rank" Value="Chip">
+     <Setter TargetName="Volume" Property="Margin" Value="0" />
+     <Setter TargetName="Face" Property="Margin" Value="0" />
+     <Setter TargetName="DarkGlow" Property="Visibility" Value="Collapsed" />
+     <Setter TargetName="LightGlow" Property="Visibility" Value="Collapsed" />
+     <Setter TargetName="DarkGlowControl" Property="Visibility" Value="Collapsed" />
+     <Setter TargetName="LightGlowControl" Property="Visibility" Value="Collapsed" />
+     <Setter TargetName="DarkGlowChip" Property="Visibility" Value="Visible" />
+     <Setter TargetName="LightGlowChip" Property="Visibility" Value="Visible" />
+     <Setter TargetName="DarkGlowLift" Property="Visibility" Value="Collapsed" />
+     <Setter TargetName="LightGlowLift" Property="Visibility" Value="Collapsed" />
+    </Trigger>
+    <Trigger Property="Lifted" Value="True">
+     <Setter TargetName="DarkGlow" Property="Visibility" Value="Collapsed" />
+     <Setter TargetName="LightGlow" Property="Visibility" Value="Collapsed" />
+     <Setter TargetName="DarkGlowControl" Property="Visibility" Value="Collapsed" />
+     <Setter TargetName="LightGlowControl" Property="Visibility" Value="Collapsed" />
+     <Setter TargetName="DarkGlowChip" Property="Visibility" Value="Collapsed" />
+     <Setter TargetName="LightGlowChip" Property="Visibility" Value="Collapsed" />
+     <Setter TargetName="DarkGlowLift" Property="Visibility" Value="Visible" />
+     <Setter TargetName="LightGlowLift" Property="Visibility" Value="Visible" />
+    </Trigger>
+    <Trigger Property="Concave" Value="True">
+     <Setter TargetName="DarkGlow" Property="Visibility" Value="Collapsed" />
+     <Setter TargetName="LightGlow" Property="Visibility" Value="Collapsed" />
+     <Setter TargetName="DarkGlowControl" Property="Visibility" Value="Collapsed" />
+     <Setter TargetName="LightGlowControl" Property="Visibility" Value="Collapsed" />
+     <Setter TargetName="DarkGlowChip" Property="Visibility" Value="Collapsed" />
+     <Setter TargetName="LightGlowChip" Property="Visibility" Value="Collapsed" />
+     <Setter TargetName="DarkGlowLift" Property="Visibility" Value="Collapsed" />
+     <Setter TargetName="LightGlowLift" Property="Visibility" Value="Collapsed" />
+     <Setter TargetName="Volume" Property="Margin" Value="0" />
+     <Setter TargetName="Face" Property="Margin" Value="0" />
+     <Setter TargetName="Face" Property="ClipToBounds" Value="True" />
+     <Setter TargetName="InsetHost" Property="Visibility" Value="Visible" />
+     <Setter TargetName="Face" Property="Background" Value="{DynamicResource NeumorphWellSheenBrush}" />
+    </Trigger>
+   </ControlTemplate.Triggers>
+  </ControlTemplate></Setter.Value></Setter>
+ </Style>
+ <Style x:Key="Card" TargetType="ContentControl">
+  <Setter Property="Background" Value="{DynamicResource SurfacePrimary}" />
+  <Setter Property="Padding" Value="{DynamicResource PaddingCard}" />
+  <Setter Property="HorizontalAlignment" Value="Stretch" />
+  <Setter Property="VerticalAlignment" Value="Stretch" />
+  <Setter Property="Focusable" Value="False" />
+  <Setter Property="Template"><Setter.Value><ControlTemplate TargetType="ContentControl">
+   <neu:NeumorphSurface Background="{TemplateBinding Background}" Padding="{TemplateBinding Padding}" CornerRadius="{DynamicResource CardCornerRadius}" Rank="Card">
+    <ContentPresenter />
+   </neu:NeumorphSurface>
+  </ControlTemplate></Setter.Value></Setter>
+ </Style>
+ <Style x:Key="BentoTile" TargetType="ContentControl" BasedOn="{StaticResource Card}">
+  <Setter Property="Margin" Value="0" />
+ </Style>
+ <Style x:Key="Plate" TargetType="ContentControl" BasedOn="{StaticResource Card}">
+  <Setter Property="Background" Value="{DynamicResource SurfacePrimary}" />
+  <Setter Property="Padding" Value="{DynamicResource PaddingPlate}" />
+  <Setter Property="Template"><Setter.Value><ControlTemplate TargetType="ContentControl">
+   <neu:NeumorphSurface Background="{TemplateBinding Background}" Padding="{TemplateBinding Padding}" CornerRadius="{DynamicResource ControlCornerRadius}" Rank="Control">
+    <ContentPresenter />
+   </neu:NeumorphSurface>
+  </ControlTemplate></Setter.Value></Setter>
+ </Style>
+ <Style x:Key="AccentPlate" TargetType="ContentControl" BasedOn="{StaticResource Plate}">
+  <Setter Property="Background" Value="{DynamicResource SurfacePrimary}" />
+ </Style>
+ <Style x:Key="ElevatedPlate" TargetType="ContentControl" BasedOn="{StaticResource Plate}">
+  <Setter Property="Background" Value="{DynamicResource SurfacePrimary}" />
+  <Setter Property="Template"><Setter.Value><ControlTemplate TargetType="ContentControl">
+   <neu:NeumorphSurface Background="{TemplateBinding Background}" Padding="{TemplateBinding Padding}" CornerRadius="{DynamicResource ControlCornerRadius}" Rank="Card">
+    <ContentPresenter />
+   </neu:NeumorphSurface>
+  </ControlTemplate></Setter.Value></Setter>
+ </Style>
+ <Style x:Key="TokenValue" TargetType="TextBlock" BasedOn="{StaticResource Caption}">
+  <Setter Property="FontFamily" Value="{DynamicResource FontFamilyMono}" />
+ </Style>
+ <Style TargetType="Separator">
+  <Setter Property="Margin" Value="{DynamicResource MarginItem}" />
+  <Setter Property="Template"><Setter.Value><ControlTemplate TargetType="Separator">
+   <neu:NeumorphSurface Height="{DynamicResource SpacingMedium}" Concave="True" Rank="Chip" Background="{DynamicResource SurfacePrimary}" CornerRadius="{DynamicResource ChipCornerRadius}" />
+  </ControlTemplate></Setter.Value></Setter>
+ </Style>
+ <Style TargetType="ProgressBar">
+  <Setter Property="Height" Value="{DynamicResource SpacingLarge}" />
+  <Setter Property="Template"><Setter.Value><ControlTemplate TargetType="ProgressBar">
+   <neu:NeumorphSurface Concave="True" Rank="Chip" Background="{DynamicResource SurfacePrimary}" CornerRadius="{DynamicResource ChipCornerRadius}">
+    <Border x:Name="PART_Track">
+     <Border x:Name="PART_Indicator" HorizontalAlignment="Left">
+      <neu:NeumorphSurface Rank="Chip" Lifted="True" Background="{DynamicResource SurfacePrimary}" CornerRadius="{DynamicResource ChipCornerRadius}" />
+     </Border>
+    </Border>
+   </neu:NeumorphSurface>
+  </ControlTemplate></Setter.Value></Setter>
+ </Style>
+</ResourceDictionary>

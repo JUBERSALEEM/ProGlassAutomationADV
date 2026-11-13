@@ -1,0 +1,158 @@
+<ResourceDictionary xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation" xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml" xmlns:clay="clr-namespace:ProGlassAutomation.ThemeClaymorphism">
+ <Style x:Key="KeyboardFocus" TargetType="Control">
+  <Setter Property="Template"><Setter.Value><ControlTemplate TargetType="Control">
+   <Border Margin="{DynamicResource MarginFocus}" BorderBrush="{DynamicResource FocusIndicator}" BorderThickness="{DynamicResource FocusThickness}" CornerRadius="{DynamicResource ControlCornerRadius}" />
+  </ControlTemplate></Setter.Value></Setter>
+ </Style>
+ <Style x:Key="ThemedWindow" TargetType="Window">
+  <Setter Property="Background" Value="{DynamicResource ApplicationBackground}" />
+  <Setter Property="Foreground" Value="{DynamicResource TextPrimary}" />
+  <Setter Property="FontWeight" Value="{DynamicResource FontWeightBody}" />
+  <Setter Property="FontFamily" Value="{DynamicResource FontFamilyBody}" />
+  <Setter Property="FontSize" Value="{DynamicResource FontSizeBody}" />
+  <Setter Property="FontStyle" Value="{DynamicResource FontStyleBody}" />
+  <Setter Property="UseLayoutRounding" Value="True" />
+  <Setter Property="SnapsToDevicePixels" Value="True" />
+ </Style>
+ <Style TargetType="TextBlock">
+  <Setter Property="Foreground" Value="{DynamicResource TextPrimary}" />
+  <Setter Property="FontWeight" Value="{DynamicResource FontWeightBody}" />
+  <Setter Property="FontFamily" Value="{DynamicResource FontFamilyBody}" />
+  <Setter Property="FontSize" Value="{DynamicResource FontSizeBody}" />
+  <Setter Property="FontStyle" Value="{DynamicResource FontStyleBody}" />
+  <Setter Property="TextDecorations" Value="{DynamicResource TextDecorationsBody}" />
+  <Setter Property="TextWrapping" Value="Wrap" />
+ </Style>
+ <Style x:Key="Caption" TargetType="TextBlock" BasedOn="{StaticResource {x:Type TextBlock}}">
+  <Setter Property="FontSize" Value="{DynamicResource FontSizeCaption}" />
+  <Setter Property="Foreground" Value="{DynamicResource TextMuted}" />
+ </Style>
+ <Style x:Key="SectionHeading" TargetType="TextBlock" BasedOn="{StaticResource {x:Type TextBlock}}">
+  <Setter Property="FontSize" Value="{DynamicResource FontSizeSection}" />
+  <Setter Property="FontWeight" Value="{DynamicResource FontWeightHeading}" />
+  <Setter Property="FontStyle" Value="Normal" />
+  <Setter Property="TextDecorations" Value="{x:Null}" />
+  <Setter Property="Margin" Value="{DynamicResource MarginItem}" />
+ </Style>
+ <Style x:Key="PageHeading" TargetType="TextBlock" BasedOn="{StaticResource SectionHeading}">
+  <Setter Property="FontSize" Value="{DynamicResource FontSizeDisplay}" />
+ </Style>
+ <Style TargetType="clay:ClayChrome">
+  <Setter Property="SurfaceShadowTint" Value="{DynamicResource ClaySurfaceShadowTint}" />
+  <Setter Property="Lighting" Value="{DynamicResource ClayLighting}" />
+  <Setter Property="ShadeColor" Value="{DynamicResource ClayShadeColor}" />
+  <Setter Property="LightElevation" Value="{DynamicResource ClayLightElevation}" />
+  <Setter Property="Curvature" Value="{DynamicResource ClayCurvature}" />
+  <Setter Property="Gloss" Value="{DynamicResource ClayGloss}" />
+  <Setter Property="GlossFocus" Value="{DynamicResource ClayGlossFocus}" />
+  <Setter Property="RimOpacity" Value="{DynamicResource ClayRimOpacity}" />
+  <Setter Property="Inset" Value="{DynamicResource ClayInset}" />
+  <Setter Property="Highlight" Value="{DynamicResource ClayHighlight}" />
+  <Setter Property="Shade" Value="{DynamicResource ClayShade}" />
+  <Setter Property="LightAngle" Value="{DynamicResource ClayLightAngle}" />
+  <Setter Property="LineWidth" Value="{DynamicResource ClayBorder}" />
+  <Setter Property="Edge" Value="{DynamicResource ClayEdge}" />
+ </Style>
+ <Style TargetType="clay:ClaySurface">
+  <Setter Property="Focusable" Value="False" />
+  <Setter Property="SnapsToDevicePixels" Value="True" />
+  <Setter Property="ClipToBounds" Value="False" />
+  <Setter Property="HorizontalContentAlignment" Value="Stretch" />
+  <Setter Property="VerticalContentAlignment" Value="Stretch" />
+  <Setter Property="ShowDrop" Value="{DynamicResource ClayShowDrop}" />
+  <Setter Property="DropBrush" Value="{DynamicResource ClayDropBrush}" />
+  <Setter Property="ShadeBrush" Value="{DynamicResource ClayInsetShadeBrush}" />
+  <Setter Property="LightBrush" Value="{DynamicResource ClayInsetLightBrush}" />
+  <Setter Property="Template"><Setter.Value><ControlTemplate TargetType="clay:ClaySurface">
+   <Grid ClipToBounds="False" Background="{DynamicResource TransparentBrush}">
+    <clay:ClayChrome Style="{StaticResource {x:Type clay:ClayChrome}}" x:Name="Ambient" Fill="{TemplateBinding Background}" Radius="{TemplateBinding CornerRadius}" Inset="0" LineWidth="0" Shadow="{DynamicResource ClayAmbientShadow}" />
+    <clay:ClayChrome Style="{StaticResource {x:Type clay:ClayChrome}}" x:Name="Surface" Fill="{TemplateBinding Background}" Radius="{TemplateBinding CornerRadius}" Edge="{DynamicResource ClayEdge}" Shadow="{DynamicResource ClayShadow}" Inset="{DynamicResource ClayInset}" LineWidth="{DynamicResource ClayBorder}" />
+    <ContentPresenter Margin="{TemplateBinding Padding}" HorizontalAlignment="{TemplateBinding HorizontalContentAlignment}" VerticalAlignment="{TemplateBinding VerticalContentAlignment}" />
+   </Grid>
+   <ControlTemplate.Triggers>
+    <Trigger Property="Rank" Value="Control">
+     <Setter TargetName="Ambient" Property="Shadow" Value="{DynamicResource ClayControlAmbientShadow}" />
+     <Setter TargetName="Surface" Property="Shadow" Value="{DynamicResource ClayControlShadow}" />
+     <Setter TargetName="Surface" Property="Inset" Value="{DynamicResource ClayControlInset}" />
+    </Trigger>
+    <Trigger Property="Rank" Value="Chip">
+     <Setter TargetName="Ambient" Property="Shadow" Value="{DynamicResource ClayControlAmbientShadow}" />
+     <Setter TargetName="Surface" Property="Shadow" Value="{DynamicResource ClayControlShadow}" />
+     <Setter TargetName="Surface" Property="Inset" Value="{DynamicResource ClaySmallInset}" />
+    </Trigger>
+    <Trigger Property="Lifted" Value="True">
+     <Setter TargetName="Surface" Property="Shadow" Value="{DynamicResource ClayLiftShadow}" />
+    </Trigger>
+    <Trigger Property="ShowDrop" Value="False">
+     <Setter TargetName="Ambient" Property="Visibility" Value="Collapsed" />
+     <Setter TargetName="Surface" Property="Shadow" Value="{x:Null}" />
+    </Trigger>
+    <Trigger Property="Concave" Value="True">
+     <Setter TargetName="Ambient" Property="Visibility" Value="Collapsed" />
+     <Setter TargetName="Surface" Property="Relief" Value="Inset" />
+     <Setter TargetName="Surface" Property="Shadow" Value="{x:Null}" />
+     <Setter TargetName="Surface" Property="Shade" Value="{DynamicResource ClayPressedShade}" />
+    </Trigger>
+   </ControlTemplate.Triggers>
+  </ControlTemplate></Setter.Value></Setter>
+ </Style>
+ <Style x:Key="Card" TargetType="ContentControl">
+  <Setter Property="Background" Value="{DynamicResource SurfacePrimary}" />
+  <Setter Property="Padding" Value="{DynamicResource PaddingCard}" />
+  <Setter Property="HorizontalAlignment" Value="Stretch" />
+  <Setter Property="VerticalAlignment" Value="Stretch" />
+  <Setter Property="Focusable" Value="False" />
+  <Setter Property="Template"><Setter.Value><ControlTemplate TargetType="ContentControl">
+   <clay:ClaySurface Rank="Card" Background="{TemplateBinding Background}" Padding="{TemplateBinding Padding}" CornerRadius="{DynamicResource CardCornerRadius}" DropBrush="{DynamicResource ClayDropBrush}" ShadeBrush="{DynamicResource ClayInsetShadeBrush}" LightBrush="{DynamicResource ClayInsetLightBrush}">
+    <ContentPresenter />
+   </clay:ClaySurface>
+  </ControlTemplate></Setter.Value></Setter>
+ </Style>
+ <Style x:Key="BentoTile" TargetType="ContentControl" BasedOn="{StaticResource Card}">
+  <Setter Property="Margin" Value="0" />
+ </Style>
+ <Style x:Key="Plate" TargetType="ContentControl" BasedOn="{StaticResource Card}">
+  <Setter Property="Background" Value="{DynamicResource SurfacePrimary}" />
+  <Setter Property="Padding" Value="{DynamicResource PaddingPlate}" />
+  <Setter Property="Template"><Setter.Value><ControlTemplate TargetType="ContentControl">
+   <clay:ClaySurface Rank="Control" Background="{TemplateBinding Background}" Padding="{TemplateBinding Padding}" CornerRadius="{DynamicResource ControlCornerRadius}" DropBrush="{DynamicResource ClayDropBrush}" ShadeBrush="{DynamicResource ClayInsetShadeBrush}" LightBrush="{DynamicResource ClayInsetLightBrush}">
+    <ContentPresenter />
+   </clay:ClaySurface>
+  </ControlTemplate></Setter.Value></Setter>
+ </Style>
+ <Style x:Key="AccentPlate" TargetType="ContentControl" BasedOn="{StaticResource Plate}">
+  <Setter Property="Background" Value="{DynamicResource AccentSoft}" />
+  <Setter Property="Template"><Setter.Value><ControlTemplate TargetType="ContentControl">
+   <clay:ClaySurface Rank="Control" Background="{TemplateBinding Background}" Padding="{TemplateBinding Padding}" CornerRadius="{DynamicResource ControlCornerRadius}" DropBrush="{DynamicResource ClayDropAccent}" ShadeBrush="{DynamicResource ClayShadeAccent}" LightBrush="{DynamicResource ClayInsetLightBrush}">
+    <ContentPresenter />
+   </clay:ClaySurface>
+  </ControlTemplate></Setter.Value></Setter>
+ </Style>
+ <Style x:Key="ElevatedPlate" TargetType="ContentControl" BasedOn="{StaticResource Plate}">
+  <Setter Property="Background" Value="{DynamicResource SurfacePrimary}" />
+  <Setter Property="Template"><Setter.Value><ControlTemplate TargetType="ContentControl">
+   <clay:ClaySurface Rank="Card" Background="{TemplateBinding Background}" Padding="{TemplateBinding Padding}" CornerRadius="{DynamicResource ControlCornerRadius}" DropBrush="{DynamicResource ClayDropBrush}" ShadeBrush="{DynamicResource ClayInsetShadeBrush}" LightBrush="{DynamicResource ClayInsetLightBrush}">
+    <ContentPresenter />
+   </clay:ClaySurface>
+  </ControlTemplate></Setter.Value></Setter>
+ </Style>
+ <Style x:Key="TokenValue" TargetType="TextBlock" BasedOn="{StaticResource Caption}">
+  <Setter Property="FontFamily" Value="{DynamicResource FontFamilyMono}" />
+ </Style>
+ <Style TargetType="Separator">
+  <Setter Property="Margin" Value="{DynamicResource MarginItem}" />
+  <Setter Property="Template"><Setter.Value><ControlTemplate TargetType="Separator">
+   <clay:ClaySurface Height="{DynamicResource SpacingMedium}" Concave="True" Rank="Chip" Background="{DynamicResource SurfaceSecondary}" CornerRadius="{DynamicResource ChipCornerRadius}" />
+  </ControlTemplate></Setter.Value></Setter>
+ </Style>
+ <Style TargetType="ProgressBar">
+  <Setter Property="Height" Value="{DynamicResource SpacingLarge}" />
+  <Setter Property="Template"><Setter.Value><ControlTemplate TargetType="ProgressBar">
+   <clay:ClaySurface Concave="True" Rank="Chip" Background="{DynamicResource SurfaceSecondary}" CornerRadius="{DynamicResource ChipCornerRadius}">
+    <Border x:Name="PART_Track">
+     <Border x:Name="PART_Indicator" HorizontalAlignment="Left" Background="{DynamicResource AccentPrimary}" CornerRadius="{DynamicResource ChipCornerRadius}" />
+    </Border>
+   </clay:ClaySurface>
+  </ControlTemplate></Setter.Value></Setter>
+ </Style>
+</ResourceDictionary>

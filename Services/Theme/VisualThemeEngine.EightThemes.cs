@@ -294,7 +294,7 @@ namespace ProGlassAutomation.Services.Theme
 
         private static EightThemePalette? ResolveEightThemePalette(string family, bool dark)
         {
-            if (family != BentoGrid && family != SpatialImmersive &&
+            if (family != BentoGrid && family != Fluent && family != SpatialImmersive &&
                 family != SwissInternational && family != HolographicIridescent &&
                 family != Neumorphism && family != Claymorphism &&
                 family != LiquidGlass && family != Glassmorphism)
@@ -305,6 +305,9 @@ namespace ProGlassAutomation.Services.Theme
                 BentoGrid => dark
                     ? new(Rgb(12, 18, 34), Rgb(20, 29, 51), Rgb(27, 39, 66), Rgb(15, 23, 42), Rgb(246, 249, 255), Rgb(188, 202, 225), Rgb(100, 120, 242), Rgb(64, 83, 127), Rgb(53, 184, 201), Rgb(34, 48, 76), 16, 12, false, false)
                     : new(Rgb(245, 247, 252), Rgb(255, 255, 255), Rgb(239, 243, 251), Rgb(229, 235, 247), Rgb(22, 30, 51), Rgb(78, 91, 119), Rgb(65, 84, 197), Rgb(172, 187, 219), Rgb(53, 184, 201), Rgb(215, 224, 242), 16, 12, false, false),
+                Fluent => dark
+                    ? new(Rgb(28, 28, 28), Rgb(44, 44, 44), Rgb(51, 51, 51), Rgb(35, 35, 35), Rgb(243, 243, 243), Rgb(208, 208, 208), Rgb(96, 205, 255), Rgb(58, 58, 58), Rgb(94, 224, 168), Rgb(35, 35, 35), 8, 4, false, true)
+                    : new(Rgb(243, 245, 247), Rgb(255, 255, 255), Rgb(240, 242, 244), Rgb(248, 249, 250), Rgb(26, 31, 38), Rgb(74, 85, 99), Rgb(10, 92, 168), Rgb(216, 222, 230), Rgb(15, 107, 61), Rgb(229, 234, 239), 8, 4, false, true),
                 SpatialImmersive => dark
                     ? new(Rgb(5, 16, 28), Rgb(10, 28, 43), Rgb(16, 42, 61), Rgb(7, 22, 35), Rgb(241, 251, 255), Rgb(171, 202, 215), Rgb(53, 184, 201), Rgb(48, 112, 135), Rgb(110, 125, 255), Rgb(23, 65, 86), 24, 15, true, true)
                     : new(Rgb(230, 243, 248), Rgb(248, 253, 255), Rgb(235, 247, 250), Rgb(219, 238, 244), Rgb(16, 42, 56), Rgb(69, 101, 116), Rgb(17, 120, 142), Rgb(139, 190, 205), Rgb(88, 111, 242), Rgb(202, 228, 236), 24, 15, true, true),

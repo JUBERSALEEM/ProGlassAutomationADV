@@ -1,0 +1,20 @@
+<ResourceDictionary xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation" xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml">
+  <SolidColorBrush x:Key="FluentTintBrush" Color="#3D0A5CA8" />
+  <SolidColorBrush x:Key="FluentLuminosityBrush" Color="#73FFFFFF" />
+  <SolidColorBrush x:Key="FluentStrokeBrush" Color="#2E5B6B7C" />
+  <SolidColorBrush x:Key="FluentTintPositive" Color="#140F6B3D" />
+  <SolidColorBrush x:Key="FluentStrokePositive" Color="#260F6B3D" />
+  <SolidColorBrush x:Key="FluentTintFeature" Color="#146B4BA8" />
+  <SolidColorBrush x:Key="FluentStrokeFeature" Color="#266B4BA8" />
+  <SolidColorBrush x:Key="FluentTintInformation" Color="#142158A8" />
+  <SolidColorBrush x:Key="FluentStrokeInformation" Color="#262158A8" />
+  <SolidColorBrush x:Key="FluentTintAttention" Color="#148A4B00" />
+  <SolidColorBrush x:Key="FluentStrokeAttention" Color="#268A4B00" />
+  <SolidColorBrush x:Key="FluentTintAccent" Color="#3D0A5CA8" />
+  <SolidColorBrush x:Key="FluentStrokeAccent" Color="#3D0A5CA8" />
+  <SolidColorBrush x:Key="FluentTintHero" Color="#33125A8C" />
+  <SolidColorBrush x:Key="FluentStrokeHero" Color="#66125A8C" />
+  <SolidColorBrush x:Key="FluentRevealBrush" Color="#B3FFFFFF" />
+  <SolidColorBrush x:Key="FluentRevealStroke" Color="#99FFFFFF" />
+  <Color x:Key="FluentShadowColor">#5B6B7C</Color>
+</ResourceDictionary>

@@ -71,8 +71,8 @@
                         </Border>
 
                         <StackPanel Grid.Column="1" Margin="{StaticResource SettingsIconTextMargin}" VerticalAlignment="Center">
-                            <TextBlock Text="Theme Center — Eight Visual Systems" Style="{StaticResource SettingsHeroTitleStyle}"/>
-                            <TextBlock Text="Eight coordinated themes, each available in Light and Dark, with live material previews" Style="{StaticResource SettingsHeroNoteStyle}"/>
+                            <TextBlock Text="Theme Center — Nine Visual Systems" Style="{StaticResource SettingsHeroTitleStyle}"/>
+                            <TextBlock Text="Nine coordinated themes, each available in Light and Dark, with live material previews" Style="{StaticResource SettingsHeroNoteStyle}"/>
                         </StackPanel>
 
                         <Border Grid.Column="2" Style="{StaticResource SettingsHeroBadgeStyle}">
@@ -81,12 +81,20 @@
                     </Grid>
                 </Border>
 
+                <Button Style="{StaticResource PrimaryPillButton}"
+                        HorizontalAlignment="Left"
+                        Margin="0,10,0,14"
+                        Padding="18,8"
+                        Content="Open full Theme Studio — colors, plates, icons and patterns"
+                        Command="{Binding OpenImportedThemeStudioCommand}"
+                        AutomationProperties.AutomationId="Settings.OpenImportedThemeStudio"/>
+
                 <!-- ═══ CARD — VISUAL THEME (always visible) ═══ -->
                 <Border Style="{StaticResource SettingsPageCardStyle}">
                     <StackPanel>
                         <TextBlock Text="{DynamicResource Settings.LblThemeFamily}"
                                    Style="{StaticResource SettingsCardTitleStyle}"/>
-                        <TextBlock Text="Eight theme families — each available in Light and Dark."
+                        <TextBlock Text="Nine theme families — each available in Light and Dark."
                                    Style="{StaticResource SettingsCardHeaderNoteStyle}"/>
                         <UniformGrid Columns="2" Margin="{StaticResource SettingsTileGridBleed}">
                             <StackPanel Margin="{StaticResource SettingsTileGridMargin}">
@@ -95,7 +103,7 @@
                                     <TextBlock Style="{StaticResource SettingsRowTitleStyle}" Margin="{StaticResource SettingsIconTextMargin}" VerticalAlignment="Center"
                                                Text="{DynamicResource Settings.LblThemeFamily}"/>
                                 </StackPanel>
-                                <TextBlock Text="Eight complete visual systems"
+                                <TextBlock Text="Nine complete visual systems"
                                            TextWrapping="Wrap"
                                            Style="{StaticResource SettingsCardHeaderNoteStyle}"
                                            FontSize="{DynamicResource FontSize.Body}"
@@ -125,7 +133,7 @@
                             </StackPanel>
                         </UniformGrid>
 
-                        <!-- Eight-theme material selector: real selectable cards, not a text-only dropdown. -->
+                        <!-- Nine-theme material selector: real selectable cards, not a text-only dropdown. -->
                         <StackPanel Margin="{StaticResource SettingsStackGap14}">
                             <TextBlock Text="THEME CENTER"
                                        Style="{StaticResource SettingsCardTitleStyle}"/>
@@ -134,7 +142,7 @@
                                        TextWrapping="Wrap"
                                        Margin="0,4,0,8"/>
                             <ListBox AutomationProperties.AutomationId="Settings.ThemeCenter"
-                                     AutomationProperties.Name="Eight visual themes"
+                                     AutomationProperties.Name="Nine visual themes"
                                      ItemsSource="{Binding VisualThemeOptions}"
                                      SelectedValuePath="Key"
                                      SelectedValue="{Binding SelectedVisualTheme, Mode=TwoWay}"

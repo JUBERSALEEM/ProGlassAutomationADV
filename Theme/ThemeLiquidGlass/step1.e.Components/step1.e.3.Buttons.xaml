@@ -1,0 +1,68 @@
+<ResourceDictionary xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation" xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml" xmlns:liquid="clr-namespace:ProGlassAutomation.ThemeLiquidGlass">
+ <Style TargetType="Button">
+  <Setter Property="FocusVisualStyle" Value="{DynamicResource KeyboardFocus}" />
+  <Setter Property="Background" Value="{DynamicResource TransparentBrush}" />
+  <Setter Property="Foreground" Value="{DynamicResource TextPrimary}" />
+  <Setter Property="BorderBrush" Value="{DynamicResource LiquidStrokeBrush}" />
+  <Setter Property="BorderThickness" Value="{DynamicResource BorderThicknessControl}" />
+  <Setter Property="Padding" Value="{DynamicResource PaddingControl}" />
+  <Setter Property="MinHeight" Value="{DynamicResource ControlMinHeight}" />
+  <Setter Property="MinWidth" Value="{DynamicResource ControlMinWidth}" />
+  <Setter Property="FontWeight" Value="{DynamicResource FontWeightHeading}" />
+  <Setter Property="FontSize" Value="{DynamicResource FontSizeBody}" />
+  <Setter Property="FontFamily" Value="{DynamicResource FontFamilyBody}" />
+  <Setter Property="HorizontalContentAlignment" Value="Center" />
+  <Setter Property="VerticalContentAlignment" Value="Center" />
+  <Setter Property="Template"><Setter.Value><ControlTemplate TargetType="Button">
+   <liquid:LiquidGlassSurface x:Name="Pod" Rank="Control" Background="{DynamicResource TransparentBrush}" Padding="{TemplateBinding Padding}" CornerRadius="{DynamicResource ControlCornerRadius}">
+    <ContentPresenter RecognizesAccessKey="True" HorizontalAlignment="{TemplateBinding HorizontalContentAlignment}" VerticalAlignment="{TemplateBinding VerticalContentAlignment}" />
+   </liquid:LiquidGlassSurface>
+   <ControlTemplate.Triggers>
+    <Trigger Property="IsKeyboardFocused" Value="True">
+     <Setter TargetName="Pod" Property="StrokeBrush" Value="{DynamicResource FocusIndicator}" />
+    </Trigger>
+    <Trigger Property="IsPressed" Value="True">
+     <Setter TargetName="Pod" Property="Concave" Value="True" />
+    </Trigger>
+   </ControlTemplate.Triggers>
+  </ControlTemplate></Setter.Value></Setter>
+  <Style.Triggers>
+   <Trigger Property="IsEnabled" Value="False"><Setter Property="Foreground" Value="{DynamicResource DisabledText}" /></Trigger>
+  </Style.Triggers>
+ </Style>
+ <Style x:Key="PrimaryButton" TargetType="Button" BasedOn="{StaticResource {x:Type Button}}">
+  <Setter Property="Foreground" Value="{DynamicResource TextOnAccent}" />
+  <Setter Property="Template"><Setter.Value><ControlTemplate TargetType="Button">
+   <liquid:LiquidGlassSurface x:Name="Pod" Rank="Control" Background="{DynamicResource TransparentBrush}" Padding="{TemplateBinding Padding}" CornerRadius="{DynamicResource ControlCornerRadius}" FaceBrush="{DynamicResource LiquidTintAccent}" StrokeBrush="{DynamicResource LiquidStrokeAccent}">
+    <ContentPresenter RecognizesAccessKey="True" HorizontalAlignment="{TemplateBinding HorizontalContentAlignment}" VerticalAlignment="{TemplateBinding VerticalContentAlignment}" />
+   </liquid:LiquidGlassSurface>
+   <ControlTemplate.Triggers>
+    <Trigger Property="IsKeyboardFocused" Value="True">
+     <Setter TargetName="Pod" Property="StrokeBrush" Value="{DynamicResource FocusIndicator}" />
+    </Trigger>
+    <Trigger Property="IsPressed" Value="True">
+     <Setter TargetName="Pod" Property="Concave" Value="True" />
+    </Trigger>
+    <Trigger Property="IsEnabled" Value="False">
+     <Setter TargetName="Pod" Property="FaceBrush" Value="{DynamicResource LiquidWellBrush}" />
+     <Setter Property="Foreground" Value="{DynamicResource DisabledText}" />
+    </Trigger>
+   </ControlTemplate.Triggers>
+  </ControlTemplate></Setter.Value></Setter>
+ </Style>
+ <Style x:Key="SubtleButton" TargetType="Button" BasedOn="{StaticResource {x:Type Button}}">
+  <Setter Property="Foreground" Value="{DynamicResource AccentPrimary}" />
+ </Style>
+ <Style x:Key="DestructiveButton" TargetType="Button" BasedOn="{StaticResource {x:Type Button}}">
+  <Setter Property="Foreground" Value="{DynamicResource StatusError}" />
+  <Setter Property="Template"><Setter.Value><ControlTemplate TargetType="Button">
+   <liquid:LiquidGlassSurface x:Name="Pod" Rank="Control" Background="{DynamicResource TransparentBrush}" Padding="{TemplateBinding Padding}" CornerRadius="{DynamicResource ControlCornerRadius}" FaceBrush="{DynamicResource LiquidTintAttention}" StrokeBrush="{DynamicResource StatusError}">
+    <ContentPresenter RecognizesAccessKey="True" HorizontalAlignment="{TemplateBinding HorizontalContentAlignment}" VerticalAlignment="{TemplateBinding VerticalContentAlignment}" />
+   </liquid:LiquidGlassSurface>
+   <ControlTemplate.Triggers>
+    <Trigger Property="IsPressed" Value="True"><Setter TargetName="Pod" Property="Concave" Value="True" /></Trigger>
+    <Trigger Property="IsEnabled" Value="False"><Setter Property="Foreground" Value="{DynamicResource DisabledText}" /></Trigger>
+   </ControlTemplate.Triggers>
+  </ControlTemplate></Setter.Value></Setter>
+ </Style>
+</ResourceDictionary>

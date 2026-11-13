@@ -38,7 +38,7 @@ namespace ProGlassAutomation.ViewModels.Settings
     public sealed partial class SettingsViewModel : ViewModelBase, IDisposable
     {
         // ══════════════════════════════════════════════════════════════
-        //  Theme Center exposes the eight approved visual families.
+        //  Theme Center exposes the nine imported visual families.
         //  Legacy Industrial, Monet, and Crystal identities are migration
         //  inputs only; the current picker never offers them as families.
         // ══════════════════════════════════════════════════════════════
@@ -63,6 +63,8 @@ namespace ProGlassAutomation.ViewModels.Settings
                 {
                     var k when k == ProGlassAutomation.Services.Theme.VisualThemeEngine.BentoGrid =>
                         (Color.FromRgb(100, 120, 242), "Modular cards and clear hierarchy"),
+                    var k when k == ProGlassAutomation.Services.Theme.VisualThemeEngine.Fluent =>
+                        (Color.FromRgb(10, 92, 168), "Fluent acrylic surfaces and system-aligned controls"),
                     var k when k == ProGlassAutomation.Services.Theme.VisualThemeEngine.SpatialImmersive =>
                         (Color.FromRgb(53, 184, 201), "Atmospheric depth and layered surfaces"),
                     var k when k == ProGlassAutomation.Services.Theme.VisualThemeEngine.SwissInternational =>
@@ -88,6 +90,7 @@ namespace ProGlassAutomation.ViewModels.Settings
         public List<VisualThemeOptionRow> VisualThemeOptions { get; } = new()
         {
             new(ProGlassAutomation.Services.Theme.VisualThemeEngine.BentoGrid),
+            new(ProGlassAutomation.Services.Theme.VisualThemeEngine.Fluent),
             new(ProGlassAutomation.Services.Theme.VisualThemeEngine.SpatialImmersive),
             new(ProGlassAutomation.Services.Theme.VisualThemeEngine.SwissInternational),
             new(ProGlassAutomation.Services.Theme.VisualThemeEngine.HolographicIridescent),
@@ -119,7 +122,7 @@ namespace ProGlassAutomation.ViewModels.Settings
                 _config.Appearance.VisualTheme = value;
                 SaveConfig();
 
-                // All eight approved families support both Light and Dark.
+                // All nine imported families support both Light and Dark.
                 // ModePairFor remains only as compatibility for a legacy
                 // light-only persisted family; canonical choices do not couple.
                 bool? modePair = ProGlassAutomation.Services.Theme

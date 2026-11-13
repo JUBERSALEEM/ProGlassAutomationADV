@@ -1,0 +1,51 @@
+<ResourceDictionary xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation" xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml" xmlns:neu="clr-namespace:ProGlassAutomation.ThemeNeumorphism">
+ <Style TargetType="Button">
+  <Setter Property="FocusVisualStyle" Value="{DynamicResource KeyboardFocus}" />
+  <Setter Property="Background" Value="{DynamicResource SurfacePrimary}" />
+  <Setter Property="Foreground" Value="{DynamicResource TextPrimary}" />
+  <Setter Property="BorderBrush" Value="{DynamicResource TransparentBrush}" />
+  <Setter Property="BorderThickness" Value="0" />
+  <Setter Property="Padding" Value="{DynamicResource PaddingControl}" />
+  <Setter Property="MinHeight" Value="{DynamicResource ControlMinHeight}" />
+  <Setter Property="MinWidth" Value="{DynamicResource ControlMinWidth}" />
+  <Setter Property="FontWeight" Value="{DynamicResource FontWeightHeading}" />
+  <Setter Property="FontSize" Value="{DynamicResource FontSizeBody}" />
+  <Setter Property="FontFamily" Value="{DynamicResource FontFamilyBody}" />
+  <Setter Property="HorizontalContentAlignment" Value="Center" />
+  <Setter Property="VerticalContentAlignment" Value="Center" />
+  <Setter Property="Template"><Setter.Value><ControlTemplate TargetType="Button">
+   <neu:NeumorphSurface x:Name="Pod" Rank="Control" Background="{TemplateBinding Background}" Padding="{TemplateBinding Padding}" CornerRadius="{DynamicResource ControlCornerRadius}">
+    <ContentPresenter RecognizesAccessKey="True" HorizontalAlignment="{TemplateBinding HorizontalContentAlignment}" VerticalAlignment="{TemplateBinding VerticalContentAlignment}" />
+   </neu:NeumorphSurface>
+   <ControlTemplate.Triggers>
+    <Trigger Property="IsPressed" Value="True">
+     <Setter TargetName="Pod" Property="Concave" Value="True" />
+     <Setter TargetName="Pod" Property="Lifted" Value="False" />
+    </Trigger>
+   </ControlTemplate.Triggers>
+  </ControlTemplate></Setter.Value></Setter>
+  <Style.Triggers>
+   <Trigger Property="IsEnabled" Value="False"><Setter Property="Background" Value="{DynamicResource DisabledSurface}" /><Setter Property="Foreground" Value="{DynamicResource DisabledText}" /></Trigger>
+  </Style.Triggers>
+ </Style>
+ <Style x:Key="PrimaryButton" TargetType="Button" BasedOn="{StaticResource {x:Type Button}}">
+  <Setter Property="Background" Value="{DynamicResource SurfacePrimary}" />
+  <Setter Property="BorderBrush" Value="{DynamicResource TransparentBrush}" />
+  <Setter Property="Foreground" Value="{DynamicResource AccentPrimary}" />
+  <Style.Triggers>
+   <Trigger Property="IsEnabled" Value="False"><Setter Property="Background" Value="{DynamicResource DisabledSurface}" /><Setter Property="Foreground" Value="{DynamicResource DisabledText}" /></Trigger>
+  </Style.Triggers>
+ </Style>
+ <Style x:Key="SubtleButton" TargetType="Button" BasedOn="{StaticResource {x:Type Button}}">
+  <Setter Property="Background" Value="{DynamicResource SurfacePrimary}" />
+  <Setter Property="BorderBrush" Value="{DynamicResource TransparentBrush}" />
+ </Style>
+ <Style x:Key="DestructiveButton" TargetType="Button" BasedOn="{StaticResource {x:Type Button}}">
+  <Setter Property="Background" Value="{DynamicResource SurfacePrimary}" />
+  <Setter Property="Foreground" Value="{DynamicResource StatusError}" />
+  <Setter Property="BorderBrush" Value="{DynamicResource TransparentBrush}" />
+  <Style.Triggers>
+   <Trigger Property="IsEnabled" Value="False"><Setter Property="Background" Value="{DynamicResource DisabledSurface}" /><Setter Property="Foreground" Value="{DynamicResource DisabledText}" /></Trigger>
+  </Style.Triggers>
+ </Style>
+</ResourceDictionary>

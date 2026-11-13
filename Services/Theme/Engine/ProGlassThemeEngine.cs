@@ -22,6 +22,7 @@ namespace ProGlassAutomation.Services.Theme.Engine
             return persisted?.Trim() switch
             {
                 VisualThemeEngine.BentoGrid => ProGlassThemeFamily.BentoGrid,
+                VisualThemeEngine.Fluent => ProGlassThemeFamily.Fluent,
                 VisualThemeEngine.SpatialImmersive => ProGlassThemeFamily.SpatialImmersive,
                 VisualThemeEngine.SwissInternational => ProGlassThemeFamily.SwissInternational,
                 VisualThemeEngine.HolographicIridescent => ProGlassThemeFamily.HolographicIridescent,
@@ -46,6 +47,7 @@ namespace ProGlassAutomation.Services.Theme.Engine
         public static string PersistFamily(ProGlassThemeFamily family) => family switch
         {
             ProGlassThemeFamily.BentoGrid => VisualThemeEngine.BentoGrid,
+            ProGlassThemeFamily.Fluent => VisualThemeEngine.Fluent,
             ProGlassThemeFamily.SpatialImmersive => VisualThemeEngine.SpatialImmersive,
             ProGlassThemeFamily.SwissInternational => VisualThemeEngine.SwissInternational,
             ProGlassThemeFamily.HolographicIridescent => VisualThemeEngine.HolographicIridescent,

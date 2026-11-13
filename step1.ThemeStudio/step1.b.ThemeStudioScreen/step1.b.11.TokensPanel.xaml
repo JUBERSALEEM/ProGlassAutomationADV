@@ -1,0 +1,32 @@
+<UserControl x:Class="ProGlassAutomation.ThemeStudio.TokensPanel"
+ xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation" xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml" xmlns:local="clr-namespace:ProGlassAutomation.ThemeStudio">
+ <ContentControl Style="{DynamicResource Card}">
+  <Grid>
+   <Grid.RowDefinitions>
+    <RowDefinition Height="Auto"/>
+    <RowDefinition Height="*"/>
+   </Grid.RowDefinitions>
+   <StackPanel>
+    <TextBlock Text="OPTIONAL / RESOURCE DIAGNOSTICS" Style="{DynamicResource Caption}" />
+    <DockPanel Margin="{DynamicResource MarginItem}">
+     <local:ShellMark DockPanel.Dock="Left" Title="Inspect tokens" Category="token" Width="{DynamicResource ChoiceMarkSize}" Height="{DynamicResource ChoiceMarkSize}" Margin="{DynamicResource MarginInline}" VerticalAlignment="Center" Foreground="{DynamicResource TextPrimary}"/>
+     <TextBlock Text="Inspect active semantic resources." Style="{DynamicResource SectionHeading}" VerticalAlignment="Center"/>
+    </DockPanel>
+    <Label Content="Filter tokens by semantic name" Target="{Binding ElementName=TokenSearch}" Foreground="{DynamicResource TextSecondary}" />
+    <TextBox x:Name="TokenSearch" Text="{Binding TokenFilter, UpdateSourceTrigger=PropertyChanged, Delay=200}" AutomationProperties.Name="Filter semantic tokens" Margin="{DynamicResource MarginItem}" />
+   </StackPanel>
+   <ScrollViewer Grid.Row="1" VerticalScrollBarVisibility="Auto" HorizontalScrollBarVisibility="Disabled" CanContentScroll="False">
+    <ItemsControl ItemsSource="{Binding TokenView}" AutomationProperties.Name="Scrollable semantic resource reference">
+     <ItemsControl.ItemTemplate><DataTemplate>
+      <ContentControl Style="{DynamicResource Plate}" Margin="{DynamicResource MarginItem}">
+       <DockPanel>
+        <Border DockPanel.Dock="Left" Background="{Binding Preview}" Width="{DynamicResource ChoiceMarkSize}" Height="{DynamicResource ChoiceMarkSize}" BorderBrush="{DynamicResource BorderStrong}" BorderThickness="{DynamicResource BorderThicknessControl}" CornerRadius="{DynamicResource ChipCornerRadius}" Margin="{DynamicResource MarginInline}" VerticalAlignment="Center" />
+        <StackPanel><TextBlock Text="{Binding Name}" FontWeight="{DynamicResource FontWeightHeading}" /><WrapPanel><TextBlock Text="{Binding Kind}" Style="{DynamicResource Caption}" Margin="{DynamicResource MarginInline}" /><TextBlock Text="{Binding Value}" Style="{DynamicResource TokenValue}" /></WrapPanel></StackPanel>
+       </DockPanel>
+      </ContentControl>
+     </DataTemplate></ItemsControl.ItemTemplate>
+    </ItemsControl>
+   </ScrollViewer>
+  </Grid>
+ </ContentControl>
+</UserControl>

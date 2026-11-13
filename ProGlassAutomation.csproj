@@ -137,6 +137,8 @@
 		<PackageReference Include="PdfSharp-WPF" Version="6.1.1" />
 		<PackageReference Include="SkiaSharp" Version="2.88.8" />
 		<PackageReference Include="SkiaSharp.Views.WPF" Version="2.88.8" />
+		<!-- Remote nine-theme engine includes its native WPF charts and theme studio. -->
+		<PackageReference Include="LiveChartsCore.SkiaSharpView.WPF" Version="2.0.4" />
 		<!-- Windows DPAPI (ProtectedData) — used by Services/Security/SecretVault
 		     to keep API keys out of plain-text config files. -->
 		<PackageReference Include="System.Management" Version="8.0.0" />
@@ -251,6 +253,13 @@
 	<ItemGroup>
 		<Compile Remove="Views\Licensing\LicenseActivationView.xaml.cs" />
 		<Compile Include="Views\Licensing\LicenseActivationView.xaml.cs" />
+	</ItemGroup>
+
+	<!-- Imported theme verification code is run as its own test project,
+	     never compiled into the shipping WPF application. -->
+	<ItemGroup>
+		<Compile Remove="Theme\step1.d.tests\**\*.cs" />
+		<Compile Remove="Theme\step1.d.tests\**\*.py" />
 	</ItemGroup>
 
 	<!-- ═══════════════════════════════════════════════════════════════

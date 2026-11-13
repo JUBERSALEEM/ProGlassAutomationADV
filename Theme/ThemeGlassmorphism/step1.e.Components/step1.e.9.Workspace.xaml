@@ -1,0 +1,65 @@
+<ResourceDictionary xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation" xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml" xmlns:glass="clr-namespace:ProGlassAutomation.ThemeGlassmorphism">
+ <Style x:Key="HeroCard" TargetType="ContentControl">
+  <Setter Property="Background" Value="{DynamicResource HeroBackground}" />
+  <Setter Property="Padding" Value="{DynamicResource PaddingCard}" />
+  <Setter Property="HorizontalAlignment" Value="Stretch" /><Setter Property="VerticalAlignment" Value="Stretch" />
+  <Setter Property="Focusable" Value="False" />
+  <Setter Property="Template"><Setter.Value><ControlTemplate TargetType="ContentControl">
+   <glass:GlassSurface Lifted="True" Background="{TemplateBinding Background}" Padding="{TemplateBinding Padding}" CornerRadius="{DynamicResource CardCornerRadius}" TintBrush="{DynamicResource GlassTintHero}" StrokeBrush="{DynamicResource GlassStrokeHero}" LuminosityBrush="{DynamicResource GlassHairlineBrush}">
+    <ContentPresenter />
+   </glass:GlassSurface>
+  </ControlTemplate></Setter.Value></Setter>
+ </Style>
+ <Style x:Key="MetricCard" TargetType="ContentControl">
+  <Setter Property="Background" Value="{DynamicResource GlassFrostElevated}" />
+  <Setter Property="Padding" Value="{DynamicResource PaddingPlate}" />
+  <Setter Property="Focusable" Value="False" />
+  <Setter Property="Template"><Setter.Value><ControlTemplate TargetType="ContentControl">
+   <glass:GlassSurface Lifted="True" Background="{TemplateBinding Background}" Padding="{TemplateBinding Padding}" CornerRadius="{DynamicResource ControlCornerRadius}" TintBrush="{DynamicResource GlassHighlightBrush}" StrokeBrush="{DynamicResource GlassStrokeBrush}" LuminosityBrush="{DynamicResource GlassHairlineBrush}">
+    <ContentPresenter />
+   </glass:GlassSurface>
+  </ControlTemplate></Setter.Value></Setter>
+ </Style>
+ <Style x:Key="StatusBadge" TargetType="Border">
+  <Setter Property="Background" Value="{DynamicResource SurfaceSecondary}" /><Setter Property="CornerRadius" Value="{DynamicResource ChipCornerRadius}" /><Setter Property="Padding" Value="{DynamicResource PaddingCompact}" />
+  <Setter Property="BorderBrush" Value="{DynamicResource GlassStrokeBrush}" /><Setter Property="BorderThickness" Value="{DynamicResource BorderThicknessControl}" />
+  <Style.Triggers>
+   <Trigger Property="Tag" Value="Success"><Setter Property="Background" Value="{DynamicResource StatusSuccessSurface}" /></Trigger>
+   <Trigger Property="Tag" Value="Warning"><Setter Property="Background" Value="{DynamicResource StatusWarningSurface}" /></Trigger>
+   <Trigger Property="Tag" Value="Information"><Setter Property="Background" Value="{DynamicResource StatusInformationSurface}" /></Trigger>
+   <Trigger Property="Tag" Value="Error"><Setter Property="Background" Value="{DynamicResource StatusErrorSurface}" /></Trigger>
+  </Style.Triggers>
+ </Style>
+ <Style x:Key="StatusText" TargetType="TextBlock">
+  <Setter Property="Foreground" Value="{DynamicResource TextSecondary}" /><Setter Property="FontSize" Value="{DynamicResource FontSizeCaption}" /><Setter Property="TextWrapping" Value="Wrap" />
+  <Style.Triggers>
+   <Trigger Property="Tag" Value="Success"><Setter Property="Foreground" Value="{DynamicResource StatusSuccess}" /></Trigger>
+   <Trigger Property="Tag" Value="Warning"><Setter Property="Foreground" Value="{DynamicResource StatusWarning}" /></Trigger>
+   <Trigger Property="Tag" Value="Information"><Setter Property="Foreground" Value="{DynamicResource StatusInformation}" /></Trigger>
+   <Trigger Property="Tag" Value="Error"><Setter Property="Foreground" Value="{DynamicResource StatusError}" /></Trigger>
+  </Style.Triggers>
+ </Style>
+ <Style TargetType="TabControl">
+  <Setter Property="Template"><Setter.Value><ControlTemplate TargetType="TabControl">
+   <Grid><Grid.RowDefinitions><RowDefinition Height="Auto" /><RowDefinition /></Grid.RowDefinitions>
+    <glass:GlassSurface Concave="True" Background="{DynamicResource GlassFrostSecondary}" Padding="{DynamicResource PaddingCompact}" CornerRadius="{DynamicResource ControlCornerRadius}">
+     <TabPanel IsItemsHost="True" KeyboardNavigation.TabNavigation="Once" />
+    </glass:GlassSurface>
+    <ContentPresenter x:Name="PART_SelectedContentHost" Grid.Row="1" ContentSource="SelectedContent" />
+   </Grid>
+  </ControlTemplate></Setter.Value></Setter>
+ </Style>
+ <Style TargetType="TabItem">
+  <Setter Property="Foreground" Value="{DynamicResource TextSecondary}" /><Setter Property="FocusVisualStyle" Value="{DynamicResource KeyboardFocus}" />
+  <Setter Property="Template"><Setter.Value><ControlTemplate TargetType="TabItem">
+   <glass:GlassSurface x:Name="Pod" ShowTint="False" Concave="True" Background="{DynamicResource TransparentBrush}" Padding="{DynamicResource PaddingControl}" CornerRadius="{DynamicResource ChipCornerRadius}">
+    <ContentPresenter ContentSource="Header" RecognizesAccessKey="True" />
+   </glass:GlassSurface>
+   <ControlTemplate.Triggers>
+    <Trigger Property="IsMouseOver" Value="True"><Setter TargetName="Pod" Property="Background" Value="{DynamicResource StateHover}" /></Trigger>
+    <Trigger Property="IsSelected" Value="True"><Setter TargetName="Pod" Property="Background" Value="{DynamicResource GlassFrostElevated}" /><Setter TargetName="Pod" Property="Concave" Value="False" /><Setter Property="Foreground" Value="{DynamicResource AccentPrimary}" /></Trigger>
+    <Trigger Property="IsEnabled" Value="False"><Setter Property="Foreground" Value="{DynamicResource DisabledText}" /><Setter TargetName="Pod" Property="Background" Value="{DynamicResource DisabledSurface}" /></Trigger>
+   </ControlTemplate.Triggers>
+  </ControlTemplate></Setter.Value></Setter>
+ </Style>
+</ResourceDictionary>

@@ -1,0 +1,106 @@
+<ResourceDictionary xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation" xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml" xmlns:sys="clr-namespace:System;assembly=mscorlib">
+  <SolidColorBrush x:Key="ApplicationBackground" Color="#0F0F0F" />
+  <SolidColorBrush x:Key="SurfacePrimary" Color="#1A1A1A" />
+  <SolidColorBrush x:Key="SurfaceSecondary" Color="#141414" />
+  <SolidColorBrush x:Key="SurfaceElevated" Color="#222222" />
+  <SolidColorBrush x:Key="TextPrimary" Color="#F3F1EC" />
+  <SolidColorBrush x:Key="TextSecondary" Color="#C9C5BC" />
+  <SolidColorBrush x:Key="TextMuted" Color="#A9A59C" />
+  <SolidColorBrush x:Key="AccentPrimary" Color="#E86870" />
+  <SolidColorBrush x:Key="AccentSecondary" Color="#F3F1EC" />
+  <SolidColorBrush x:Key="TextOnAccent" Color="#14090A" />
+  <SolidColorBrush x:Key="AccentSoft" Color="#3A1C1F" />
+  <SolidColorBrush x:Key="BorderSubtle" Color="#2E2E2E" />
+  <SolidColorBrush x:Key="BorderStrong" Color="#C9C5BC" />
+  <SolidColorBrush x:Key="FocusIndicator" Color="#E86870" />
+  <SolidColorBrush x:Key="StateHover" Color="#242424" />
+  <SolidColorBrush x:Key="StatePressed" Color="#2A2A2A" />
+  <SolidColorBrush x:Key="StateSelected" Color="#3A1C1F" />
+  <SolidColorBrush x:Key="AccentHover" Color="#F07A82" />
+  <SolidColorBrush x:Key="AccentPressed" Color="#E35A64" />
+  <SolidColorBrush x:Key="DisabledSurface" Color="#1E1E1E" />
+  <SolidColorBrush x:Key="DisabledText" Color="#7A7670" />
+  <SolidColorBrush x:Key="StatusSuccess" Color="#65E3BC" />
+  <SolidColorBrush x:Key="StatusSuccessSurface" Color="#0F2A1E" />
+  <SolidColorBrush x:Key="StatusWarning" Color="#F4BE70" />
+  <SolidColorBrush x:Key="StatusWarningSurface" Color="#2E2316" />
+  <SolidColorBrush x:Key="StatusError" Color="#FF7E8B" />
+  <SolidColorBrush x:Key="StatusErrorSurface" Color="#2E151E" />
+  <SolidColorBrush x:Key="StatusInformation" Color="#B9A2FF" />
+  <SolidColorBrush x:Key="StatusInformationSurface" Color="#1B1B2E" />
+  <SolidColorBrush x:Key="OverlayBrush" Color="#B3080808" />
+  <SolidColorBrush x:Key="TransparentBrush" Color="#00000000" />
+  <SolidColorBrush x:Key="HeroBackground" Color="#1A1A1A" />
+  <SolidColorBrush x:Key="HeroForeground" Color="#F3F1EC" />
+  <SolidColorBrush x:Key="HeroSecondaryText" Color="#C9C5BC" />
+  <SolidColorBrush x:Key="HeroAccent" Color="#E86870" />
+  <sys:Double x:Key="FontSizeDisplay">36</sys:Double>
+  <sys:Double x:Key="FontSizeTitle">22</sys:Double>
+  <sys:Double x:Key="FontSizeSection">15</sys:Double>
+  <sys:Double x:Key="FontSizeBody">13</sys:Double>
+  <sys:Double x:Key="FontSizeCaption">11</sys:Double>
+  <sys:Double x:Key="SpacingSmall">4</sys:Double>
+  <sys:Double x:Key="SpacingMedium">8</sys:Double>
+  <sys:Double x:Key="SpacingLarge">16</sys:Double>
+  <sys:Double x:Key="SpacingSection">24</sys:Double>
+  <sys:Double x:Key="SpacingPage">32</sys:Double>
+  <sys:Double x:Key="ControlMinHeight">32</sys:Double>
+  <sys:Double x:Key="ControlMinWidth">76</sys:Double>
+  <sys:Double x:Key="ChoiceMarkSize">18</sys:Double>
+  <sys:Double x:Key="ScrollBarSize">8</sys:Double>
+  <sys:Double x:Key="DisabledOpacity">0.55</sys:Double>
+  <sys:Double x:Key="PopupMaxHeight">280</sys:Double>
+  <sys:Double x:Key="StudioSidebarWidth">300</sys:Double>
+  <sys:Double x:Key="ReferenceListMaxHeight">320</sys:Double>
+  <sys:Double x:Key="WindowInitialWidth">1280</sys:Double>
+  <sys:Double x:Key="WindowInitialHeight">900</sys:Double>
+  <sys:Double x:Key="WindowMinWidth">720</sys:Double>
+  <sys:Double x:Key="WindowMinHeight">600</sys:Double>
+  <Thickness x:Key="PaddingControl">10,5</Thickness>
+  <Thickness x:Key="PaddingCard">24</Thickness>
+  <Thickness x:Key="PaddingPlate">16</Thickness>
+  <Thickness x:Key="PaddingPage">24</Thickness>
+  <Thickness x:Key="MarginItem">0,0,0,8</Thickness>
+  <Thickness x:Key="MarginSection">0,0,0,12</Thickness>
+  <Thickness x:Key="MarginInline">0,0,8,4</Thickness>
+  <Thickness x:Key="MarginPanel">0</Thickness>
+  <Thickness x:Key="BorderThicknessControl">1</Thickness>
+  <Thickness x:Key="FocusThickness">2</Thickness>
+  <Thickness x:Key="PaddingChoice">8</Thickness>
+  <Thickness x:Key="PaddingCompact">8,4</Thickness>
+  <CornerRadius x:Key="CardCornerRadius">0</CornerRadius>
+  <CornerRadius x:Key="ControlCornerRadius">0</CornerRadius>
+  <CornerRadius x:Key="ChipCornerRadius">0</CornerRadius>
+  <FontFamily x:Key="FontFamilyBody">Arial, Segoe UI</FontFamily>
+  <FontFamily x:Key="FontFamilyMono">Consolas</FontFamily>
+  <FontWeight x:Key="FontWeightHeading">ExtraBold</FontWeight>
+  <FontWeight x:Key="FontWeightBody">Normal</FontWeight>
+  <FontStyle x:Key="FontStyleBody">Normal</FontStyle>
+  <TextDecorationCollection x:Key="TextDecorationsBody" />
+  <Thickness x:Key="PaddingMark">4</Thickness>
+  <Thickness x:Key="PaddingSelection">10,5,32,5</Thickness>
+  <CornerRadius x:Key="ChoiceCornerRadius">0</CornerRadius>
+  <sys:Double x:Key="StrokeWidth">1</sys:Double>
+  <sys:Double x:Key="SelectionOpacity">1</sys:Double>
+  <Thickness x:Key="MarginFocus">-3</Thickness>
+  <SolidColorBrush x:Key="SurfacePositive" Color="#0F2A1E" />
+  <SolidColorBrush x:Key="SurfaceFeature" Color="#3A1C1F" />
+  <SolidColorBrush x:Key="SurfaceInformation" Color="#1B1B2E" />
+  <SolidColorBrush x:Key="SurfaceAttention" Color="#2E2316" />
+  <SolidColorBrush x:Key="ChartSeries1" Color="#F3F1EC" />
+  <SolidColorBrush x:Key="ChartSeries2" Color="#E86870" />
+  <SolidColorBrush x:Key="ChartSeries3" Color="#A9A59C" />
+  <SolidColorBrush x:Key="ChartSeries4" Color="#8A847A" />
+  <SolidColorBrush x:Key="ChartAxis" Color="#C9C5BC" />
+  <SolidColorBrush x:Key="ChartGrid" Color="#2E2E2E" />
+  <SolidColorBrush x:Key="ChartTooltipSurface" Color="#F3F1EC" />
+  <SolidColorBrush x:Key="ChartTooltipText" Color="#171717" />
+  <sys:Double x:Key="ChartPlotHeight">168</sys:Double>
+  <sys:Double x:Key="ChartLineWidth">2</sys:Double>
+  <sys:Double x:Key="ChartPointSize">4</sys:Double>
+  <sys:Double x:Key="ChartDonutRadius">56</sys:Double>
+  <sys:Double x:Key="ChartAreaOpacity">0.12</sys:Double>
+  <sys:Double x:Key="BentoRowHeight">168</sys:Double>
+  <sys:Double x:Key="BentoGutter">24</sys:Double>
+  <sys:Double x:Key="BentoCompactWidth">1100</sys:Double>
+</ResourceDictionary>

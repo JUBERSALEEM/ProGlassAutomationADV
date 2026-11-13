@@ -148,13 +148,14 @@ namespace ProGlassAutomation.Services.AI.AIConfig
                 }
 
                 // One-time migration from the retired theme catalogue to the
-                // eight selectable families. Existing choices map to the nearest
+                // nine selectable families. Existing choices map to the nearest
                 // material; a supported choice is never overwritten.
                 if (!config.Appearance.EightThemeMigrationApplied)
                 {
                     string savedFamily = config.Appearance.VisualTheme ?? "";
                     bool supported = savedFamily is
                         VisualThemeEngine.BentoGrid or
+                        VisualThemeEngine.Fluent or
                         VisualThemeEngine.SpatialImmersive or
                         VisualThemeEngine.SwissInternational or
                         VisualThemeEngine.HolographicIridescent or

@@ -268,6 +268,12 @@ namespace ProGlassAutomation
 
             // 1) Load persisted config
             Config = ConfigService.Load();
+            // Load the imported, catalog-validated theme package after config
+            // is available and before any main window is constructed.
+            Services.Theme.ImportedThemeRuntime.Initialize(
+                Resources,
+                Config.Appearance?.VisualTheme,
+                string.Equals(Config.Appearance?.Theme, "Dark", StringComparison.OrdinalIgnoreCase));
 
             // 1a) DATA ROOT — must be applied BEFORE any DbContext opens.
             // When Settings enables a LAN/Wi-Fi shared data folder, every

@@ -473,6 +473,7 @@ namespace ProGlassAutomation.Services.Theme
             return family?.Trim() switch
             {
                 BentoGrid => BentoGrid,
+                Fluent => Fluent,
                 SpatialImmersive => SpatialImmersive,
                 SwissInternational => SwissInternational,
                 HolographicIridescent => HolographicIridescent,

@@ -1,0 +1,71 @@
+<ResourceDictionary xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation" xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml" xmlns:sys="clr-namespace:System;assembly=mscorlib" xmlns:clay="clr-namespace:ProGlassAutomation.ThemeClaymorphism">
+  <sys:Boolean x:Key="ClayShowDrop">True</sys:Boolean>
+  <Thickness x:Key="ClayDropMargin">3,4,0,0</Thickness>
+  <Thickness x:Key="ClayDropFarMargin">6,8,0,0</Thickness>
+  <Thickness x:Key="ClayFaceMargin">1</Thickness>
+  <Thickness x:Key="ClayLiftMargin">0,0,3,4</Thickness>
+  <Thickness x:Key="ClayLiftDropMargin">5,7,0,0</Thickness>
+  <Thickness x:Key="ClayLiftFaceMargin">0,0,4,5</Thickness>
+  <Thickness x:Key="ClayShadeThickness">0,0,7,7</Thickness>
+  <Thickness x:Key="ClayLightThickness">6,6,0,0</Thickness>
+  <Thickness x:Key="ClayWellShadeThickness">8,8,0,0</Thickness>
+  <Thickness x:Key="ClayWellLightThickness">0,0,6,6</Thickness>
+  <Thickness x:Key="ClayGutter">6</Thickness>
+  <sys:Double x:Key="ClayBlur">14</sys:Double>
+  <sys:Double x:Key="ClayDistance">5</sys:Double>
+  <sys:Double x:Key="ClayLiftDistance">8</sys:Double>
+  <sys:Double x:Key="ClayRimWidth">6</sys:Double>
+  <sys:Double x:Key="ClayDarkGlowOpacity">0.55</sys:Double>
+  <sys:Double x:Key="ClayLightGlowOpacity">0.42</sys:Double>
+  <Color x:Key="ClayShadowColor">#140E0C</Color>
+  <Color x:Key="ClayHighlightColor">#C4A990</Color>
+  <Color x:Key="ClayShadeColor">#140E0C</Color>
+  <sys:Double x:Key="ClaySurfaceShadowTint">0</sys:Double>
+  <clay:ClayLighting x:Key="ClayLighting">Directional</clay:ClayLighting>
+  <sys:Double x:Key="ClayLightElevation">45</sys:Double>
+  <sys:Double x:Key="ClayCurvature">1.2</sys:Double>
+  <sys:Double x:Key="ClayGloss">0.22</sys:Double>
+  <sys:Double x:Key="ClayGlossFocus">28</sys:Double>
+  <sys:Double x:Key="ClayRimOpacity">0.35</sys:Double>
+  <sys:Double x:Key="ClayInset">12</sys:Double>
+  <sys:Double x:Key="ClayControlInset">5</sys:Double>
+  <sys:Double x:Key="ClaySmallInset">2</sys:Double>
+  <sys:Double x:Key="ClayHighlight">0.22</sys:Double>
+  <sys:Double x:Key="ClayShade">0.35</sys:Double>
+  <sys:Double x:Key="ClayLightAngle">135</sys:Double>
+  <sys:Double x:Key="ClayBorder">1</sys:Double>
+  <sys:Double x:Key="ClayPressedShade">0.4</sys:Double>
+  <SolidColorBrush x:Key="ClayEdge" Color="#C8B8A8" />
+  <DropShadowEffect x:Key="ClayAmbientShadow" Color="#140E0C" BlurRadius="24" ShadowDepth="0" Opacity="0.28" RenderingBias="Quality" />
+  <DropShadowEffect x:Key="ClayControlAmbientShadow" Color="#140E0C" BlurRadius="14" ShadowDepth="0" Opacity="0.20" RenderingBias="Quality" />
+  <DropShadowEffect x:Key="ClayShadow" Color="#140E0C" BlurRadius="14" ShadowDepth="3" Direction="315" Opacity="0.40" RenderingBias="Quality" />
+  <DropShadowEffect x:Key="ClayControlShadow" Color="#140E0C" BlurRadius="10" ShadowDepth="2" Direction="315" Opacity="0.32" RenderingBias="Quality" />
+  <DropShadowEffect x:Key="ClayLiftShadow" Color="#140E0C" BlurRadius="18" ShadowDepth="5" Direction="315" Opacity="0.48" RenderingBias="Quality" />
+  <SolidColorBrush x:Key="ClayDropBrush" Color="#99140E0C" />
+  <SolidColorBrush x:Key="ClayLiftBrush" Color="#44FFFFFF" />
+  <SolidColorBrush x:Key="ClayInsetLightBrush" Color="#99FFFFFF" />
+  <SolidColorBrush x:Key="ClayInsetShadeBrush" Color="#99000000" />
+  <LinearGradientBrush x:Key="ClayCurveBrush" StartPoint="0,0" EndPoint="1,1">
+    <GradientStop Color="#73FFFFFF" Offset="0" />
+    <GradientStop Color="#28FFFFFF" Offset="0.28" />
+    <GradientStop Color="#00000000" Offset="0.55" />
+    <GradientStop Color="#73000000" Offset="1" />
+  </LinearGradientBrush>
+  <LinearGradientBrush x:Key="ClayWellCurveBrush" StartPoint="0,0" EndPoint="1,1">
+    <GradientStop Color="#66000000" Offset="0" />
+    <GradientStop Color="#00000000" Offset="0.45" />
+    <GradientStop Color="#33FFFFFF" Offset="1" />
+  </LinearGradientBrush>
+  <SolidColorBrush x:Key="ClayDropPositive" Color="#991A3A30" />
+  <SolidColorBrush x:Key="ClayShadePositive" Color="#661A3A30" />
+  <SolidColorBrush x:Key="ClayDropFeature" Color="#992E2450" />
+  <SolidColorBrush x:Key="ClayShadeFeature" Color="#662E2450" />
+  <SolidColorBrush x:Key="ClayDropInformation" Color="#991E2A48" />
+  <SolidColorBrush x:Key="ClayShadeInformation" Color="#661E2A48" />
+  <SolidColorBrush x:Key="ClayDropAttention" Color="#993A2A20" />
+  <SolidColorBrush x:Key="ClayShadeAttention" Color="#663A2A20" />
+  <SolidColorBrush x:Key="ClayDropAccent" Color="#99FF8A80" />
+  <SolidColorBrush x:Key="ClayShadeAccent" Color="#66FF8A80" />
+  <SolidColorBrush x:Key="ClayDropHero" Color="#99140E0C" />
+  <SolidColorBrush x:Key="ClayShadeHero" Color="#66000000" />
+</ResourceDictionary>

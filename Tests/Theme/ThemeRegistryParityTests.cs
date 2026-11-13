@@ -31,12 +31,13 @@ namespace ProGlassAutomation.Tests.Theme
 {
     public class ThemeRegistryParityTests
     {
-        // Canonical selectable contract: eight material families, each
+        // Canonical selectable contract: nine material families, each
         // with Light and Dark palette recipes. Older Industrial, Monet,
         // Crystal Fluid, and iOS identities are migration inputs only.
         private static readonly string[] AllFamilies =
         {
             VisualThemeEngine.BentoGrid,
+            VisualThemeEngine.Fluent,
             VisualThemeEngine.SpatialImmersive,
             VisualThemeEngine.SwissInternational,
             VisualThemeEngine.HolographicIridescent,
@@ -168,7 +169,7 @@ namespace ProGlassAutomation.Tests.Theme
             string overlay = Read("Services/Theme/VisualThemeEngine.EightThemes.cs");
             foreach (var family in new[]
             {
-                "BentoGrid", "SpatialImmersive", "SwissInternational",
+                "BentoGrid", "Fluent", "SpatialImmersive", "SwissInternational",
                 "HolographicIridescent", "Neumorphism", "Claymorphism",
                 "LiquidGlass", "Glassmorphism"
             })
@@ -248,7 +249,7 @@ namespace ProGlassAutomation.Tests.Theme
             string overlay = Read("Services/Theme/VisualThemeEngine.EightThemes.cs");
             foreach (var family in new[]
             {
-                "BentoGrid", "SpatialImmersive", "SwissInternational",
+                "BentoGrid", "Fluent", "SpatialImmersive", "SwissInternational",
                 "HolographicIridescent", "Neumorphism", "Claymorphism",
                 "LiquidGlass", "Glassmorphism"
             })
@@ -271,6 +272,7 @@ namespace ProGlassAutomation.Tests.Theme
 
         [Theory]
         [InlineData(VisualThemeEngine.BentoGrid)]
+        [InlineData(VisualThemeEngine.Fluent)]
         [InlineData(VisualThemeEngine.SpatialImmersive)]
         [InlineData(VisualThemeEngine.SwissInternational)]
         [InlineData(VisualThemeEngine.HolographicIridescent)]

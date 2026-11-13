@@ -143,6 +143,8 @@ namespace ProGlassAutomation.Services.Theme
                 // 2026-09-17: Ensure About surface tokens (corner radii + borders)
                 // stay in sync with the live family & slider on every family rebuild.
                 AboutSurfaceTokens.Publish(System.Windows.Application.Current?.Resources, ThemeManager.CardCornerRadius);
+                ImportedThemeRuntime.ApplyFromHost(appearance?.VisualTheme,
+                    ThemeManager.CurrentTheme == AppTheme.Dark);
 
                 AppLogService.Debug(
                     $"[ThemePipeline] Rebuilt: {reason} | family={appearance?.VisualTheme} " +
@@ -172,6 +174,8 @@ namespace ProGlassAutomation.Services.Theme
                     VisualThemeEngine.LastRequestedModule,
                     App.Config?.Appearance);
                 ThemeManager.PublishProGlassDesignSystem();
+                ImportedThemeRuntime.ApplyFromHost(App.Config?.Appearance?.VisualTheme,
+                    ThemeManager.CurrentTheme == AppTheme.Dark);
                 AppLogService.Debug(
                     $"[ThemePipeline] Wallpaper layer rebuilt: {reason}",
                     new LogContext { Module = "Themes", Operation = "Pipeline" });
@@ -197,6 +201,8 @@ namespace ProGlassAutomation.Services.Theme
                     ThemeManager.AccentColor, raiseEvent: false);
                 ThemeManager.ReapplyOutlinePreference();
                 ThemeManager.PublishProGlassDesignSystem();
+                ImportedThemeRuntime.ApplyFromHost(App.Config?.Appearance?.VisualTheme,
+                    ThemeManager.CurrentTheme == AppTheme.Dark);
                 WallpaperOrchestrator.RefreshScene(); // Monet/accent scenes
             }
             catch (Exception ex)

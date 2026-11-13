@@ -12,6 +12,7 @@
                     xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
                     xmlns:po="http://schemas.microsoft.com/winfx/2006/xaml/presentation/options"
                     xmlns:behaviors="clr-namespace:ProGlassAutomation.Behaviors"
+                    xmlns:themeIcons="clr-namespace:ProGlassAutomation.Controls.Theme"
                     xmlns:sys="clr-namespace:System;assembly=mscorlib">
 
     <!-- ═══ GEOMETRY & SIZING TOKENS ═══ -->
@@ -394,10 +395,8 @@
                             Padding="10,0"
                             SnapsToDevicePixels="True">
                         <StackPanel Orientation="Horizontal" VerticalAlignment="Center">
-                            <TextBlock x:Name="Icon"
-                                       Text="{TemplateBinding Tag}"
-                                       FontFamily="Segoe MDL2 Assets"
-                                       FontSize="13"
+                            <themeIcons:ImportedIconMark x:Name="Icon"
+                                       IconName="{TemplateBinding Tag}"
                                        Foreground="{DynamicResource TextSecondaryBrush}"
                                        VerticalAlignment="Center"
                                        Margin="0,0,10,0"/>
@@ -457,10 +456,8 @@
                             SnapsToDevicePixels="True">
                         <Grid>
                             <StackPanel Orientation="Horizontal" VerticalAlignment="Center">
-                                <TextBlock x:Name="Icon"
-                                           Text="{TemplateBinding Tag}"
-                                           FontFamily="Segoe MDL2 Assets"
-                                           FontSize="13"
+                                <themeIcons:ImportedIconMark x:Name="Icon"
+                                           IconName="{TemplateBinding Tag}"
                                            Foreground="{DynamicResource TextSecondaryBrush}"
                                            VerticalAlignment="Center"
                                            Margin="0,0,10,0"/>

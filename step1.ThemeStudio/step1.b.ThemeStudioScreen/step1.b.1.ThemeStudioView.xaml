@@ -1,0 +1,31 @@
+<UserControl x:Class="ProGlassAutomation.ThemeStudio.ThemeStudioView" xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation" xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml" xmlns:local="clr-namespace:ProGlassAutomation.ThemeStudio" xmlns:analytics="clr-namespace:ProGlassAutomation.Analytics" xmlns:bento="clr-namespace:ProGlassAutomation.ThemeBento">
+ <UserControl.Resources>
+  <local:AnalyticsSamples x:Key="StudioSamples" />
+ </UserControl.Resources>
+ <Grid>
+  <Grid.ColumnDefinitions>
+   <ColumnDefinition Width="*"/>
+   <ColumnDefinition Width="Auto"/>
+  </Grid.ColumnDefinitions>
+  <ScrollViewer VerticalScrollBarVisibility="Auto" HorizontalScrollBarVisibility="Disabled" CanContentScroll="False" PanningMode="VerticalOnly">
+   <bento:BentoGrid x:Name="Modules" Columns="3" FillAvailable="False"
+                    RowHeight="{DynamicResource BentoRowHeight}" Gutter="{DynamicResource BentoGutter}" CompactWidth="{DynamicResource BentoCompactWidth}">
+    <local:AnalyticsOverview x:Name="Preview" Compact="True" bento:BentoGrid.Column="0" bento:BentoGrid.Row="0" bento:BentoGrid.ColumnSpan="3" bento:BentoGrid.RowSpan="4"/>
+    <local:ChartGallery x:Name="Gallery" bento:BentoGrid.Column="0" bento:BentoGrid.Row="4" bento:BentoGrid.ColumnSpan="3" bento:BentoGrid.RowSpan="3"/>
+    <ContentControl x:Name="StudioMix" Style="{DynamicResource FeaturePlate}" DataContext="{StaticResource StudioSamples}" bento:BentoGrid.Column="0" bento:BentoGrid.Row="7" bento:BentoGrid.ColumnSpan="1" bento:BentoGrid.RowSpan="2">
+     <Grid>
+      <Grid.RowDefinitions><RowDefinition Height="Auto"/><RowDefinition Height="*"/></Grid.RowDefinitions>
+      <DockPanel>
+       <local:ShellMark DockPanel.Dock="Left" Title="Order mix" Category="chart" Width="{DynamicResource ChoiceMarkSize}" Height="{DynamicResource ChoiceMarkSize}" Margin="{DynamicResource MarginInline}" VerticalAlignment="Center" Foreground="{DynamicResource TextPrimary}"/>
+       <TextBlock Text="Order mix" Style="{DynamicResource SectionHeading}" VerticalAlignment="Center"/>
+      </DockPanel>
+      <analytics:BentoChart Grid.Row="1" Data="{Binding Mix}" />
+     </Grid>
+    </ContentControl>
+    <local:ControlsPanel x:Name="Controls" bento:BentoGrid.Column="1" bento:BentoGrid.Row="7" bento:BentoGrid.ColumnSpan="1" bento:BentoGrid.RowSpan="2"/>
+    <local:TokensPanel x:Name="Tokens" bento:BentoGrid.Column="2" bento:BentoGrid.Row="7" bento:BentoGrid.ColumnSpan="1" bento:BentoGrid.RowSpan="2"/>
+   </bento:BentoGrid>
+  </ScrollViewer>
+  <local:CustomizationPanel x:Name="Settings" Grid.Column="1" Width="{DynamicResource StudioSidebarWidth}" VerticalAlignment="Stretch"/>
+ </Grid>
+</UserControl>

@@ -1,6 +1,8 @@
-# ProGlass Eight-Family Theme Center
+# Theme Center: WPF Nine-Family Import and Website Eight-Family Registry
 
-The selectable theme contract is exactly eight visual families, each supporting Light and Dark:
+> WPF section updated for the remote nine-theme import. The Next.js website section remains the independently maintained eight-family contract until separately migrated.
+
+The WPF selectable theme contract is now nine visual families, each supporting Light and Dark:
 
 1. **Bento Grid** — modular panels, strong grouping, clear information hierarchy.
 2. **Spatial / Immersive** — atmospheric depth and layered surfaces; no parallax dependency.
@@ -10,14 +12,14 @@ The selectable theme contract is exactly eight visual families, each supporting 
 6. **Claymorphism** — sculpted solid surfaces and soft shadows; no backdrop blur.
 7. **Liquid Glass** — near-clear panes, luminous edges, and bounded translucency/blur.
 8. **Glassmorphism** — frosted layered surfaces with stronger opacity than Liquid Glass.
+9. **Fluent / Acrylic** — system-aligned surfaces, restrained acrylic depth, and cyan/green accents.
 
 ## WPF
 
-- The dedicated Settings → Themes page uses VisualThemeOptions as the canonical eight-item picker.
-- ProGlassThemeEngine.ParseFamily / PersistFamily round-trip the eight persisted family identities.
-- VisualThemeEngine.EightThemes.cs paints the material layer after the existing base painter; both full family rebuilds and module navigation apply it.
-- Light/Dark remains independent for all eight selectable themes. The old Crystal Fluid identity is not a selectable ninth family; its material tuning controls are available for Liquid Glass.
-- BuiltinWallpaperScenes.All mirrors the eight-item picker, and ThemeRegistryParityTests enforces registry parity.
+- The Settings → Themes page and existing theme pipeline now expose nine items; Fluent was added across the family parser, Light/Dark palette painter, config allowlist, wallpaper scene registry, and parity tests.
+- Imported package dictionaries, role-based color plates, icon customization, and full Theme Studio are present in the tree but are **not yet wired into the ERP runtime**; see `docs/theme-import/CROSS-COMPARISON.md` and phase ledger.
+- The existing ERP pipeline remains the application-wide theme owner. Remote standalone `ThemeService` is not initialized against global resources, to avoid two engines mutating the same dictionary.
+- `BuiltinWallpaperScenes.All` mirrors the WPF nine-item picker, and `ThemeRegistryParityTests` enforces registry parity.
 
 ## Next.js
 

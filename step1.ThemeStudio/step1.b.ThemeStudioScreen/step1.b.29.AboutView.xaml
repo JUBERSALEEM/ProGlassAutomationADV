@@ -1,0 +1,70 @@
+<UserControl x:Class="ProGlassAutomation.ThemeStudio.AboutView" xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation" xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml" xmlns:local="clr-namespace:ProGlassAutomation.ThemeStudio">
+ <ScrollViewer VerticalScrollBarVisibility="Auto" HorizontalScrollBarVisibility="Disabled" CanContentScroll="False" PanningMode="VerticalOnly">
+  <StackPanel Margin="{DynamicResource PaddingCompact}">
+   <ContentControl Style="{DynamicResource Card}" Margin="{DynamicResource PaddingCompact}">
+    <StackPanel>
+     <DockPanel Margin="{DynamicResource MarginItem}">
+      <local:ShellMark DockPanel.Dock="Left" Title="About" Width="{DynamicResource ChoiceMarkSize}" Height="{DynamicResource ChoiceMarkSize}" Margin="{DynamicResource MarginInline}" VerticalAlignment="Center" Foreground="{DynamicResource TextPrimary}"/>
+      <TextBlock Text="ProGlass Automation" Style="{DynamicResource PageHeading}" VerticalAlignment="Center"/>
+     </DockPanel>
+     <TextBlock Text="Version 3.0 · Phase 01 · native Windows WPF" Style="{DynamicResource Caption}"/>
+     <TextBlock Text="A desktop client for glass estimating and operations. Presentation is a first-class engine: nine independent themes, shared type and color overlays, and business views that keep their data when the skin changes." TextWrapping="Wrap" Margin="{DynamicResource MarginItem}"/>
+    </StackPanel>
+   </ContentControl>
+   <DockPanel Margin="{DynamicResource PaddingCompact}">
+    <local:ShellMark DockPanel.Dock="Left" Title="Nine presentation engines" Category="engine" Width="{DynamicResource ChoiceMarkSize}" Height="{DynamicResource ChoiceMarkSize}" Margin="{DynamicResource MarginInline}" VerticalAlignment="Center" Foreground="{DynamicResource TextPrimary}"/>
+    <TextBlock Text="Nine presentation engines" Style="{DynamicResource PageHeading}" VerticalAlignment="Center"/>
+   </DockPanel>
+   <TextBlock Text="Each theme is a separate package. Material is not shared. Geometry, type and color plates overlay every theme without cloning engines. The cards below use the live Card style, so plump, frost, extrusion and sheen follow the active theme." Style="{DynamicResource Caption}" TextWrapping="Wrap" Margin="{DynamicResource PaddingCompact}"/>
+   <ItemsControl ItemsSource="{Binding AboutThemes}">
+    <ItemsControl.ItemsPanel>
+     <ItemsPanelTemplate>
+      <UniformGrid Columns="3"/>
+     </ItemsPanelTemplate>
+    </ItemsControl.ItemsPanel>
+    <ItemsControl.ItemTemplate>
+     <DataTemplate>
+      <ContentControl Style="{DynamicResource Card}" Margin="{DynamicResource PaddingCompact}" HorizontalAlignment="Stretch" VerticalAlignment="Stretch">
+       <StackPanel>
+        <DockPanel Margin="{DynamicResource MarginItem}">
+         <local:ShellMark DockPanel.Dock="Left" Title="{Binding Name}" Category="engine" Width="{DynamicResource ChoiceMarkSize}" Height="{DynamicResource ChoiceMarkSize}" Margin="{DynamicResource MarginInline}" VerticalAlignment="Top" Foreground="{DynamicResource TextPrimary}"/>
+         <TextBlock Text="{Binding Name}" Style="{DynamicResource SectionHeading}" TextWrapping="Wrap"/>
+        </DockPanel>
+        <TextBlock Text="{Binding Description}" Style="{DynamicResource Caption}" TextWrapping="Wrap" Margin="{DynamicResource MarginItem}"/>
+        <TextBlock Text="{Binding Capabilities}" Style="{DynamicResource Caption}" TextWrapping="Wrap"/>
+       </StackPanel>
+      </ContentControl>
+     </DataTemplate>
+    </ItemsControl.ItemTemplate>
+   </ItemsControl>
+   <Grid>
+    <Grid.ColumnDefinitions>
+     <ColumnDefinition Width="*"/>
+     <ColumnDefinition Width="*"/>
+    </Grid.ColumnDefinitions>
+    <ContentControl Style="{DynamicResource Card}" Margin="{DynamicResource PaddingCompact}">
+     <StackPanel>
+      <DockPanel Margin="{DynamicResource MarginItem}">
+       <local:ShellMark DockPanel.Dock="Left" Title="Author" Category="people" Width="{DynamicResource ChoiceMarkSize}" Height="{DynamicResource ChoiceMarkSize}" Margin="{DynamicResource MarginInline}" VerticalAlignment="Center" Foreground="{DynamicResource TextPrimary}"/>
+       <TextBlock Text="Author" Style="{DynamicResource SectionHeading}" VerticalAlignment="Center"/>
+      </DockPanel>
+      <TextBlock Text="Juber Saleem" Style="{DynamicResource PageHeading}"/>
+      <TextBlock Text="Glass Estimator" FontWeight="{DynamicResource FontWeightHeading}" Margin="{DynamicResource MarginItem}"/>
+      <TextBlock Text="India. Practising in Ajman, United Arab Emirates." TextWrapping="Wrap"/>
+      <TextBlock Text="Professional work is glass estimating. Personal practice is interface engineering and rapid product prototyping — published under the name Vibe Coding." TextWrapping="Wrap" Margin="{DynamicResource MarginItem}"/>
+     </StackPanel>
+    </ContentControl>
+    <ContentControl Grid.Column="1" Style="{DynamicResource Card}" Margin="{DynamicResource PaddingCompact}">
+     <StackPanel>
+      <DockPanel Margin="{DynamicResource MarginItem}">
+       <local:ShellMark DockPanel.Dock="Left" Title="Engineering notes" Category="engineering" Width="{DynamicResource ChoiceMarkSize}" Height="{DynamicResource ChoiceMarkSize}" Margin="{DynamicResource MarginInline}" VerticalAlignment="Center" Foreground="{DynamicResource TextPrimary}"/>
+       <TextBlock Text="Engineering notes" Style="{DynamicResource SectionHeading}" VerticalAlignment="Center"/>
+      </DockPanel>
+      <TextBlock Text="Built on .NET 8 and native WPF. Charts are LiveCharts. There is no CSS, no web view, and no desktop capture. Theme 5 (Liquid Glass) visual acceptance remains open (D01). Theme 6 (Glassmorphism) Home Light and Dark are owner-accepted." TextWrapping="Wrap" Margin="{DynamicResource MarginItem}"/>
+      <TextBlock Text="Settings pages: Theme Studio, Texts Studio, Colors Studio, Icons Studio, About. Home is the business reference. Card wash, typeface, icon marks and accent plates overlay every theme; plumpness, frost and iridescence stay with their engines." TextWrapping="Wrap"/>
+     </StackPanel>
+    </ContentControl>
+   </Grid>
+  </StackPanel>
+ </ScrollViewer>
+</UserControl>

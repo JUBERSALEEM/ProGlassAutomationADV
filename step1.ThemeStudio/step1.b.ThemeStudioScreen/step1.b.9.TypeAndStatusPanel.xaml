@@ -1,0 +1,26 @@
+<UserControl x:Class="ProGlassAutomation.ThemeStudio.TypeAndStatusPanel" xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation" xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml" xmlns:local="clr-namespace:ProGlassAutomation.ThemeStudio">
+ <ContentControl Style="{DynamicResource Card}">
+  <Grid>
+   <Grid.RowDefinitions>
+    <RowDefinition Height="Auto"/>
+    <RowDefinition Height="*"/>
+   </Grid.RowDefinitions>
+   <StackPanel>
+    <TextBlock Text="TYPE &amp; SIGNAL" Style="{DynamicResource Caption}" />
+    <DockPanel Margin="{DynamicResource MarginItem}">
+     <local:ShellMark DockPanel.Dock="Left" Title="Live components" Category="control" Width="{DynamicResource ChoiceMarkSize}" Height="{DynamicResource ChoiceMarkSize}" Margin="{DynamicResource MarginInline}" VerticalAlignment="Center" Foreground="{DynamicResource TextPrimary}"/>
+     <TextBlock Text="Live components" Style="{DynamicResource SectionHeading}" VerticalAlignment="Center"/>
+    </DockPanel>
+   </StackPanel>
+   <ScrollViewer Grid.Row="1" VerticalScrollBarVisibility="Auto" HorizontalScrollBarVisibility="Disabled" CanContentScroll="False">
+    <WrapPanel>
+     <Border Tag="Success" Style="{DynamicResource StatusBadge}" Margin="{DynamicResource MarginInline}"><TextBlock Text="Ready" Tag="Success" Style="{DynamicResource StatusText}" /></Border>
+     <Border Tag="Warning" Style="{DynamicResource StatusBadge}" Margin="{DynamicResource MarginInline}"><TextBlock Text="Pending" Tag="Warning" Style="{DynamicResource StatusText}" /></Border>
+     <Border Tag="Error" Style="{DynamicResource StatusBadge}" Margin="{DynamicResource MarginInline}"><TextBlock Text="Needs attention" Tag="Error" Style="{DynamicResource StatusText}" /></Border>
+     <Border Tag="Information" Style="{DynamicResource StatusBadge}" Margin="{DynamicResource MarginInline}"><TextBlock Text="In review" Tag="Information" Style="{DynamicResource StatusText}" /></Border>
+     <Border Style="{DynamicResource StatusBadge}"><TextBlock Text="Not verified" Style="{DynamicResource StatusText}" /></Border>
+    </WrapPanel>
+   </ScrollViewer>
+  </Grid>
+ </ContentControl>
+</UserControl>

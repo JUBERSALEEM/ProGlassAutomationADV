@@ -1,0 +1,42 @@
+<ResourceDictionary xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation" xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml" xmlns:sys="clr-namespace:System;assembly=mscorlib">
+  <!-- White frost over a deep colored canvas. Not smoked opaque slabs, not Liquid veil, not Fluent mica. -->
+  <SolidColorBrush x:Key="GlassFrostBrush" Color="#40FFFFFF" />
+  <SolidColorBrush x:Key="GlassFrostSecondary" Color="#33FFFFFF" />
+  <SolidColorBrush x:Key="GlassFrostElevated" Color="#59FFFFFF" />
+  <SolidColorBrush x:Key="GlassFrostInset" Color="#26FFFFFF" />
+  <SolidColorBrush x:Key="GlassFrostControl" Color="#4DFFFFFF" />
+  <LinearGradientBrush x:Key="GlassHighlightBrush" StartPoint="0,0" EndPoint="0,1">
+    <GradientStop Color="#99FFFFFF" Offset="0" />
+    <GradientStop Color="#00FFFFFF" Offset="1" />
+  </LinearGradientBrush>
+  <SolidColorBrush x:Key="GlassHairlineBrush" Color="#CCFFFFFF" />
+  <SolidColorBrush x:Key="GlassStrokeBrush" Color="#99FFFFFF" />
+  <SolidColorBrush x:Key="GlassOpaqueBrush" Color="#1A2632" />
+  <SolidColorBrush x:Key="GlassTintPositive" Color="#666ED4A8" />
+  <SolidColorBrush x:Key="GlassStrokePositive" Color="#996ED4A8" />
+  <SolidColorBrush x:Key="GlassTintFeature" Color="#66B8A8F0" />
+  <SolidColorBrush x:Key="GlassStrokeFeature" Color="#99B8A8F0" />
+  <SolidColorBrush x:Key="GlassTintInformation" Color="#667EC8E8" />
+  <SolidColorBrush x:Key="GlassStrokeInformation" Color="#997EC8E8" />
+  <SolidColorBrush x:Key="GlassTintAttention" Color="#66E8C070" />
+  <SolidColorBrush x:Key="GlassStrokeAttention" Color="#99E8C070" />
+  <SolidColorBrush x:Key="GlassTintAccent" Color="#667EC8E8" />
+  <SolidColorBrush x:Key="GlassStrokeAccent" Color="#997EC8E8" />
+  <SolidColorBrush x:Key="GlassTintHero" Color="#99163040" />
+  <SolidColorBrush x:Key="GlassStrokeHero" Color="#99FFFFFF" />
+  <SolidColorBrush x:Key="GlassRevealBrush" Color="#E6FFFFFF" />
+  <SolidColorBrush x:Key="GlassRevealStroke" Color="#FFFFFFFF" />
+  <SolidColorBrush x:Key="GlassShadowCasterBrush" Color="#40000000" />
+  <Color x:Key="GlassShadowColor">#000000</Color>
+  <sys:Double x:Key="GlassLiftBlur">28</sys:Double>
+  <sys:Double x:Key="GlassLiftDepth">10</sys:Double>
+  <sys:Double x:Key="GlassLiftOpacity">0.32</sys:Double>
+  <sys:Double x:Key="GlassSheenHeight">16</sys:Double>
+  <sys:Boolean x:Key="GlassReduceTransparency">False</sys:Boolean>
+  <LinearGradientBrush x:Key="GlassCanvasBrush" StartPoint="0,0" EndPoint="1,1">
+    <GradientStop Color="#060A16" Offset="0" />
+    <GradientStop Color="#082848" Offset="0.35" />
+    <GradientStop Color="#301048" Offset="0.7" />
+    <GradientStop Color="#040810" Offset="1" />
+  </LinearGradientBrush>
+</ResourceDictionary>

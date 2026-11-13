@@ -11,6 +11,7 @@ namespace ProGlassAutomation.Services.Theme.Engine
         /// it is no longer one of the selectable eight theme families.</summary>
         Ios26,
         BentoGrid,
+        Fluent,
         SpatialImmersive,
         SwissInternational,
         HolographicIridescent,

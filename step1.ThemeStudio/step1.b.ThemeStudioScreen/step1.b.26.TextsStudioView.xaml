@@ -1,0 +1,52 @@
+<UserControl x:Class="ProGlassAutomation.ThemeStudio.TextsStudioView" xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation" xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml" xmlns:local="clr-namespace:ProGlassAutomation.ThemeStudio">
+ <ScrollViewer VerticalScrollBarVisibility="Auto" HorizontalScrollBarVisibility="Disabled" CanContentScroll="False" PanningMode="VerticalOnly">
+  <Grid Margin="{DynamicResource PaddingPage}">
+   <Grid.ColumnDefinitions>
+    <ColumnDefinition Width="2*"/>
+    <ColumnDefinition Width="3*"/>
+   </Grid.ColumnDefinitions>
+   <ContentControl Style="{DynamicResource Card}" Margin="{DynamicResource MarginInline}">
+    <StackPanel>
+     <DockPanel Margin="{DynamicResource MarginItem}">
+      <local:ShellMark DockPanel.Dock="Left" Title="Texts studio" Category="type" Width="{DynamicResource ChoiceMarkSize}" Height="{DynamicResource ChoiceMarkSize}" Margin="{DynamicResource MarginInline}" VerticalAlignment="Center" Foreground="{DynamicResource TextPrimary}"/>
+      <TextBlock Text="Texts studio" Style="{DynamicResource PageHeading}" VerticalAlignment="Center"/>
+     </DockPanel>
+     <TextBlock Text="A shared type overlay. The active theme still owns density, radius and material. Built-in families plus imported TTF, OTF, TTC or OTC files (8 MB)." Style="{DynamicResource Caption}"/>
+     <Label Content="Typeface" Target="{Binding ElementName=FontPicker}" Foreground="{DynamicResource TextSecondary}"/>
+     <ListBox x:Name="FontPicker" ItemsSource="{Binding FontFamilyChoices}" SelectedItem="{Binding SelectedFontFamily}" AutomationProperties.Name="Body typeface" MinHeight="{DynamicResource ReferenceListMaxHeight}" Margin="{DynamicResource MarginSection}">
+      <ListBox.ItemTemplate>
+       <DataTemplate>
+        <TextBlock Text="{Binding}" FontSize="{DynamicResource FontSizeSection}" Margin="{DynamicResource PaddingCompact}" TextWrapping="NoWrap" TextTrimming="CharacterEllipsis"/>
+       </DataTemplate>
+      </ListBox.ItemTemplate>
+     </ListBox>
+     <WrapPanel Margin="{DynamicResource MarginItem}">
+      <CheckBox Content="_Bold headings" IsChecked="{Binding HeadingBold}" AutomationProperties.Name="Heading bold" Margin="{DynamicResource MarginInline}"/>
+      <CheckBox Content="_Italic" IsChecked="{Binding BodyItalic}" AutomationProperties.Name="Body italic" Margin="{DynamicResource MarginInline}"/>
+      <CheckBox Content="_Underline" IsChecked="{Binding BodyUnderline}" AutomationProperties.Name="Body underline" Margin="{DynamicResource MarginInline}"/>
+     </WrapPanel>
+     <WrapPanel Margin="{DynamicResource MarginItem}">
+      <Button Content="Import font" Command="{Binding ImportFont}" Margin="{DynamicResource MarginInline}" AutomationProperties.Name="Import custom font"/>
+      <Button Content="Reset texts" Command="{Binding ResetFont}" Margin="{DynamicResource MarginInline}" AutomationProperties.Name="Reset texts to Segoe UI"/>
+      <Button Content="Save" Command="{Binding SaveCustomization}" Style="{DynamicResource PrimaryButton}" Margin="{DynamicResource MarginInline}" AutomationProperties.Name="Save type overlay"/>
+      <Button Content="Discard" Command="{Binding DiscardChanges}" Margin="{DynamicResource MarginInline}" AutomationProperties.Name="Discard type overlay"/>
+     </WrapPanel>
+     <TextBlock Text="{Binding ThemeError}" Foreground="{DynamicResource StatusError}" AutomationProperties.LiveSetting="Assertive" Margin="{DynamicResource MarginItem}"/>
+    </StackPanel>
+   </ContentControl>
+   <ContentControl Grid.Column="1" Style="{DynamicResource Card}" Margin="{DynamicResource MarginInline}">
+    <StackPanel>
+     <TextBlock Text="Live type preview" Style="{DynamicResource SectionHeading}"/>
+     <TextBlock Text="HEADING" Style="{DynamicResource Caption}"/>
+     <TextBlock Text="Clear hierarchy. Quiet confidence." Style="{DynamicResource PageHeading}"/>
+     <TextBlock Text="Section" Style="{DynamicResource Caption}"/>
+     <TextBlock Text="Workspace density stays with the theme." Style="{DynamicResource SectionHeading}"/>
+     <TextBlock Text="BODY" Style="{DynamicResource Caption}"/>
+     <TextBlock Text="Body copy uses FontFamilyBody, FontStyleBody and TextDecorationsBody so every screen follows this studio. Supporting metadata stays secondary." TextWrapping="Wrap"/>
+     <TextBlock Text="Caption / metadata" Style="{DynamicResource Caption}"/>
+     <TextBlock Text="{Binding SelectedFontFamily}" Style="{DynamicResource TokenValue}"/>
+    </StackPanel>
+   </ContentControl>
+  </Grid>
+ </ScrollViewer>
+</UserControl>

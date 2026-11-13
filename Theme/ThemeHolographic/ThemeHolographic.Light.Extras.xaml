@@ -1,0 +1,57 @@
+<ResourceDictionary xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation" xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml" xmlns:sys="clr-namespace:System;assembly=mscorlib">
+  <LinearGradientBrush x:Key="HoloCanvasBrush" StartPoint="0,0" EndPoint="1,1">
+    <GradientStop Color="#E4F4FF" Offset="0" />
+    <GradientStop Color="#ECE4FB" Offset="0.48" />
+    <GradientStop Color="#F8E8F2" Offset="1" />
+  </LinearGradientBrush>
+  <LinearGradientBrush x:Key="HoloCardFillBrush" StartPoint="0,0" EndPoint="1,1">
+    <GradientStop Color="#F2F9FF" Offset="0" />
+    <GradientStop Color="#F6F0FF" Offset="0.52" />
+    <GradientStop Color="#FFF4FA" Offset="1" />
+  </LinearGradientBrush>
+  <LinearGradientBrush x:Key="HoloPlateFillBrush" StartPoint="0,0" EndPoint="1,0.2">
+    <GradientStop Color="#E8F3FF" Offset="0" />
+    <GradientStop Color="#F3ECFF" Offset="1" />
+  </LinearGradientBrush>
+  <LinearGradientBrush x:Key="HoloRimBrush" StartPoint="0,0" EndPoint="1,1">
+    <GradientStop Color="#06B6D4" Offset="0" />
+    <GradientStop Color="#7C3AED" Offset="0.48" />
+    <GradientStop Color="#E11D74" Offset="1" />
+  </LinearGradientBrush>
+  <LinearGradientBrush x:Key="HoloQuietRimBrush" StartPoint="0,0" EndPoint="1,1">
+    <GradientStop Color="#67E8F9" Offset="0" />
+    <GradientStop Color="#C4B5FD" Offset="0.5" />
+    <GradientStop Color="#F9A8D4" Offset="1" />
+  </LinearGradientBrush>
+  <LinearGradientBrush x:Key="HoloFaceBrush" StartPoint="0,0" EndPoint="1,1">
+    <GradientStop Color="#5906B6D4" Offset="0" />
+    <GradientStop Color="#1AFFFFFF" Offset="0.42" />
+    <GradientStop Color="#4D7C3AED" Offset="1" />
+  </LinearGradientBrush>
+  <LinearGradientBrush x:Key="HoloSheenTopBrush" StartPoint="0.5,0" EndPoint="0.5,1">
+    <GradientStop Color="#B3FFFFFF" Offset="0" />
+    <GradientStop Color="#6667E8F9" Offset="0.04" />
+    <GradientStop Color="#33C4B5FD" Offset="0.08" />
+    <GradientStop Color="#00FFFFFF" Offset="0.14" />
+  </LinearGradientBrush>
+  <LinearGradientBrush x:Key="HoloSheenBottomBrush" StartPoint="0.5,1" EndPoint="0.5,0">
+    <GradientStop Color="#B3FFFFFF" Offset="0" />
+    <GradientStop Color="#6667E8F9" Offset="0.04" />
+    <GradientStop Color="#33C4B5FD" Offset="0.08" />
+    <GradientStop Color="#00FFFFFF" Offset="0.14" />
+  </LinearGradientBrush>
+  <LinearGradientBrush x:Key="HoloSheenLeftBrush" StartPoint="0,0.5" EndPoint="1,0.5">
+    <GradientStop Color="#B3FFFFFF" Offset="0" />
+    <GradientStop Color="#6667E8F9" Offset="0.04" />
+    <GradientStop Color="#33C4B5FD" Offset="0.08" />
+    <GradientStop Color="#00FFFFFF" Offset="0.14" />
+  </LinearGradientBrush>
+  <LinearGradientBrush x:Key="HoloSheenRightBrush" StartPoint="1,0.5" EndPoint="0,0.5">
+    <GradientStop Color="#B3FFFFFF" Offset="0" />
+    <GradientStop Color="#6667E8F9" Offset="0.04" />
+    <GradientStop Color="#33C4B5FD" Offset="0.08" />
+    <GradientStop Color="#00FFFFFF" Offset="0.14" />
+  </LinearGradientBrush>
+  <Thickness x:Key="HoloRimThickness">2</Thickness>
+  <Thickness x:Key="HoloHeroRimThickness">3</Thickness>
+</ResourceDictionary>

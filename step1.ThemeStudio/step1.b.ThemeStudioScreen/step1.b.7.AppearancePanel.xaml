@@ -1,0 +1,26 @@
+<UserControl x:Class="ProGlassAutomation.ThemeStudio.AppearancePanel" xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation" xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml" xmlns:local="clr-namespace:ProGlassAutomation.ThemeStudio">
+ <ContentControl Style="{DynamicResource Card}">
+  <Grid>
+   <Grid.RowDefinitions>
+    <RowDefinition Height="Auto"/>
+    <RowDefinition Height="*"/>
+    <RowDefinition Height="Auto"/>
+   </Grid.RowDefinitions>
+   <StackPanel>
+    <DockPanel Margin="{DynamicResource MarginItem}">
+     <local:ShellMark DockPanel.Dock="Left" Title="Workspace pulse" Category="appearance" Width="{DynamicResource ChoiceMarkSize}" Height="{DynamicResource ChoiceMarkSize}" Margin="{DynamicResource MarginInline}" VerticalAlignment="Center" Foreground="{DynamicResource TextPrimary}"/>
+     <TextBlock Text="Workspace pulse" Style="{DynamicResource SectionHeading}" VerticalAlignment="Center"/>
+    </DockPanel>
+    <Border Tag="Success" Style="{DynamicResource StatusBadge}" HorizontalAlignment="Left" Margin="{DynamicResource MarginItem}"><TextBlock Text="●  Preview ready" Foreground="{DynamicResource StatusSuccess}" /></Border>
+    <TextBlock Text="{Binding SelectedReference.Title}" FontWeight="{DynamicResource FontWeightHeading}" />
+   </StackPanel>
+   <ScrollViewer Grid.Row="1" VerticalScrollBarVisibility="Auto" HorizontalScrollBarVisibility="Disabled" CanContentScroll="False">
+    <StackPanel>
+     <TextBlock Text="{Binding SelectedReference.Owner}" Style="{DynamicResource Caption}" Margin="{DynamicResource MarginItem}" />
+     <TextBlock Text="{Binding DesignSummary}" Style="{DynamicResource Caption}" Margin="{DynamicResource MarginItem}" />
+    </StackPanel>
+   </ScrollViewer>
+   <Button Grid.Row="2" Content="Open _preview window" Command="{Binding OpenDialog}" ToolTip="Keep this window open while editing the design in Studio." HorizontalAlignment="Left" Margin="{DynamicResource MarginItem}" />
+  </Grid>
+ </ContentControl>
+</UserControl>

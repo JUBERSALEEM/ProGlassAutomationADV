@@ -1,0 +1,253 @@
+<UserControl x:Class="ProGlassAutomation.ThemeStudio.CustomizationPanel" xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation" xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml" xmlns:local="clr-namespace:ProGlassAutomation.ThemeStudio">
+ <UserControl.Resources>
+  <BooleanToVisibilityConverter x:Key="BoolVis"/>
+ </UserControl.Resources>
+ <ScrollViewer VerticalScrollBarVisibility="Auto" HorizontalScrollBarVisibility="Disabled" CanContentScroll="False" PanningMode="VerticalOnly">
+  <StackPanel>
+   <ContentControl Style="{DynamicResource Card}" Margin="{DynamicResource MarginSection}">
+    <StackPanel>
+     <DockPanel Margin="{DynamicResource MarginItem}"><local:ShellMark DockPanel.Dock="Left" Title="Design settings" Category="settings" Width="{DynamicResource ChoiceMarkSize}" Height="{DynamicResource ChoiceMarkSize}" Margin="{DynamicResource MarginInline}" VerticalAlignment="Center" Foreground="{DynamicResource TextPrimary}"/><Border DockPanel.Dock="Right" Tag="Success" Style="{DynamicResource StatusBadge}" HorizontalAlignment="Right"><TextBlock Text="LIVE" Foreground="{DynamicResource StatusSuccess}" Style="{DynamicResource Caption}"/></Border><TextBlock Text="Design settings" Style="{DynamicResource SectionHeading}" VerticalAlignment="Center"/></DockPanel>
+     <TextBlock Text="Pick a theme to open its own studio. Engines stay separate — Bento, Clay, Fluent, Neumorphism and Liquid Glass never share knobs. Texts Studio and Colors Studio are separate Settings pages — they overlay every theme." Style="{DynamicResource Caption}"/>
+    </StackPanel>
+   </ContentControl>
+   <ContentControl Style="{DynamicResource Card}" Margin="{DynamicResource MarginSection}">
+    <StackPanel>
+     <Label Content="Theme" Target="{Binding ElementName=ThemePicker}" Foreground="{DynamicResource TextSecondary}"/><ComboBox x:Name="ThemePicker" ItemsSource="{Binding InstalledThemes}" SelectedItem="{Binding SelectedTheme}" AutomationProperties.Name="Installed theme" Margin="{DynamicResource MarginItem}"/>
+     <TextBlock Text="Appearance" Style="{DynamicResource Caption}"/><WrapPanel Margin="{DynamicResource MarginItem}"><RadioButton Content="_Light" GroupName="Appearance" IsChecked="{Binding IsLight}" AutomationProperties.Name="Light appearance"/><RadioButton Content="_Dark" GroupName="Appearance" IsChecked="{Binding IsDark}" AutomationProperties.Name="Dark appearance"/></WrapPanel>
+     <TextBlock Text="{Binding DesignSummary}" Style="{DynamicResource Caption}" Margin="{DynamicResource MarginItem}"/>
+     <StackPanel Visibility="{Binding CanCustomizeGeometry, Converter={StaticResource BoolVis}}">
+      <Label Content="Card rounding" Foreground="{DynamicResource TextSecondary}"/>
+      <ComboBox ItemsSource="{Binding RoundingChoices}" SelectedItem="{Binding SelectedRounding}" AutomationProperties.Name="Card rounding" Margin="{DynamicResource MarginItem}"/>
+      <TextBlock Text="Crisp, Soft, Rounded or Pill writes CardCornerRadius into application resources. Every Card, KPI, chart tile and future module that binds the token follows it." Style="{DynamicResource Caption}"/>
+     </StackPanel>
+     <WrapPanel Margin="{DynamicResource MarginItem}">
+      <Button Content="Import JSON" Command="{Binding ImportCustomization}" Margin="{DynamicResource MarginInline}" AutomationProperties.Name="Import customization JSON"/>
+      <Button Content="Export JSON" Command="{Binding ExportCustomization}" Margin="{DynamicResource MarginInline}" AutomationProperties.Name="Export customization JSON"/>
+     </WrapPanel>
+     <TextBlock Text="Import applies to live application resources. Save persists. Discard restores the last saved package. Invalid or oversized files are rejected." Style="{DynamicResource Caption}"/>
+     <TextBlock Text="{Binding ThemeError}" Foreground="{DynamicResource StatusError}" AutomationProperties.LiveSetting="Assertive" Margin="{DynamicResource MarginItem}"/>
+     <TextBlock Text="{Binding StoreWarning}" Foreground="{DynamicResource StatusError}" AutomationProperties.LiveSetting="Polite" Margin="{DynamicResource MarginItem}"/>
+     <WrapPanel Margin="{DynamicResource MarginItem}">
+      <Button Content="Open Texts Studio" Command="{Binding ShowTexts}" Margin="{DynamicResource MarginInline}" AutomationProperties.Name="Open Texts Studio"/>
+      <Button Content="Open Colors Studio" Command="{Binding ShowColors}" Margin="{DynamicResource MarginInline}" AutomationProperties.Name="Open Colors Studio"/>
+      <Button Content="Open Icons Studio" Command="{Binding ShowIcons}" Margin="{DynamicResource MarginInline}" AutomationProperties.Name="Open Icons Studio"/>
+     </WrapPanel>
+    </StackPanel>
+   </ContentControl>
+   <StackPanel Visibility="{Binding CanCustomizeBento, Converter={StaticResource BoolVis}}">
+    <ContentControl Style="{DynamicResource Card}" Margin="{DynamicResource MarginSection}">
+     <StackPanel>
+      <TextBlock Text="Bento studio" Style="{DynamicResource Caption}"/>
+      <DockPanel Margin="{DynamicResource MarginItem}"><local:ShellMark DockPanel.Dock="Left" Title="Bento layout" Category="layout" Width="{DynamicResource ChoiceMarkSize}" Height="{DynamicResource ChoiceMarkSize}" Margin="{DynamicResource MarginInline}" VerticalAlignment="Center" Foreground="{DynamicResource TextPrimary}"/><TextBlock Text="Bento layout" Style="{DynamicResource Caption}" VerticalAlignment="Center"/></DockPanel>
+      <Label Content="Layout preset" Foreground="{DynamicResource TextSecondary}"/><ComboBox ItemsSource="{Binding LayoutPresetChoices}" SelectedItem="{Binding SelectedLayoutPreset}" AutomationProperties.Name="Layout preset" Margin="{DynamicResource MarginItem}"/>
+      <CheckBox Content="Compact hero span" IsChecked="{Binding HeroCompact}" AutomationProperties.Name="Compact hero" Margin="{DynamicResource MarginItem}"/>
+      <CheckBox Content="Show KPI trend" IsChecked="{Binding ShowKpiTrend}" AutomationProperties.Name="Show KPI trend" Margin="{DynamicResource MarginItem}"/>
+      <TextBlock Text="Executive: hero 2col + KPI 4up · Analytics Focus: hides activity, widens charts · Production Ops: strong borders, high contrast · Compact Data Dense: stacks, hides table." Style="{DynamicResource Caption}"/>
+     </StackPanel>
+    </ContentControl>
+    <ContentControl Style="{DynamicResource Card}" Margin="{DynamicResource MarginSection}">
+     <StackPanel>
+      <DockPanel Margin="{DynamicResource MarginItem}"><local:ShellMark DockPanel.Dock="Left" Title="Global appearance" Category="appearance" Width="{DynamicResource ChoiceMarkSize}" Height="{DynamicResource ChoiceMarkSize}" Margin="{DynamicResource MarginInline}" VerticalAlignment="Center" Foreground="{DynamicResource TextPrimary}"/><TextBlock Text="Global appearance" Style="{DynamicResource Caption}" VerticalAlignment="Center"/></DockPanel>
+      <Label Content="Brand accent" Target="{Binding ElementName=AccentPicker}" Foreground="{DynamicResource TextSecondary}"/><ComboBox x:Name="AccentPicker" IsEnabled="{Binding CanCustomizeBento}" ItemsSource="{Binding AccentChoices}" SelectedItem="{Binding SelectedAccent}" AutomationProperties.Name="Brand accent" Margin="{DynamicResource MarginItem}"/>
+      <Label Content="Canvas tint" Foreground="{DynamicResource TextSecondary}"/><ComboBox ItemsSource="{Binding CanvasChoices}" SelectedItem="{Binding SelectedCanvas}" AutomationProperties.Name="Canvas tint" Margin="{DynamicResource MarginItem}"/>
+      <Label Content="Surface style" Foreground="{DynamicResource TextSecondary}"/><ComboBox ItemsSource="{Binding SurfaceChoices}" SelectedItem="{Binding SelectedSurface}" AutomationProperties.Name="Surface style" Margin="{DynamicResource MarginItem}"/>
+      <Label Content="Text contrast" Foreground="{DynamicResource TextSecondary}"/><ComboBox ItemsSource="{Binding TextContrastChoices}" SelectedItem="{Binding SelectedTextContrast}" AutomationProperties.Name="Text contrast" Margin="{DynamicResource MarginItem}"/>
+      <Label Content="Border intensity" Foreground="{DynamicResource TextSecondary}"/><ComboBox ItemsSource="{Binding BorderChoices}" SelectedItem="{Binding SelectedBorder}" AutomationProperties.Name="Border intensity" Margin="{DynamicResource MarginItem}"/>
+      <Label Content="Shadow intensity" Foreground="{DynamicResource TextSecondary}"/><ComboBox ItemsSource="{Binding ShadowChoices}" SelectedItem="{Binding SelectedShadow}" AutomationProperties.Name="Shadow intensity" Margin="{DynamicResource MarginItem}"/>
+     </StackPanel>
+    </ContentControl>
+    <ContentControl Style="{DynamicResource Card}" Margin="{DynamicResource MarginSection}">
+     <StackPanel>
+      <DockPanel Margin="{DynamicResource MarginItem}"><local:ShellMark DockPanel.Dock="Left" Title="Density" Category="layout" Width="{DynamicResource ChoiceMarkSize}" Height="{DynamicResource ChoiceMarkSize}" Margin="{DynamicResource MarginInline}" VerticalAlignment="Center" Foreground="{DynamicResource TextPrimary}"/><TextBlock Text="Density and type" Style="{DynamicResource Caption}" VerticalAlignment="Center"/></DockPanel>
+      <Label Content="Density" Target="{Binding ElementName=DensityPicker}" Foreground="{DynamicResource TextSecondary}"/><ComboBox x:Name="DensityPicker" IsEnabled="{Binding CanCustomizeBento}" ItemsSource="{Binding DensityChoices}" SelectedItem="{Binding SelectedDensity}" AutomationProperties.Name="Control density" Margin="{DynamicResource MarginItem}"/>
+      <Label Content="Spacing" Foreground="{DynamicResource TextSecondary}"/><ComboBox ItemsSource="{Binding SpacingChoices}" SelectedItem="{Binding SelectedSpacing}" AutomationProperties.Name="Grid spacing" Margin="{DynamicResource MarginItem}"/>
+      <Label Content="Corner treatment" Target="{Binding ElementName=ShapePicker}" Foreground="{DynamicResource TextSecondary}"/><ComboBox x:Name="ShapePicker" IsEnabled="{Binding CanCustomizeBento}" ItemsSource="{Binding ShapeChoices}" SelectedItem="{Binding SelectedShape}" AutomationProperties.Name="Corner treatment" Margin="{DynamicResource MarginItem}"/>
+      <Label Content="Card padding" Foreground="{DynamicResource TextSecondary}"/><ComboBox ItemsSource="{Binding PaddingChoices}" SelectedItem="{Binding SelectedPadding}" AutomationProperties.Name="Card padding" Margin="{DynamicResource MarginItem}"/>
+      <Label Content="Typography" Target="{Binding ElementName=TypePicker}" Foreground="{DynamicResource TextSecondary}"/><ComboBox x:Name="TypePicker" IsEnabled="{Binding CanCustomizeBento}" ItemsSource="{Binding TypeChoices}" SelectedItem="{Binding SelectedTypography}" AutomationProperties.Name="Type scale" Margin="{DynamicResource MarginItem}"/>
+      <Label Content="Font weight" Foreground="{DynamicResource TextSecondary}"/><ComboBox ItemsSource="{Binding WeightChoices}" SelectedItem="{Binding SelectedWeight}" AutomationProperties.Name="Font weight" Margin="{DynamicResource MarginItem}"/>
+     </StackPanel>
+    </ContentControl>
+    <ContentControl Style="{DynamicResource Card}" Margin="{DynamicResource MarginSection}">
+     <StackPanel>
+      <DockPanel Margin="{DynamicResource MarginItem}"><local:ShellMark DockPanel.Dock="Left" Title="Save and reset" Category="settings" Width="{DynamicResource ChoiceMarkSize}" Height="{DynamicResource ChoiceMarkSize}" Margin="{DynamicResource MarginInline}" VerticalAlignment="Center" Foreground="{DynamicResource TextPrimary}"/><TextBlock Text="Save and reset" Style="{DynamicResource Caption}" VerticalAlignment="Center"/></DockPanel>
+      <WrapPanel Margin="{DynamicResource MarginItem}">
+       <Button Content="Apply" Command="{Binding ApplyPreview}" Style="{DynamicResource PrimaryButton}" Margin="{DynamicResource MarginInline}" AutomationProperties.Name="Apply preview"/>
+       <Button Content="Save" Command="{Binding SaveCustomization}" Margin="{DynamicResource MarginInline}" AutomationProperties.Name="Save to disk"/>
+       <Button Content="Discard" Command="{Binding DiscardChanges}" Margin="{DynamicResource MarginInline}" AutomationProperties.Name="Discard unsaved changes"/>
+      </WrapPanel>
+      <WrapPanel Margin="{DynamicResource MarginItem}">
+       <Button Content="Preview default" Command="{Binding PreviewDefault}" Margin="{DynamicResource MarginInline}" AutomationProperties.Name="Preview default comparison"/>
+       <Button Content="Reset section" Command="{Binding ResetSection}" Margin="{DynamicResource MarginInline}" AutomationProperties.Name="Reset current section"/>
+       <Button Content="Reset theme" Command="{Binding ResetTheme}" Style="{DynamicResource DestructiveButton}" Margin="{DynamicResource MarginInline}" AutomationProperties.Name="Reset theme to defaults"/>
+      </WrapPanel>
+      <TextBlock Text="Customization category" Style="{DynamicResource Caption}"/>
+      <ComboBox ItemsSource="{Binding AvailableCategories}" SelectedItem="{Binding CustomizationCategory}" AutomationProperties.Name="Customization category" Margin="{DynamicResource MarginItem}"/>
+     </StackPanel>
+    </ContentControl>
+    <ContentControl Style="{DynamicResource Card}" Margin="{DynamicResource MarginSection}">
+     <StackPanel>
+      <TextBlock Text="Presets — built-in stay protected" Style="{DynamicResource Caption}"/>
+      <ListBox ItemsSource="{Binding BuiltInPresets}" DisplayMemberPath="Name" AutomationProperties.Name="Built-in presets" Margin="{DynamicResource MarginItem}"/>
+      <ListBox ItemsSource="{Binding CustomPresets}" DisplayMemberPath="Name" AutomationProperties.Name="Your saved presets" Margin="{DynamicResource MarginItem}"/>
+      <DockPanel Margin="{DynamicResource MarginItem}"><TextBox Width="120" Text="{Binding PresetNameInput, UpdateSourceTrigger=PropertyChanged}" AutomationProperties.Name="New preset name" Margin="{DynamicResource MarginInline}"/><Button Content="Save preset" Command="{Binding SavePreset}" AutomationProperties.Name="Save as preset"/></DockPanel>
+      <Button Visibility="Collapsed" Command="{Binding ResetDesign}" AutomationProperties.Name="Legacy reset design binding"/>
+      <WrapPanel Margin="{DynamicResource MarginItem}"><Button Content="Open reference" Command="{Binding ShowBusiness}" Style="{DynamicResource PrimaryButton}"/></WrapPanel>
+     </StackPanel>
+    </ContentControl>
+   </StackPanel>
+   <StackPanel Visibility="{Binding CanCustomizeClay, Converter={StaticResource BoolVis}}">
+    <ContentControl Style="{DynamicResource Card}" Margin="{DynamicResource MarginSection}">
+     <StackPanel>
+      <TextBlock Text="Clay studio" Style="{DynamicResource Caption}"/>
+      <TextBlock Text="Clay is a plump volume engine: hue-matched far/near drop, inner rim, sheen, and inset wells. Volume, plumpness, sheen, lighting and relief below stay Clay-owned. Not Bento, not Fluent, not Neumorphism." Style="{DynamicResource Caption}"/>
+      <Label Content="Clay preset" Foreground="{DynamicResource TextSecondary}"/><ComboBox ItemsSource="{Binding ClayPresetNames}" SelectedItem="{Binding SelectedClayPresetName}" AutomationProperties.Name="Clay preset" Margin="{DynamicResource MarginItem}"/>
+      <TextBlock Text="Clay built-in presets" Style="{DynamicResource Caption}"/>
+      <ListBox ItemsSource="{Binding ClayBuiltInPresets}" DisplayMemberPath="Name" AutomationProperties.Name="Clay built-in presets" Margin="{DynamicResource MarginItem}"/>
+      <TextBlock Text="Your clay presets" Style="{DynamicResource Caption}"/>
+      <ListBox ItemsSource="{Binding ClayCustomPresets}" DisplayMemberPath="Name" AutomationProperties.Name="Your clay presets" Margin="{DynamicResource MarginItem}"/>
+      <DockPanel Margin="{DynamicResource MarginItem}"><TextBox Width="120" Text="{Binding PresetNameInput, UpdateSourceTrigger=PropertyChanged}" AutomationProperties.Name="New clay preset name" Margin="{DynamicResource MarginInline}"/><Button Content="Save clay preset" Command="{Binding SavePreset}" AutomationProperties.Name="Save as clay preset"/></DockPanel>
+     </StackPanel>
+    </ContentControl>
+    <ContentControl Style="{DynamicResource Card}" Margin="{DynamicResource MarginSection}">
+     <StackPanel>
+      <TextBlock Text="Global workspace density" Style="{DynamicResource Caption}"/>
+      <Label Content="Density" Foreground="{DynamicResource TextSecondary}"/><ComboBox ItemsSource="{Binding ClayDensityChoices}" SelectedItem="{Binding SelectedClayDensity}" AutomationProperties.Name="Clay density" Margin="{DynamicResource MarginItem}"/>
+      <Label Content="Spacing" Foreground="{DynamicResource TextSecondary}"/><ComboBox ItemsSource="{Binding ClaySpacingChoices}" SelectedItem="{Binding SelectedClaySpacing}" AutomationProperties.Name="Clay spacing" Margin="{DynamicResource MarginItem}"/>
+     </StackPanel>
+    </ContentControl>
+    <ContentControl Style="{DynamicResource Card}" Margin="{DynamicResource MarginSection}">
+     <StackPanel>
+      <TextBlock Text="Surface palette" Style="{DynamicResource Caption}"/>
+      <Label Content="Clay accent" Foreground="{DynamicResource TextSecondary}"/><ComboBox ItemsSource="{Binding ClayAccentChoices}" SelectedItem="{Binding SelectedClayAccent}" AutomationProperties.Name="Clay accent" Margin="{DynamicResource MarginItem}"/>
+      <Label Content="Canvas" Foreground="{DynamicResource TextSecondary}"/><ComboBox ItemsSource="{Binding ClayCanvasChoices}" SelectedItem="{Binding SelectedClayCanvas}" AutomationProperties.Name="Clay canvas" Margin="{DynamicResource MarginItem}"/>
+     </StackPanel>
+    </ContentControl>
+    <ContentControl Style="{DynamicResource Card}" Margin="{DynamicResource MarginSection}">
+     <StackPanel>
+      <TextBlock Text="Clay relief and corners" Style="{DynamicResource Caption}"/>
+      <Label Content="Volume" Foreground="{DynamicResource TextSecondary}"/><ComboBox ItemsSource="{Binding ClayVolumeChoices}" SelectedItem="{Binding SelectedClayVolume}" AutomationProperties.Name="Clay volume" Margin="{DynamicResource MarginItem}"/>
+      <Label Content="Plumpness" Foreground="{DynamicResource TextSecondary}"/><ComboBox ItemsSource="{Binding ClayPlumpnessChoices}" SelectedItem="{Binding SelectedClayPlumpness}" AutomationProperties.Name="Clay plumpness" Margin="{DynamicResource MarginItem}"/>
+      <Label Content="Sheen" Foreground="{DynamicResource TextSecondary}"/><ComboBox ItemsSource="{Binding ClaySheenChoices}" SelectedItem="{Binding SelectedClaySheen}" AutomationProperties.Name="Clay sheen" Margin="{DynamicResource MarginItem}"/>
+      <Label Content="Edge lighting" Foreground="{DynamicResource TextSecondary}"/><ComboBox ItemsSource="{Binding ClayLightingChoices}" SelectedItem="{Binding SelectedClayLighting}" AutomationProperties.Name="Clay edge lighting" Margin="{DynamicResource MarginItem}"/>
+      <Label Content="Plate relief" Foreground="{DynamicResource TextSecondary}"/><ComboBox ItemsSource="{Binding ClayReliefChoices}" SelectedItem="{Binding SelectedClayRelief}" AutomationProperties.Name="Clay plate relief" Margin="{DynamicResource MarginItem}"/>
+      <Label Content="Effects" Foreground="{DynamicResource TextSecondary}"/><ComboBox ItemsSource="{Binding ClayEffectsChoices}" SelectedItem="{Binding SelectedClayEffects}" AutomationProperties.Name="Clay effects" Margin="{DynamicResource MarginItem}"/>
+     </StackPanel>
+    </ContentControl>
+    <ContentControl Style="{DynamicResource Card}" Margin="{DynamicResource MarginSection}">
+     <StackPanel>
+      <TextBlock Text="Typography and density" Style="{DynamicResource Caption}"/>
+      <Label Content="Typography" Foreground="{DynamicResource TextSecondary}"/><ComboBox ItemsSource="{Binding ClayTypeChoices}" SelectedItem="{Binding SelectedClayTypography}" AutomationProperties.Name="Clay type scale" Margin="{DynamicResource MarginItem}"/>
+      <Label Content="Font weight" Foreground="{DynamicResource TextSecondary}"/><ComboBox ItemsSource="{Binding ClayWeightChoices}" SelectedItem="{Binding SelectedClayWeight}" AutomationProperties.Name="Clay font weight" Margin="{DynamicResource MarginItem}"/>
+      <Label Content="Text contrast" Foreground="{DynamicResource TextSecondary}"/><ComboBox ItemsSource="{Binding ClayTextContrastChoices}" SelectedItem="{Binding SelectedClayTextContrast}" AutomationProperties.Name="Clay text contrast" Margin="{DynamicResource MarginItem}"/>
+      <TextBlock Text="Clay settings apply only while Claymorphism is the active theme. Bento and Fluent engines stay untouched." Style="{DynamicResource Caption}"/>
+     </StackPanel>
+    </ContentControl>
+    <ContentControl Style="{DynamicResource Card}" Margin="{DynamicResource MarginSection}">
+     <StackPanel>
+      <DockPanel Margin="{DynamicResource MarginItem}"><local:ShellMark DockPanel.Dock="Left" Title="Save and reset" Category="settings" Width="{DynamicResource ChoiceMarkSize}" Height="{DynamicResource ChoiceMarkSize}" Margin="{DynamicResource MarginInline}" VerticalAlignment="Center" Foreground="{DynamicResource TextPrimary}"/><TextBlock Text="Save and reset" Style="{DynamicResource Caption}" VerticalAlignment="Center"/></DockPanel>
+      <WrapPanel Margin="{DynamicResource MarginItem}">
+       <Button Content="Apply" Command="{Binding ApplyPreview}" Style="{DynamicResource PrimaryButton}" Margin="{DynamicResource MarginInline}" AutomationProperties.Name="Apply clay preview"/>
+       <Button Content="Save" Command="{Binding SaveCustomization}" Margin="{DynamicResource MarginInline}" AutomationProperties.Name="Save clay to disk"/>
+       <Button Content="Discard" Command="{Binding DiscardChanges}" Margin="{DynamicResource MarginInline}" AutomationProperties.Name="Discard clay changes"/>
+      </WrapPanel>
+      <WrapPanel Margin="{DynamicResource MarginItem}">
+       <Button Content="Preview default" Command="{Binding PreviewDefault}" Margin="{DynamicResource MarginInline}" AutomationProperties.Name="Preview clay default comparison"/>
+       <Button Content="Reset section" Command="{Binding ResetSection}" Margin="{DynamicResource MarginInline}" AutomationProperties.Name="Reset clay section"/>
+       <Button Content="Reset theme" Command="{Binding ResetTheme}" Style="{DynamicResource DestructiveButton}" Margin="{DynamicResource MarginInline}" AutomationProperties.Name="Reset clay to defaults"/>
+      </WrapPanel>
+      <TextBlock Text="Customization category" Style="{DynamicResource Caption}"/>
+      <ComboBox ItemsSource="{Binding AvailableCategories}" SelectedItem="{Binding CustomizationCategory}" AutomationProperties.Name="Clay customization category" Margin="{DynamicResource MarginItem}"/>
+      <WrapPanel Margin="{DynamicResource MarginItem}"><Button Content="Open reference" Command="{Binding ShowBusiness}" Style="{DynamicResource PrimaryButton}"/></WrapPanel>
+     </StackPanel>
+    </ContentControl>
+   </StackPanel>
+   <StackPanel Visibility="{Binding IsFluent, Converter={StaticResource BoolVis}}">
+    <ContentControl Style="{DynamicResource Card}" Margin="{DynamicResource MarginSection}">
+     <StackPanel>
+      <TextBlock Text="Fluent studio" Style="{DynamicResource Caption}"/>
+      <TextBlock Text="Fluent / Acrylic keeps mica and acrylic as its material. It has no Fluent knobs. Card rounding above is shared geometry — not a Fluent engine — so future modules stay in sync." Style="{DynamicResource Caption}"/>
+      <WrapPanel Margin="{DynamicResource MarginItem}"><Button Content="Open reference" Command="{Binding ShowBusiness}" Style="{DynamicResource PrimaryButton}"/></WrapPanel>
+     </StackPanel>
+    </ContentControl>
+   </StackPanel>
+   <StackPanel Visibility="{Binding IsNeumorph, Converter={StaticResource BoolVis}}">
+    <ContentControl Style="{DynamicResource Card}" Margin="{DynamicResource MarginSection}">
+     <StackPanel>
+      <TextBlock Text="Neumorphism studio" Style="{DynamicResource Caption}"/>
+      <TextBlock Text="Depth, blur and intensity are Neumorph-owned. Card rounding above stays shared geometry. Gaussian dual shadows render inside a layout gutter so they do not clip." Style="{DynamicResource Caption}"/>
+      <Label Content="Neumorph preset" Foreground="{DynamicResource TextSecondary}"/><ComboBox ItemsSource="{Binding NeumorphPresetNames}" SelectedItem="{Binding SelectedNeumorphPresetName}" AutomationProperties.Name="Neumorph preset" Margin="{DynamicResource MarginItem}"/>
+      <TextBlock Text="Neumorph built-in presets" Style="{DynamicResource Caption}"/>
+      <ListBox ItemsSource="{Binding NeumorphBuiltInPresets}" DisplayMemberPath="Name" AutomationProperties.Name="Neumorph built-in presets" Margin="{DynamicResource MarginItem}"/>
+      <TextBlock Text="Your neumorph presets" Style="{DynamicResource Caption}"/>
+      <ListBox ItemsSource="{Binding NeumorphCustomPresets}" DisplayMemberPath="Name" AutomationProperties.Name="Your neumorph presets" Margin="{DynamicResource MarginItem}"/>
+      <DockPanel Margin="{DynamicResource MarginItem}"><TextBox Width="120" Text="{Binding PresetNameInput, UpdateSourceTrigger=PropertyChanged}" AutomationProperties.Name="New neumorph preset name" Margin="{DynamicResource MarginInline}"/><Button Content="Save neumorph preset" Command="{Binding SavePreset}" AutomationProperties.Name="Save as neumorph preset"/></DockPanel>
+     </StackPanel>
+    </ContentControl>
+    <ContentControl Style="{DynamicResource Card}" Margin="{DynamicResource MarginSection}">
+     <StackPanel>
+      <TextBlock Text="Volume engine" Style="{DynamicResource Caption}"/>
+      <Label Content="Depth" Foreground="{DynamicResource TextSecondary}"/><ComboBox ItemsSource="{Binding NeumorphDepthChoices}" SelectedItem="{Binding SelectedNeumorphDepth}" AutomationProperties.Name="Neumorph depth" Margin="{DynamicResource MarginItem}"/>
+      <Label Content="Blur" Foreground="{DynamicResource TextSecondary}"/><ComboBox ItemsSource="{Binding NeumorphBlurChoices}" SelectedItem="{Binding SelectedNeumorphBlur}" AutomationProperties.Name="Neumorph blur" Margin="{DynamicResource MarginItem}"/>
+      <Label Content="Intensity" Foreground="{DynamicResource TextSecondary}"/><ComboBox ItemsSource="{Binding NeumorphIntensityChoices}" SelectedItem="{Binding SelectedNeumorphIntensity}" AutomationProperties.Name="Neumorph intensity" Margin="{DynamicResource MarginItem}"/>
+      <TextBlock Text="Depth is shadow distance. Blur is Gaussian radius. Intensity is light/dark opacity. Soft/Quiet stays tactile; Deep/Diffuse is plush." Style="{DynamicResource Caption}"/>
+     </StackPanel>
+    </ContentControl>
+    <ContentControl Style="{DynamicResource Card}" Margin="{DynamicResource MarginSection}">
+     <StackPanel>
+      <DockPanel Margin="{DynamicResource MarginItem}"><local:ShellMark DockPanel.Dock="Left" Title="Save and reset" Category="settings" Width="{DynamicResource ChoiceMarkSize}" Height="{DynamicResource ChoiceMarkSize}" Margin="{DynamicResource MarginInline}" VerticalAlignment="Center" Foreground="{DynamicResource TextPrimary}"/><TextBlock Text="Save and reset" Style="{DynamicResource Caption}" VerticalAlignment="Center"/></DockPanel>
+      <WrapPanel Margin="{DynamicResource MarginItem}">
+       <Button Content="Apply" Command="{Binding ApplyPreview}" Style="{DynamicResource PrimaryButton}" Margin="{DynamicResource MarginInline}" AutomationProperties.Name="Apply neumorph preview"/>
+       <Button Content="Save" Command="{Binding SaveCustomization}" Margin="{DynamicResource MarginInline}" AutomationProperties.Name="Save neumorph to disk"/>
+       <Button Content="Discard" Command="{Binding DiscardChanges}" Margin="{DynamicResource MarginInline}" AutomationProperties.Name="Discard neumorph changes"/>
+      </WrapPanel>
+      <WrapPanel Margin="{DynamicResource MarginItem}">
+       <Button Content="Preview default" Command="{Binding PreviewDefault}" Margin="{DynamicResource MarginInline}" AutomationProperties.Name="Preview neumorph default comparison"/>
+       <Button Content="Reset section" Command="{Binding ResetSection}" Margin="{DynamicResource MarginInline}" AutomationProperties.Name="Reset neumorph section"/>
+       <Button Content="Reset theme" Command="{Binding ResetTheme}" Style="{DynamicResource DestructiveButton}" Margin="{DynamicResource MarginInline}" AutomationProperties.Name="Reset neumorph to defaults"/>
+      </WrapPanel>
+      <WrapPanel Margin="{DynamicResource MarginItem}"><Button Content="Open reference" Command="{Binding ShowBusiness}" Style="{DynamicResource PrimaryButton}"/></WrapPanel>
+     </StackPanel>
+    </ContentControl>
+   </StackPanel>
+   <StackPanel Visibility="{Binding IsLiquid, Converter={StaticResource BoolVis}}">
+    <ContentControl Style="{DynamicResource Card}" Margin="{DynamicResource MarginSection}">
+     <StackPanel>
+      <TextBlock Text="Liquid Glass studio" Style="{DynamicResource Caption}"/>
+      <TextBlock Text="Liquid Glass uses shared rounding. Frost, specular and tint are owned. Not Fluent acrylic, not Clay plumpness, not Glassmorphism frost-only." Style="{DynamicResource Caption}"/>
+      <Label Content="Liquid preset" Foreground="{DynamicResource TextSecondary}"/><ComboBox ItemsSource="{Binding LiquidPresetNames}" SelectedItem="{Binding SelectedLiquidPresetName}" AutomationProperties.Name="Liquid Glass preset" Margin="{DynamicResource MarginItem}"/>
+      <TextBlock Text="Liquid built-in presets" Style="{DynamicResource Caption}"/>
+      <ListBox ItemsSource="{Binding LiquidBuiltInPresets}" DisplayMemberPath="Name" AutomationProperties.Name="Liquid Glass built-in presets" Margin="{DynamicResource MarginItem}"/>
+      <TextBlock Text="Your liquid presets" Style="{DynamicResource Caption}"/>
+      <ListBox ItemsSource="{Binding LiquidCustomPresets}" DisplayMemberPath="Name" AutomationProperties.Name="Your liquid glass presets" Margin="{DynamicResource MarginItem}"/>
+      <DockPanel Margin="{DynamicResource MarginItem}"><TextBox Width="120" Text="{Binding PresetNameInput, UpdateSourceTrigger=PropertyChanged}" AutomationProperties.Name="New liquid preset name" Margin="{DynamicResource MarginInline}"/><Button Content="Save liquid preset" Command="{Binding SavePreset}" AutomationProperties.Name="Save as liquid glass preset"/></DockPanel>
+     </StackPanel>
+    </ContentControl>
+    <ContentControl Style="{DynamicResource Card}" Margin="{DynamicResource MarginSection}">
+     <StackPanel>
+      <TextBlock Text="Glass engine" Style="{DynamicResource Caption}"/>
+      <Label Content="Frost" Foreground="{DynamicResource TextSecondary}"/><ComboBox ItemsSource="{Binding LiquidFrostChoices}" SelectedItem="{Binding SelectedLiquidFrost}" AutomationProperties.Name="Liquid frost" Margin="{DynamicResource MarginItem}"/>
+      <Label Content="Specular" Foreground="{DynamicResource TextSecondary}"/><ComboBox ItemsSource="{Binding LiquidSpecularChoices}" SelectedItem="{Binding SelectedLiquidSpecular}" AutomationProperties.Name="Liquid specular" Margin="{DynamicResource MarginItem}"/>
+      <Label Content="Tint" Foreground="{DynamicResource TextSecondary}"/><ComboBox ItemsSource="{Binding LiquidTintChoices}" SelectedItem="{Binding SelectedLiquidTint}" AutomationProperties.Name="Liquid tint" Margin="{DynamicResource MarginItem}"/>
+      <TextBlock Text="Frost is face opacity. Specular is the top highlight. Tint is cool, neutral or warm glass. Card rounding above stays shared geometry." Style="{DynamicResource Caption}"/>
+     </StackPanel>
+    </ContentControl>
+    <ContentControl Style="{DynamicResource Card}" Margin="{DynamicResource MarginSection}">
+     <StackPanel>
+      <DockPanel Margin="{DynamicResource MarginItem}"><local:ShellMark DockPanel.Dock="Left" Title="Save and reset" Category="settings" Width="{DynamicResource ChoiceMarkSize}" Height="{DynamicResource ChoiceMarkSize}" Margin="{DynamicResource MarginInline}" VerticalAlignment="Center" Foreground="{DynamicResource TextPrimary}"/><TextBlock Text="Save and reset" Style="{DynamicResource Caption}" VerticalAlignment="Center"/></DockPanel>
+      <WrapPanel Margin="{DynamicResource MarginItem}">
+       <Button Content="Apply" Command="{Binding ApplyPreview}" Style="{DynamicResource PrimaryButton}" Margin="{DynamicResource MarginInline}" AutomationProperties.Name="Apply liquid glass preview"/>
+       <Button Content="Save" Command="{Binding SaveCustomization}" Margin="{DynamicResource MarginInline}" AutomationProperties.Name="Save liquid glass to disk"/>
+       <Button Content="Discard" Command="{Binding DiscardChanges}" Margin="{DynamicResource MarginInline}" AutomationProperties.Name="Discard liquid glass changes"/>
+      </WrapPanel>
+      <WrapPanel Margin="{DynamicResource MarginItem}">
+       <Button Content="Preview default" Command="{Binding PreviewDefault}" Margin="{DynamicResource MarginInline}" AutomationProperties.Name="Preview liquid glass default comparison"/>
+       <Button Content="Reset section" Command="{Binding ResetSection}" Margin="{DynamicResource MarginInline}" AutomationProperties.Name="Reset liquid glass section"/>
+       <Button Content="Reset theme" Command="{Binding ResetTheme}" Style="{DynamicResource DestructiveButton}" Margin="{DynamicResource MarginInline}" AutomationProperties.Name="Reset liquid glass to defaults"/>
+      </WrapPanel>
+      <WrapPanel Margin="{DynamicResource MarginItem}"><Button Content="Open reference" Command="{Binding ShowBusiness}" Style="{DynamicResource PrimaryButton}"/></WrapPanel>
+     </StackPanel>
+    </ContentControl>
+   </StackPanel>
+  </StackPanel>
+ </ScrollViewer>
+</UserControl>

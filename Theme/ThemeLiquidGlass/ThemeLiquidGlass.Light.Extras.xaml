@@ -1,0 +1,73 @@
+<ResourceDictionary xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation" xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml" xmlns:sys="clr-namespace:System;assembly=mscorlib">
+  <LinearGradientBrush x:Key="LiquidFaceBrush" StartPoint="0.2,0" EndPoint="0.8,1">
+    <GradientStop Color="#29FFFFFF" Offset="0" />
+    <GradientStop Color="#1AFFFFFF" Offset="0.45" />
+    <GradientStop Color="#12FFFFFF" Offset="1" />
+  </LinearGradientBrush>
+  <LinearGradientBrush x:Key="LiquidCardFaceBrush" StartPoint="0.2,0" EndPoint="0.8,1">
+    <GradientStop Color="#29FFFFFF" Offset="0" />
+    <GradientStop Color="#1AFFFFFF" Offset="0.45" />
+    <GradientStop Color="#12FFFFFF" Offset="1" />
+  </LinearGradientBrush>
+  <LinearGradientBrush x:Key="LiquidControlFaceBrush" StartPoint="0.2,0" EndPoint="0.8,1">
+    <GradientStop Color="#1AFFFFFF" Offset="0" />
+    <GradientStop Color="#12FFFFFF" Offset="0.45" />
+    <GradientStop Color="#0AFFFFFF" Offset="1" />
+  </LinearGradientBrush>
+  <LinearGradientBrush x:Key="LiquidChipFaceBrush" StartPoint="0.2,0" EndPoint="0.8,1">
+    <GradientStop Color="#14FFFFFF" Offset="0" />
+    <GradientStop Color="#0AFFFFFF" Offset="0.45" />
+    <GradientStop Color="#08FFFFFF" Offset="1" />
+  </LinearGradientBrush>
+  <LinearGradientBrush x:Key="LiquidLensBrush" StartPoint="0.15,0" EndPoint="0.85,1">
+    <GradientStop Color="#14FFFFFF" Offset="0" />
+    <GradientStop Color="#00FFFFFF" Offset="0.4" />
+    <GradientStop Color="#100A3658" Offset="1" />
+  </LinearGradientBrush>
+  <LinearGradientBrush x:Key="LiquidSpecularSheenBrush" StartPoint="0,0" EndPoint="0,1">
+    <GradientStop Color="#D9FFFFFF" Offset="0" />
+    <GradientStop Color="#00FFFFFF" Offset="1" />
+  </LinearGradientBrush>
+  <SolidColorBrush x:Key="LiquidSpecularBrush" Color="#D9FFFFFF" />
+  <SolidColorBrush x:Key="LiquidRimBrush" Color="#40FFFFFF" />
+  <SolidColorBrush x:Key="LiquidStrokeBrush" Color="#99FFFFFF" />
+  <LinearGradientBrush x:Key="LiquidSpecularHoverBrush" StartPoint="0,0" EndPoint="0,1">
+    <GradientStop Color="#FFFFFFFF" Offset="0" />
+    <GradientStop Color="#59FFFFFF" Offset="1" />
+  </LinearGradientBrush>
+  <SolidColorBrush x:Key="LiquidShadowCasterBrush" Color="#1A0A1624" />
+  <SolidColorBrush x:Key="LiquidWellBrush" Color="#F4FAFE" />
+  <SolidColorBrush x:Key="LiquidOpaqueBrush" Color="#F4FAFE" />
+  <SolidColorBrush x:Key="LiquidTintPositive" Color="#730F6B3D" />
+  <SolidColorBrush x:Key="LiquidStrokePositive" Color="#4D0F6B3D" />
+  <SolidColorBrush x:Key="LiquidTintFeature" Color="#735A4BA8" />
+  <SolidColorBrush x:Key="LiquidStrokeFeature" Color="#4D5A4BA8" />
+  <SolidColorBrush x:Key="LiquidTintInformation" Color="#732158A8" />
+  <SolidColorBrush x:Key="LiquidStrokeInformation" Color="#4D2158A8" />
+  <SolidColorBrush x:Key="LiquidTintAttention" Color="#738A4B00" />
+  <SolidColorBrush x:Key="LiquidStrokeAttention" Color="#4D8A4B00" />
+  <SolidColorBrush x:Key="LiquidTintAccent" Color="#990A6B8A" />
+  <SolidColorBrush x:Key="LiquidStrokeAccent" Color="#B3FFFFFF" />
+  <LinearGradientBrush x:Key="LiquidTintHero" StartPoint="0.15,0" EndPoint="0.85,1">
+    <GradientStop Color="#B30A3658" Offset="0" />
+    <GradientStop Color="#99085872" Offset="0.45" />
+    <GradientStop Color="#73085872" Offset="1" />
+  </LinearGradientBrush>
+  <SolidColorBrush x:Key="LiquidStrokeHero" Color="#99FFFFFF" />
+  <Color x:Key="LiquidShadowColor">#0A3658</Color>
+  <sys:Double x:Key="LiquidFrostOpacity">0.40</sys:Double>
+  <sys:Double x:Key="LiquidLiftBlur">32</sys:Double>
+  <sys:Double x:Key="LiquidLiftDepth">8</sys:Double>
+  <sys:Double x:Key="LiquidLiftOpacity">0.12</sys:Double>
+  <sys:Double x:Key="LiquidSheenHeight">3</sys:Double>
+  <Thickness x:Key="LiquidSpecularThickness">2,2,0,0</Thickness>
+  <Thickness x:Key="LiquidRimThickness">1</Thickness>
+  <sys:Boolean x:Key="LiquidReduceTransparency">False</sys:Boolean>
+  <LinearGradientBrush x:Key="LiquidCanvasBrush" StartPoint="0.2,0" EndPoint="0.8,1">
+    <GradientStop Color="#E8F4FC" Offset="0" />
+    <GradientStop Color="#B5D8F0" Offset="0.28" />
+    <GradientStop Color="#62B4E8" Offset="0.52" />
+    <GradientStop Color="#4A9CD4" Offset="0.76" />
+    <GradientStop Color="#3A8EC8" Offset="1" />
+  </LinearGradientBrush>
+</ResourceDictionary>

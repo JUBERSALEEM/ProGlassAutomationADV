@@ -1,0 +1,59 @@
+<UserControl x:Class="ProGlassAutomation.ThemeStudio.OverviewPanel" xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation" xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml" xmlns:local="clr-namespace:ProGlassAutomation.ThemeStudio">
+ <ContentControl Style="{DynamicResource HeroCard}">
+  <ScrollViewer VerticalScrollBarVisibility="Auto" HorizontalScrollBarVisibility="Disabled" CanContentScroll="False">
+   <StackPanel>
+    <TextBlock Text="YOUR WORK, IN FOCUS">
+     <TextBlock.Style>
+      <Style TargetType="TextBlock">
+       <Setter Property="Foreground" Value="{DynamicResource HeroSecondaryText}" />
+       <Setter Property="FontSize" Value="{DynamicResource FontSizeCaption}" />
+       <Setter Property="FontFamily" Value="{DynamicResource FontFamilyBody}" />
+       <Setter Property="Margin" Value="{DynamicResource MarginItem}" />
+       <Style.Triggers>
+        <DataTrigger Binding="{Binding IsSwiss}" Value="True">
+         <Setter Property="Foreground" Value="{DynamicResource HeroAccent}" />
+         <Setter Property="FontWeight" Value="{DynamicResource FontWeightHeading}" />
+         <Setter Property="Margin" Value="{DynamicResource MarginSection}" />
+        </DataTrigger>
+        <DataTrigger Binding="{Binding IsHolographic}" Value="True">
+         <Setter Property="Foreground" Value="{DynamicResource HeroAccent}" />
+         <Setter Property="FontWeight" Value="{DynamicResource FontWeightHeading}" />
+        </DataTrigger>
+        <DataTrigger Binding="{Binding IsNeumorph}" Value="True">
+         <Setter Property="Foreground" Value="{DynamicResource HeroAccent}" />
+         <Setter Property="FontWeight" Value="{DynamicResource FontWeightHeading}" />
+         <Setter Property="Margin" Value="{DynamicResource MarginSection}" />
+        </DataTrigger>
+       </Style.Triggers>
+      </Style>
+     </TextBlock.Style>
+    </TextBlock>
+    <TextBlock Text="Good work starts with a clear view.">
+     <TextBlock.Style>
+      <Style TargetType="TextBlock">
+       <Setter Property="Foreground" Value="{DynamicResource HeroForeground}" />
+       <Setter Property="FontSize" Value="{DynamicResource FontSizeTitle}" />
+       <Setter Property="FontWeight" Value="{DynamicResource FontWeightHeading}" />
+       <Setter Property="FontFamily" Value="{DynamicResource FontFamilyBody}" />
+       <Setter Property="Margin" Value="{DynamicResource MarginItem}" />
+       <Setter Property="TextWrapping" Value="Wrap" />
+       <Style.Triggers>
+        <DataTrigger Binding="{Binding IsSwiss}" Value="True">
+         <Setter Property="FontSize" Value="{DynamicResource FontSizeDisplay}" />
+         <Setter Property="Margin" Value="{DynamicResource MarginSection}" />
+        </DataTrigger>
+        <DataTrigger Binding="{Binding IsNeumorph}" Value="True">
+         <Setter Property="FontSize" Value="{DynamicResource FontSizeDisplay}" />
+         <Setter Property="Margin" Value="{DynamicResource MarginSection}" />
+        </DataTrigger>
+       </Style.Triggers>
+      </Style>
+     </TextBlock.Style>
+    </TextBlock>
+    <TextBlock Text="Review priorities, keep the team aligned and move the next detail forward." Foreground="{DynamicResource HeroSecondaryText}" Margin="{DynamicResource MarginSection}" TextWrapping="Wrap" />
+    <Button Content="Review selected item" Command="{Binding ReviewReference}" HorizontalAlignment="Left" />
+    <TextBlock Text="October 2026 / deterministic demonstration, not live ERP data" Foreground="{DynamicResource HeroSecondaryText}" FontSize="{DynamicResource FontSizeCaption}" Margin="{DynamicResource MarginItem}" />
+   </StackPanel>
+  </ScrollViewer>
+ </ContentControl>
+</UserControl>

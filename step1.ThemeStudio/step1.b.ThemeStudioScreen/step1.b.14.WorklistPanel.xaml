@@ -1,0 +1,33 @@
+<UserControl x:Class="ProGlassAutomation.ThemeStudio.WorklistPanel"
+ xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation" xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml" xmlns:local="clr-namespace:ProGlassAutomation.ThemeStudio">
+ <ContentControl Style="{DynamicResource Card}">
+  <Grid>
+   <Grid.RowDefinitions>
+    <RowDefinition Height="Auto"/>
+    <RowDefinition Height="*"/>
+    <RowDefinition Height="Auto"/>
+   </Grid.RowDefinitions>
+   <StackPanel Margin="{DynamicResource MarginItem}">
+    <TextBlock Text="WORK QUEUE / SAMPLE DATA" Style="{DynamicResource Caption}" />
+    <DockPanel Margin="{DynamicResource MarginItem}">
+     <local:ShellMark DockPanel.Dock="Left" Title="Active work" Category="work" Width="{DynamicResource ChoiceMarkSize}" Height="{DynamicResource ChoiceMarkSize}" Margin="{DynamicResource MarginInline}" VerticalAlignment="Center" Foreground="{DynamicResource TextPrimary}"/>
+     <TextBlock Text="Active work" Style="{DynamicResource SectionHeading}" VerticalAlignment="Center"/>
+    </DockPanel>
+    <TextBox x:Name="ReferenceSearch" Text="{Binding ReferenceFilter, UpdateSourceTrigger=PropertyChanged, Delay=200}" AutomationProperties.Name="Search reference worklist" Margin="{DynamicResource MarginSection}" />
+   </StackPanel>
+   <ListBox Grid.Row="1" ItemsSource="{Binding ReferenceView}" SelectedItem="{Binding SelectedReference}" HorizontalContentAlignment="Stretch" ScrollViewer.VerticalScrollBarVisibility="Auto" AutomationProperties.Name="Reference worklist" Margin="{DynamicResource MarginItem}">
+    <ListBox.ItemTemplate><DataTemplate><Grid Margin="{DynamicResource PaddingCompact}">
+     <Grid.ColumnDefinitions><ColumnDefinition Width="3*" /><ColumnDefinition Width="2*" /><ColumnDefinition Width="2*" /></Grid.ColumnDefinitions>
+     <StackPanel Margin="{DynamicResource PaddingCompact}"><TextBlock Text="{Binding Title}" FontWeight="{DynamicResource FontWeightHeading}" TextWrapping="NoWrap" TextTrimming="CharacterEllipsis" /><TextBlock Text="{Binding Owner}" Style="{DynamicResource Caption}" TextWrapping="NoWrap" TextTrimming="CharacterEllipsis" /></StackPanel>
+     <TextBlock Grid.Column="1" Text="{Binding Updated}" Style="{DynamicResource Caption}" VerticalAlignment="Center" Margin="{DynamicResource PaddingCompact}" TextWrapping="NoWrap" TextTrimming="CharacterEllipsis" />
+     <Border Grid.Column="2" Tag="{Binding Severity}" Style="{DynamicResource StatusBadge}" VerticalAlignment="Center" HorizontalAlignment="Left" Margin="{DynamicResource PaddingCompact}"><TextBlock Text="{Binding Status}" Tag="{Binding Severity}" Style="{DynamicResource StatusText}" /></Border>
+    </Grid></DataTemplate></ListBox.ItemTemplate>
+   </ListBox>
+   <DockPanel Grid.Row="2" Margin="{DynamicResource MarginSection}">
+    <Button DockPanel.Dock="Right" Content="Review notes" Style="{DynamicResource SubtleButton}" Command="{Binding OpenDialog}" Margin="{DynamicResource MarginInline}" />
+    <Button DockPanel.Dock="Right" Content="Review selected" Command="{Binding ReviewReference}" ToolTip="Reports the selected sample; no business data is changed." Margin="{DynamicResource MarginInline}" />
+    <TextBlock Text="{Binding ReferenceSummary}" Style="{DynamicResource Caption}" VerticalAlignment="Center" TextTrimming="CharacterEllipsis" Margin="{DynamicResource PaddingCompact}" AutomationProperties.LiveSetting="Polite" />
+   </DockPanel>
+  </Grid>
+ </ContentControl>
+</UserControl>

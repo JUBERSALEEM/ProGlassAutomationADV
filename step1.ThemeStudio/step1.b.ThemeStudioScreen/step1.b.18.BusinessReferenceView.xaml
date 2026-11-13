@@ -1,0 +1,23 @@
+<UserControl x:Class="ProGlassAutomation.ThemeStudio.BusinessReferenceView" xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation" xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml" xmlns:local="clr-namespace:ProGlassAutomation.ThemeStudio" xmlns:bento="clr-namespace:ProGlassAutomation.ThemeBento">
+ <ScrollViewer VerticalScrollBarVisibility="Auto" HorizontalScrollBarVisibility="Disabled" CanContentScroll="False" PanningMode="VerticalOnly">
+  <bento:BentoGrid x:Name="BusinessModules" Columns="4" FillAvailable="False"
+                   RowHeight="{DynamicResource BentoRowHeight}" Gutter="{DynamicResource BentoGutter}" CompactWidth="{DynamicResource BentoCompactWidth}">
+   <bento:BentoGrid.Style>
+    <Style TargetType="bento:BentoGrid">
+     <Setter Property="ClipToBounds" Value="True" />
+     <Style.Triggers>
+      <DataTrigger Binding="{Binding IsSpatial}" Value="True">
+       <Setter Property="ClipToBounds" Value="False" />
+      </DataTrigger>
+     </Style.Triggers>
+    </Style>
+   </bento:BentoGrid.Style>
+   <local:OverviewPanel x:Name="Hero" bento:BentoGrid.Column="0" bento:BentoGrid.Row="0" bento:BentoGrid.ColumnSpan="2" bento:BentoGrid.RowSpan="2" />
+   <local:AppearancePanel x:Name="Health" bento:BentoGrid.Column="2" bento:BentoGrid.Row="0" bento:BentoGrid.ColumnSpan="2" bento:BentoGrid.RowSpan="2" />
+   <local:AnalyticsOverview x:Name="Analytics" bento:BentoGrid.Column="0" bento:BentoGrid.Row="2" bento:BentoGrid.ColumnSpan="4" bento:BentoGrid.RowSpan="6" />
+   <local:WorklistPanel x:Name="Work" bento:BentoGrid.Column="0" bento:BentoGrid.Row="8" bento:BentoGrid.ColumnSpan="2" bento:BentoGrid.RowSpan="3" />
+   <local:ControlsPanel x:Name="Details" bento:BentoGrid.Column="2" bento:BentoGrid.Row="8" bento:BentoGrid.ColumnSpan="2" bento:BentoGrid.RowSpan="3" />
+   <local:SurfacesPanel x:Name="Layers" bento:BentoGrid.Column="0" bento:BentoGrid.Row="11" bento:BentoGrid.ColumnSpan="4" bento:BentoGrid.RowSpan="2" />
+  </bento:BentoGrid>
+ </ScrollViewer>
+</UserControl>

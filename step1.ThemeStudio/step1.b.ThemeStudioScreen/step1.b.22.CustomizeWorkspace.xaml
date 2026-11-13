@@ -1,0 +1,172 @@
+<UserControl x:Class="ProGlassAutomation.ThemeStudio.CustomizeWorkspace" xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation" xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml" xmlns:local="clr-namespace:ProGlassAutomation.ThemeStudio">
+ <UserControl.Resources>
+  <local:BoolToVisibilityConverter2 x:Key="BoolToVisibility"/>
+  <local:CategoryVisibilityConverter x:Key="CategoryVisibilityConverter"/>
+  <local:ComponentSelectionConverter x:Key="ComponentSelectionConverter"/>
+  <BooleanToVisibilityConverter x:Key="ShowDiagnostics"/>
+ </UserControl.Resources>
+ <Grid Background="{DynamicResource ApplicationBackground}">
+  <Grid.RowDefinitions><RowDefinition Height="*"/><RowDefinition Height="Auto"/></Grid.RowDefinitions>
+  <Grid x:Name="WorkspaceGrid" Grid.Row="0" SizeChanged="WorkspaceGrid_SizeChanged">
+   <Grid.ColumnDefinitions><ColumnDefinition Width="280"/><ColumnDefinition Width="*"/><ColumnDefinition Width="320"/></Grid.ColumnDefinitions>
+   <!-- LEFT: navigation + presets -->
+   <Border Grid.Column="0" Background="{DynamicResource SurfacePrimary}" BorderBrush="{DynamicResource BorderSubtle}" BorderThickness="0,0,1,0" CornerRadius="{DynamicResource CardCornerRadius}">
+    <ScrollViewer VerticalScrollBarVisibility="Auto" Padding="{DynamicResource PaddingCard}">
+     <StackPanel>
+      <DockPanel Margin="{DynamicResource MarginSection}">
+       <Border DockPanel.Dock="Right" Style="{DynamicResource StatusBadge}" Tag="Information"><TextBlock Text="LIVE" Tag="Information" Style="{DynamicResource StatusText}"/></Border>
+       <StackPanel><TextBlock Text="Customize" FontSize="{DynamicResource FontSizeSection}" FontWeight="{DynamicResource FontWeightHeading}" Foreground="{DynamicResource TextPrimary}"/><TextBlock Text="Active Bento package" Foreground="{DynamicResource TextMuted}" FontSize="{DynamicResource FontSizeCaption}"/></StackPanel>
+      </DockPanel>
+      <TextBlock Text="Choose an area — center shows the result, right shows controls for that area." Foreground="{DynamicResource TextSecondary}" FontSize="{DynamicResource FontSizeCaption}" TextWrapping="Wrap" Margin="{DynamicResource MarginSection}"/>
+      <TextBlock Text="CATEGORY" Foreground="{DynamicResource TextMuted}" FontSize="{DynamicResource FontSizeCaption}" FontWeight="SemiBold" Margin="{DynamicResource MarginItem}"/>
+      <ComboBox x:Name="CategoryList" ItemsSource="{Binding AvailableCategories}" SelectedItem="{Binding CustomizationCategory}" AutomationProperties.Name="Customization category" Margin="{DynamicResource MarginSection}"/>
+      <Separator Margin="{DynamicResource MarginSection}"/>
+      <TextBlock Text="LAYOUT PRESETS" Foreground="{DynamicResource TextMuted}" FontSize="{DynamicResource FontSizeCaption}" FontWeight="SemiBold" Margin="{DynamicResource MarginItem}"/>
+      <TextBlock Text="One click reflows the preview — not a full theme" Foreground="{DynamicResource TextSecondary}" FontSize="{DynamicResource FontSizeCaption}" TextWrapping="Wrap" Margin="{DynamicResource MarginItem}"/>
+      <ListBox ItemsSource="{Binding BuiltInPresets}" DisplayMemberPath="Name" AutomationProperties.Name="Built-in layout presets" MaxHeight="160" BorderThickness="1" BorderBrush="{DynamicResource BorderSubtle}" Background="{DynamicResource SurfaceSecondary}">
+       <ListBox.ItemContainerStyle><Style TargetType="ListBoxItem"><Setter Property="Padding" Value="8,6"/><Setter Property="Background" Value="Transparent"/><Style.Triggers><Trigger Property="IsSelected" Value="True"><Setter Property="Background" Value="{DynamicResource StateSelected}"/><Setter Property="Foreground" Value="{DynamicResource AccentPrimary}"/></Trigger></Style.Triggers></Style></ListBox.ItemContainerStyle>
+      </ListBox>
+      <TextBlock Text="YOUR PRESETS" Foreground="{DynamicResource TextMuted}" FontSize="{DynamicResource FontSizeCaption}" FontWeight="SemiBold" Margin="{DynamicResource MarginSection}"/>
+      <ListBox ItemsSource="{Binding CustomPresets}" DisplayMemberPath="Name" AutomationProperties.Name="Your custom presets" MinHeight="72" MaxHeight="120" BorderThickness="1" BorderBrush="{DynamicResource BorderSubtle}" Background="{DynamicResource SurfaceSecondary}">
+       <ListBox.ItemContainerStyle><Style TargetType="ListBoxItem"><Setter Property="Padding" Value="8,6"/><Style.Triggers><Trigger Property="IsSelected" Value="True"><Setter Property="Background" Value="{DynamicResource StateSelected}"/></Trigger></Style.Triggers></Style></ListBox.ItemContainerStyle>
+      </ListBox>
+      <DockPanel Margin="{DynamicResource MarginItem}">
+       <Button DockPanel.Dock="Right" Content="Save" Command="{Binding SavePreset}" Style="{DynamicResource PrimaryButton}" Padding="{DynamicResource PaddingCompact}" AutomationProperties.Name="Save current as preset"/>
+       <TextBox x:Name="PresetNameBox" Text="{Binding PresetNameInput, UpdateSourceTrigger=PropertyChanged}" AutomationProperties.Name="New preset name" Margin="{DynamicResource MarginInline}"/>
+      </DockPanel>
+      <TextBlock Text="{Binding ThemeError}" Foreground="{DynamicResource StatusError}" FontSize="{DynamicResource FontSizeCaption}" TextWrapping="Wrap" Margin="{DynamicResource MarginItem}"/>
+     </StackPanel>
+    </ScrollViewer>
+   </Border>
+   <!-- CENTER: live preview — clear professional card on canvas -->
+   <Border Grid.Column="1" Background="{DynamicResource ApplicationBackground}" Padding="{DynamicResource PaddingCard}">
+    <Border Background="{DynamicResource SurfacePrimary}" CornerRadius="{DynamicResource CardCornerRadius}" BorderBrush="{DynamicResource BorderSubtle}" BorderThickness="{DynamicResource BorderThicknessControl}" Padding="{DynamicResource PaddingCard}">
+     <ScrollViewer VerticalScrollBarVisibility="Auto">
+      <StackPanel x:Name="PreviewStack">
+       <DockPanel Margin="{DynamicResource MarginSection}">
+        <Border DockPanel.Dock="Right" Background="{DynamicResource StatusSuccessSurface}" CornerRadius="{DynamicResource ChipCornerRadius}" Padding="{DynamicResource PaddingCompact}"><TextBlock Text="● LIVE PREVIEW" Foreground="{DynamicResource StatusSuccess}" FontSize="{DynamicResource FontSizeCaption}" FontWeight="SemiBold"/></Border>
+        <TextBlock Text="{Binding ContextualTitle}" Foreground="{DynamicResource TextSecondary}" FontSize="{DynamicResource FontSizeCaption}" VerticalAlignment="Center"/>
+       </DockPanel>
+       <Grid Margin="{DynamicResource MarginSection}">
+        <Grid.ColumnDefinitions><ColumnDefinition Width="*"/><ColumnDefinition Width="*"/></Grid.ColumnDefinitions>
+        <ContentControl Style="{DynamicResource PositivePlate}" Margin="{DynamicResource MarginInline}" Tag="KpiRevenue" MouseDown="PreviewCard_MouseDown" Cursor="Hand">
+         <Grid>
+          <Border Height="3" Background="{DynamicResource AccentPrimary}" VerticalAlignment="Top" CornerRadius="{DynamicResource ChipCornerRadius}" Visibility="{Binding SelectedComponentId, Converter={StaticResource ComponentSelectionConverter}, ConverterParameter=KpiRevenue}"/>
+          <StackPanel Margin="{DynamicResource MarginItem}">
+          <TextBlock Text="Revenue" Foreground="{DynamicResource TextMuted}" FontSize="{DynamicResource FontSizeCaption}" FontWeight="SemiBold"/>
+          <TextBlock Text="AED 284k" FontSize="{DynamicResource FontSizeTitle}" FontWeight="{DynamicResource FontWeightHeading}" Foreground="{DynamicResource TextPrimary}"/>
+          <TextBlock x:Name="TrendText" Text="↑ 6.4% trend visible" Foreground="{DynamicResource StatusSuccess}" FontSize="{DynamicResource FontSizeCaption}" Visibility="{Binding ShowKpiTrend, Converter={StaticResource BoolToVisibility}}"/>
+          </StackPanel>
+         </Grid>
+        </ContentControl>
+        <ContentControl Grid.Column="1" Style="{DynamicResource FeaturePlate}" Margin="{DynamicResource MarginInline}" Tag="KpiOrders" MouseDown="PreviewCard_MouseDown" Cursor="Hand">
+         <Grid>
+          <Border Height="3" Background="{DynamicResource AccentPrimary}" VerticalAlignment="Top" CornerRadius="{DynamicResource ChipCornerRadius}" Visibility="{Binding SelectedComponentId, Converter={StaticResource ComponentSelectionConverter}, ConverterParameter=KpiOrders}"/>
+          <StackPanel Margin="{DynamicResource MarginItem}">
+          <TextBlock Text="Orders" Foreground="{DynamicResource TextMuted}" FontSize="{DynamicResource FontSizeCaption}" FontWeight="SemiBold"/>
+          <TextBlock Text="128" FontSize="{DynamicResource FontSizeTitle}" FontWeight="{DynamicResource FontWeightHeading}" Foreground="{DynamicResource TextPrimary}"/>
+          <TextBlock Text="120 completed · Demo snapshot" Foreground="{DynamicResource TextSecondary}" FontSize="{DynamicResource FontSizeCaption}"/>
+          </StackPanel>
+         </Grid>
+        </ContentControl>
+       </Grid>
+       <ContentControl x:Name="HeroPreview" Style="{DynamicResource HeroCard}" Margin="{DynamicResource MarginSection}" Tag="Hero" MouseDown="PreviewCard_MouseDown" Cursor="Hand">
+        <Grid>
+         <Border Height="3" Background="{DynamicResource AccentPrimary}" VerticalAlignment="Top" CornerRadius="{DynamicResource ChipCornerRadius}" Visibility="{Binding SelectedComponentId, Converter={StaticResource ComponentSelectionConverter}, ConverterParameter=Hero}"/>
+         <Grid Margin="{DynamicResource MarginItem}">
+         <Grid.ColumnDefinitions><ColumnDefinition Width="*"/><ColumnDefinition Width="Auto"/></Grid.ColumnDefinitions>
+         <StackPanel>
+          <TextBlock Text="Hero workspace" Foreground="{DynamicResource HeroForeground}" FontWeight="{DynamicResource FontWeightHeading}" />
+          <TextBlock Text="Featured module — span and compact live in Layout" Foreground="{DynamicResource HeroSecondaryText}" FontSize="{DynamicResource FontSizeCaption}" TextWrapping="Wrap"/>
+         </StackPanel>
+         <Border Grid.Column="1" Background="{DynamicResource TransparentBrush}" BorderBrush="{DynamicResource HeroAccent}" BorderThickness="1" CornerRadius="{DynamicResource CardCornerRadius}" Padding="{DynamicResource PaddingCompact}" VerticalAlignment="Center" Margin="{DynamicResource MarginInline}"><TextBlock Text="Bento Light · Ocean" Foreground="{DynamicResource HeroAccent}" FontSize="{DynamicResource FontSizeCaption}" FontWeight="SemiBold"/></Border>
+         </Grid>
+        </Grid>
+       </ContentControl>
+       <local:AnalyticsOverview x:Name="LiveOverview"/>
+      </StackPanel>
+     </ScrollViewer>
+    </Border>
+   </Border>
+   <!-- RIGHT: contextual controls -->
+   <Border Grid.Column="2" Background="{DynamicResource SurfacePrimary}" BorderBrush="{DynamicResource BorderSubtle}" BorderThickness="1,0,0,0">
+    <ScrollViewer VerticalScrollBarVisibility="Auto" Padding="{DynamicResource PaddingCard}">
+     <StackPanel>
+      <TextBlock Text="CONTEXTUAL" Foreground="{DynamicResource TextMuted}" FontSize="{DynamicResource FontSizeCaption}" FontWeight="SemiBold"/>
+      <TextBlock Text="{Binding ContextualTitle}" FontSize="{DynamicResource FontSizeSection}" FontWeight="{DynamicResource FontWeightHeading}" Foreground="{DynamicResource TextPrimary}" TextWrapping="Wrap" Margin="{DynamicResource MarginItem}"/>
+      <TextBlock Text="Only the controls for the selected category are shown." Foreground="{DynamicResource TextSecondary}" FontSize="{DynamicResource FontSizeCaption}" TextWrapping="Wrap" Margin="{DynamicResource MarginSection}"/>
+      <!-- Appearance -->
+      <StackPanel Visibility="{Binding CustomizationCategory, Converter={StaticResource CategoryVisibilityConverter}, ConverterParameter=Appearance}">
+       <TextBlock Text="Surface &amp; canvas" Foreground="{DynamicResource TextMuted}" FontSize="{DynamicResource FontSizeCaption}" FontWeight="SemiBold" Margin="{DynamicResource MarginItem}"/>
+       <Label Content="Canvas tint" Foreground="{DynamicResource TextSecondary}"/><ComboBox x:Name="CanvasPicker" ItemsSource="{Binding CanvasChoices}" SelectedItem="{Binding SelectedCanvas}" AutomationProperties.Name="Canvas tint" Margin="{DynamicResource MarginSection}"/>
+       <Label Content="Surface style" Foreground="{DynamicResource TextSecondary}"/><ComboBox ItemsSource="{Binding SurfaceChoices}" SelectedItem="{Binding SelectedSurface}" AutomationProperties.Name="Surface style" Margin="{DynamicResource MarginSection}"/>
+       <Label Content="Brand accent" Foreground="{DynamicResource TextSecondary}"/><ComboBox ItemsSource="{Binding AccentChoices}" SelectedItem="{Binding SelectedAccent}" AutomationProperties.Name="Accent choice" Margin="{DynamicResource MarginSection}"/>
+       <TextBlock Text="Legibility &amp; edge" Foreground="{DynamicResource TextMuted}" FontSize="{DynamicResource FontSizeCaption}" FontWeight="SemiBold" Margin="{DynamicResource MarginItem}"/>
+       <Label Content="Text contrast" Foreground="{DynamicResource TextSecondary}"/><ComboBox ItemsSource="{Binding TextContrastChoices}" SelectedItem="{Binding SelectedTextContrast}" AutomationProperties.Name="Text contrast" Margin="{DynamicResource MarginSection}"/>
+       <Label Content="Border intensity" Foreground="{DynamicResource TextSecondary}"/><ComboBox ItemsSource="{Binding BorderChoices}" SelectedItem="{Binding SelectedBorder}" AutomationProperties.Name="Border intensity" Margin="{DynamicResource MarginSection}"/>
+       <Label Content="Shadow intensity" Foreground="{DynamicResource TextSecondary}"/><ComboBox ItemsSource="{Binding ShadowChoices}" SelectedItem="{Binding SelectedShadow}" AutomationProperties.Name="Shadow intensity" Margin="{DynamicResource MarginSection}"/>
+       <TextBlock Text="Typography &amp; shape" Foreground="{DynamicResource TextMuted}" FontSize="{DynamicResource FontSizeCaption}" FontWeight="SemiBold" Margin="{DynamicResource MarginItem}"/>
+       <Label Content="Typography size" Foreground="{DynamicResource TextSecondary}"/><ComboBox ItemsSource="{Binding TypeChoices}" SelectedItem="{Binding SelectedTypography}" AutomationProperties.Name="Typography size" Margin="{DynamicResource MarginSection}"/>
+       <Label Content="Font weight" Foreground="{DynamicResource TextSecondary}"/><ComboBox ItemsSource="{Binding WeightChoices}" SelectedItem="{Binding SelectedWeight}" AutomationProperties.Name="Font weight" Margin="{DynamicResource MarginSection}"/>
+       <Label Content="Corner treatment" Foreground="{DynamicResource TextSecondary}"/><ComboBox ItemsSource="{Binding ShapeChoices}" SelectedItem="{Binding SelectedShape}" AutomationProperties.Name="Corner treatment" Margin="{DynamicResource MarginSection}"/>
+       <Label Content="Spacing scale" Foreground="{DynamicResource TextSecondary}"/><ComboBox ItemsSource="{Binding SpacingChoices}" SelectedItem="{Binding SelectedSpacing}" AutomationProperties.Name="Spacing density" Margin="{DynamicResource MarginSection}"/>
+       <Label Content="Card padding" Foreground="{DynamicResource TextSecondary}"/><ComboBox ItemsSource="{Binding PaddingChoices}" SelectedItem="{Binding SelectedPadding}" AutomationProperties.Name="Card padding" Margin="{DynamicResource MarginSection}"/>
+       <Label Content="Control density" Foreground="{DynamicResource TextSecondary}"/><ComboBox ItemsSource="{Binding DensityChoices}" SelectedItem="{Binding SelectedDensity}" AutomationProperties.Name="Overall density"/>
+      </StackPanel>
+      <!-- Layout -->
+      <StackPanel Visibility="{Binding CustomizationCategory, Converter={StaticResource CategoryVisibilityConverter}, ConverterParameter=Layout}">
+       <TextBlock Text="Arrangement" Foreground="{DynamicResource TextMuted}" FontSize="{DynamicResource FontSizeCaption}" FontWeight="SemiBold" Margin="{DynamicResource MarginItem}"/>
+       <Label Content="Layout preset" Foreground="{DynamicResource TextSecondary}"/><ComboBox ItemsSource="{Binding LayoutPresetChoices}" SelectedItem="{Binding SelectedLayoutPreset}" AutomationProperties.Name="Layout preset" Margin="{DynamicResource MarginSection}"/>
+       <CheckBox Content="Compact hero" IsChecked="{Binding HeroCompact}" AutomationProperties.Name="Compact hero toggle" Margin="{DynamicResource MarginSection}"/>
+       <CheckBox Content="Show KPI trend" IsChecked="{Binding ShowKpiTrend}" AutomationProperties.Name="Show KPI trend" Margin="{DynamicResource MarginSection}"/>
+       <Label Content="Grid gaps" Foreground="{DynamicResource TextSecondary}"/><ComboBox ItemsSource="{Binding SpacingChoices}" SelectedItem="{Binding SelectedSpacing}" AutomationProperties.Name="Grid gaps" Margin="{DynamicResource MarginSection}"/>
+       <Label Content="Card padding (layout)" Foreground="{DynamicResource TextSecondary}"/><ComboBox ItemsSource="{Binding PaddingChoices}" SelectedItem="{Binding SelectedPadding}" AutomationProperties.Name="Card padding layout" Margin="{DynamicResource MarginSection}"/>
+       <Label Content="Card corner radius" Foreground="{DynamicResource TextSecondary}"/><ComboBox ItemsSource="{Binding ShapeChoices}" SelectedItem="{Binding SelectedShape}" AutomationProperties.Name="Card corner radius layout" Margin="{DynamicResource MarginSection}"/>
+       <Border Background="{DynamicResource SurfaceSecondary}" CornerRadius="{DynamicResource ControlCornerRadius}" Padding="{DynamicResource PaddingPlate}" BorderBrush="{DynamicResource BorderSubtle}" BorderThickness="1">
+        <TextBlock Text="Presets move, resize and hide cards: Executive elevates hero + 2-column KPIs, Analytics Focus hides activity, Compact Data Dense collapses hero and stacks charts." Foreground="{DynamicResource TextSecondary}" FontSize="{DynamicResource FontSizeCaption}" TextWrapping="Wrap"/>
+       </Border>
+       <Button Content="Reset layout to defaults" Command="{Binding ResetSection}" AutomationProperties.Name="Reset current section" Margin="{DynamicResource MarginSection}"/>
+      </StackPanel>
+      <!-- Components -->
+      <StackPanel Visibility="{Binding CustomizationCategory, Converter={StaticResource CategoryVisibilityConverter}, ConverterParameter=Components}">
+       <TextBlock Text="Select a card in the center to edit — live preview updates." Foreground="{DynamicResource TextSecondary}" FontSize="{DynamicResource FontSizeCaption}" TextWrapping="Wrap" Margin="{DynamicResource MarginSection}"/>
+       <Label Content="Component plate" Foreground="{DynamicResource TextSecondary}"/><ComboBox ItemsSource="{Binding CanvasChoices}" SelectedItem="{Binding SelectedCanvas}" AutomationProperties.Name="Component plate (uses appearance plates)" Margin="{DynamicResource MarginSection}"/>
+       <CheckBox Content="Compact presentation" IsChecked="{Binding HeroCompact}" AutomationProperties.Name="Compact presentation"/>
+      </StackPanel>
+      <!-- Charts -->
+      <StackPanel Visibility="{Binding CustomizationCategory, Converter={StaticResource CategoryVisibilityConverter}, ConverterParameter=Charts}">
+       <local:ChartLab x:Name="ChartLabPanel" DataContext="{Binding ChartEditor}"/>
+      </StackPanel>
+      <Separator Margin="{DynamicResource MarginSection}"/>
+      <TextBlock Text="ACTIONS" Foreground="{DynamicResource TextMuted}" FontSize="{DynamicResource FontSizeCaption}" FontWeight="SemiBold" Margin="{DynamicResource MarginSection}"/>
+      <WrapPanel>
+       <Button Content="Apply" Command="{Binding ApplyPreview}" Style="{DynamicResource PrimaryButton}" Margin="{DynamicResource MarginItem}" Padding="{DynamicResource PaddingControl}" AutomationProperties.Name="Apply to theme"/>
+       <Button Content="Save" Command="{Binding SaveCustomization}" Margin="{DynamicResource MarginItem}" Padding="{DynamicResource PaddingControl}" AutomationProperties.Name="Save to disk"/>
+       <Button Content="Discard" Command="{Binding DiscardChanges}" Margin="{DynamicResource MarginItem}" Padding="{DynamicResource PaddingControl}" AutomationProperties.Name="Discard unsaved changes"/>
+       <Button Content="Import JSON" Command="{Binding ImportCustomization}" Margin="{DynamicResource MarginItem}" Padding="{DynamicResource PaddingControl}" AutomationProperties.Name="Import customization JSON"/>
+       <Button Content="Export JSON" Command="{Binding ExportCustomization}" Margin="{DynamicResource MarginItem}" Padding="{DynamicResource PaddingControl}" AutomationProperties.Name="Export customization JSON"/>
+       <Button Content="Preview default" Command="{Binding PreviewDefault}" Margin="{DynamicResource MarginItem}" Padding="{DynamicResource PaddingControl}" AutomationProperties.Name="Toggle preview default"/>
+       <Button Content="Reset section" Command="{Binding ResetSection}" Margin="{DynamicResource MarginItem}" Padding="{DynamicResource PaddingControl}" AutomationProperties.Name="Reset current section"/>
+       <Button Content="Reset theme" Command="{Binding ResetTheme}" Style="{DynamicResource DestructiveButton}" Margin="{DynamicResource MarginItem}" Padding="{DynamicResource PaddingControl}" AutomationProperties.Name="Reset theme to defaults"/>
+      </WrapPanel>
+      <Border Background="{DynamicResource SurfaceSecondary}" CornerRadius="{DynamicResource ControlCornerRadius}" Padding="{DynamicResource PaddingPlate}" BorderThickness="1" BorderBrush="{DynamicResource BorderSubtle}" Margin="{DynamicResource MarginItem}">
+       <TextBlock Text="Save persists versioned JSON to LocalAppData — built-ins are never overwritten. Corrupt files fall back to defaults." Foreground="{DynamicResource TextSecondary}" FontSize="{DynamicResource FontSizeCaption}" TextWrapping="Wrap"/>
+      </Border>
+      <TextBlock Text="{Binding ThemeError}" Foreground="{DynamicResource StatusError}" FontSize="{DynamicResource FontSizeCaption}" TextWrapping="Wrap" Margin="{DynamicResource MarginItem}"/>
+     </StackPanel>
+    </ScrollViewer>
+   </Border>
+  </Grid>
+  <!-- Footer status bar — full width, no blank space -->
+  <Border Grid.Row="1" Background="{DynamicResource SurfacePrimary}" BorderBrush="{DynamicResource BorderSubtle}" BorderThickness="0,1,0,0" Padding="{DynamicResource PaddingCard}">
+   <DockPanel>
+    <Border DockPanel.Dock="Right" Style="{DynamicResource StatusBadge}" Tag="Information" Visibility="{Binding IsDirty, Converter={StaticResource BoolToVisibility}}"><TextBlock Text="● Unsaved changes" Tag="Information" Style="{DynamicResource StatusText}"/></Border>
+    <StackPanel Orientation="Horizontal">
+     <TextBlock Text="{Binding DesignSummary}" FontWeight="SemiBold" Foreground="{DynamicResource TextPrimary}" VerticalAlignment="Center"/>
+     <TextBlock Text=" · " Foreground="{DynamicResource TextMuted}" VerticalAlignment="Center"/>
+     <TextBlock Text="{Binding AppearanceLabel}" Foreground="{DynamicResource TextSecondary}" FontSize="{DynamicResource FontSizeCaption}" VerticalAlignment="Center"/>
+    </StackPanel>
+   </DockPanel>
+  </Border>
+ </Grid>
+</UserControl>

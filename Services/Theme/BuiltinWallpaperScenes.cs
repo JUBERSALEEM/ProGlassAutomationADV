@@ -44,6 +44,7 @@ namespace ProGlassAutomation.Services.Theme
         public static readonly (string Key, string Label)[] All =
         {
             (VisualThemeEngine.BentoGrid, "Modular Bento"),
+            (VisualThemeEngine.Fluent, "Fluent Acrylic"),
             (VisualThemeEngine.SpatialImmersive, "Spatial Atmosphere"),
             (VisualThemeEngine.SwissInternational, "Swiss Editorial"),
             (VisualThemeEngine.HolographicIridescent, "Iridescent Spectrum"),
@@ -80,6 +81,10 @@ namespace ProGlassAutomation.Services.Theme
                     return Diagonal((Parse(dark ? "#190F2B" : "#F6F0FF"), 0.0),
                         (Parse(dark ? "#33204F" : "#E6D8FF"), 0.55),
                         (Parse(dark ? "#10243A" : "#D5F2FF"), 1.0));
+                if (f == VisualThemeEngine.Fluent)
+                    return Diagonal((Parse(dark ? "#1C1C1C" : "#F3F5F7"), 0.0),
+                        (Parse(dark ? "#2C2C2C" : "#E7EDF3"), 0.55),
+                        (Parse(dark ? "#232323" : "#FFFFFF"), 1.0));
                 if (f == VisualThemeEngine.BentoGrid)
                     return Diagonal((Parse(dark ? "#0C1222" : "#F5F7FC"), 0.0),
                         (Parse(dark ? "#182746" : "#E5EBF7"), 0.52),

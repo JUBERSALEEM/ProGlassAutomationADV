@@ -59,9 +59,10 @@ namespace ProGlassAutomation.Services.Theme
         /// (ModePairFor → false). See Themes/CrystalFluid/.</summary>
         public const string CrystalFluid = "Crystal Fluid";
 
-        // Approved eight-theme material system. These persisted identities
+        // Imported nine-theme material system. These persisted identities
         // are intentionally independent of the legacy painter implementation.
         public const string BentoGrid = "Bento Grid";
+        public const string Fluent = "Fluent / Acrylic";
         public const string SpatialImmersive = "Spatial / Immersive";
         public const string SwissInternational = "Swiss International";
         public const string HolographicIridescent = "Holographic / Iridescent";
@@ -450,7 +451,7 @@ namespace ProGlassAutomation.Services.Theme
 
                     // Only Liquid Glass uses the legacy crystal-water painter.
                     // All other approved families start from the neutral industrial
-                    // resource seed and then receive their own eight-theme material
+                    // resource seed and then receive their own nine-theme material
                     // overlay below; this prevents old Monet/Crystal treatments from
                     // leaking into Clay, Spatial, Holographic, or Glassmorphism.
                     case CrystalFluid:
@@ -459,6 +460,7 @@ namespace ProGlassAutomation.Services.Theme
                         break;
 
                     case BentoGrid:
+                    case Fluent:
                     case SpatialImmersive:
                     case SwissInternational:
                     case HolographicIridescent:

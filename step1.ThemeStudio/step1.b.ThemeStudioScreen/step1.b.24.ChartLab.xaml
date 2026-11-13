@@ -1,0 +1,26 @@
+<UserControl x:Class="ProGlassAutomation.ThemeStudio.ChartLab" xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation" xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml" xmlns:analytics="clr-namespace:ProGlassAutomation.Analytics" xmlns:local="clr-namespace:ProGlassAutomation.ThemeStudio">
+ <StackPanel>
+  <DockPanel Margin="{DynamicResource MarginItem}">
+   <local:ShellMark DockPanel.Dock="Left" Title="Chart configuration" Category="chart" Width="{DynamicResource ChoiceMarkSize}" Height="{DynamicResource ChoiceMarkSize}" Margin="{DynamicResource MarginInline}" VerticalAlignment="Center" Foreground="{DynamicResource TextPrimary}"/>
+   <TextBlock Text="Chart configuration" Style="{DynamicResource SectionHeading}" VerticalAlignment="Center"/>
+  </DockPanel>
+  <Label Content="Chart type (switches real implementation)" Target="{Binding ElementName=KindPicker}" Foreground="{DynamicResource TextSecondary}"/>
+  <ComboBox x:Name="KindPicker" ItemsSource="{Binding KindChoices}" SelectedItem="{Binding SelectedKind}" AutomationProperties.Name="Chart type selector"/>
+  <Label Content="Chart title" Foreground="{DynamicResource TextSecondary}"/><TextBox Text="{Binding ChartTitle, UpdateSourceTrigger=PropertyChanged}" AutomationProperties.Name="Chart title"/>
+  <Label Content="Chart height" Foreground="{DynamicResource TextSecondary}"/><Slider Minimum="120" Maximum="360" Value="{Binding ChartHeight}" AutomationProperties.Name="Chart height" TickFrequency="10" IsSnapToTickEnabled="True"/>
+  <TextBlock Text="{Binding ChartHeight, StringFormat='Height: {0:F0} DIPs'}" Style="{DynamicResource Caption}"/>
+  <Label Content="Legend placement" Foreground="{DynamicResource TextSecondary}"/><ComboBox ItemsSource="{Binding LegendChoices}" SelectedItem="{Binding LegendPosition}" AutomationProperties.Name="Legend placement"/>
+  <CheckBox Content="Show gridlines" IsChecked="{Binding ShowGrid}" AutomationProperties.Name="Show gridlines"/>
+  <CheckBox Content="Show axes" IsChecked="{Binding ShowAxis}" AutomationProperties.Name="Show axes"/>
+  <CheckBox Content="Show value labels" IsChecked="{Binding ShowValueLabels}" AutomationProperties.Name="Show value labels"/>
+  <CheckBox Content="Show tooltip" IsChecked="{Binding ShowTooltip}" AutomationProperties.Name="Show tooltip"/>
+  <TextBlock Text="Bar corner radius — disabled for non-bar charts" Style="{DynamicResource Caption}" Margin="{DynamicResource MarginItem}"/>
+  <Slider Minimum="0" Maximum="12" Value="{Binding Options.BarCorner}" IsEnabled="{Binding IsBar}" AutomationProperties.Name="Bar corner radius"/>
+  <TextBlock Text="Donut hole size — disabled unless donut/pie" Style="{DynamicResource Caption}"/>
+  <Slider Minimum="30" Maximum="80" Value="{Binding Options.DonutHole}" IsEnabled="{Binding IsDonut}" AutomationProperties.Name="Donut hole size"/>
+  <TextBlock Text="Sample dataset — changes plotted values without mutating business calculations" Style="{DynamicResource Caption}" Margin="{DynamicResource MarginItem}"/>
+  <ComboBox ItemsSource="{Binding AvailableDatasets}" DisplayMemberPath="Title" SelectedItem="{Binding SelectedDataset}" AutomationProperties.Name="Sample dataset" Margin="{DynamicResource MarginItem}"/>
+  <ContentControl Style="{DynamicResource ChartCard}" Margin="{DynamicResource MarginItem}"><analytics:BentoChart Data="{Binding PreviewDataset}" PlotHeight="{Binding ChartHeight}"/></ContentControl>
+  <TextBlock Text="All settings affect displayed charts only. Source data objects are immutable snapshots." Style="{DynamicResource Caption}"/>
+ </StackPanel>
+</UserControl>
