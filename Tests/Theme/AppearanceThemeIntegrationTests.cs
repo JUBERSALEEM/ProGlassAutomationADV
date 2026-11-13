@@ -1,4 +1,6 @@
+using System.Windows;
 using System.Windows.Media;
+using System.Reflection;
 using System;
 using System.IO;
 using System.Xml;
@@ -239,6 +241,45 @@ namespace ProGlassAutomation.Tests.Theme
             Assert.Contains("ThemeModeChipBackgroundKey", settingsHeader, StringComparison.Ordinal);
             Assert.Contains("ThemeModeChipForegroundKey", settingsHeader, StringComparison.Ordinal);
             Assert.Contains("Converter={StaticResource BrushKeyConverter}", settingsHeader, StringComparison.Ordinal);
+        }
+
+        [Fact]
+        public void Family_material_publisher_populates_live_appearance_and_erp_tokens()
+        {
+            var publisher = typeof(ProGlassAutomation.Services.Theme.VisualThemeEngine)
+                .GetMethod("ApplyEightThemeMaterial",
+                    BindingFlags.NonPublic | BindingFlags.Static);
+            Assert.NotNull(publisher);
+
+            foreach (var family in new[]
+            {
+                "BentoGrid", "SpatialImmersive", "SwissInternational",
+                "HolographicIridescent", "Neumorphism", "Claymorphism",
+                "LiquidGlass", "Glassmorphism", "FluentAcrylic"
+            })
+            {
+                var resources = new ResourceDictionary();
+                publisher!.Invoke(null, new object[] { resources, family });
+
+                Assert.Equal(family, resources["ThemeFamilyId"]);
+                foreach (var key in new[]
+                {
+                    "SettingsCardFaceBrush", "SettingsCardEdgeBrush",
+                    "SettingsInnerFaceBrush", "SettingsInnerEdgeBrush",
+                    "ThemeCardFaceBrush", "ThemeCardEdgeBrush",
+                    "ThemeControlFaceBrush", "ThemeControlEdgeBrush",
+                    "ThemeNavigationSelectedBrush", "ThemeNavigationHoverBrush",
+                    "ThemeTableSurfaceBrush", "ThemeTableHeaderBrush",
+                    "ThemeTableSelectionBrush", "ThemeTableBorderBrush",
+                    "ThemeModeChipBackgroundBrush", "ThemeModeChipForegroundBrush"
+                })
+                    Assert.IsAssignableFrom<Brush>(resources[key]);
+
+                Assert.IsAssignableFrom<CornerRadius>(resources["CardCornerRadius"]);
+                Assert.IsAssignableFrom<Thickness>(resources["CardEdgeThickness"]);
+                Assert.IsAssignableFrom<System.Windows.Media.Effects.DropShadowEffect>(
+                    resources["SettingsCardShadow"]);
+            }
         }
 
         [Fact]
