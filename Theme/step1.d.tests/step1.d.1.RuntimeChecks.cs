@@ -30,6 +30,12 @@ internal static class RuntimeChecks
                 ["FontFamily.App"] = new FontFamily("Arial"),
                 ["Density.ControlHeight"] = 23d,
                 ["Radius.Control"] = new CornerRadius(2),
+                ["PgPageBrush"] = Brushes.Black,
+                ["PgSurfaceBrush"] = Brushes.Black,
+                ["PgAccentBrush"] = Brushes.Black,
+                ["PgText1Brush"] = Brushes.Black,
+                ["PgCardRadius"] = new CornerRadius(2),
+                ["PgFontBody"] = 10d,
                 ["PrimaryButtonStyle"] = new Style(typeof(Button)),
                 ["Button.Primary"] = new Style(typeof(Button))
             };
@@ -53,6 +59,18 @@ internal static class RuntimeChecks
                 "font family maps into real host resource graph");
             Check(app.TryFindResource("Density.ControlHeight") is double publishedHeight && publishedHeight > 0,
                 "control geometry maps into real host resource graph");
+            Check(app.TryFindResource("PgAccentBrush") is SolidColorBrush shellAccent &&
+                  shellAccent.Color == ((SolidColorBrush)ImportedThemeRuntime.Engine.GetToken("AccentPrimary")).Color,
+                "imported accent reaches the visible Meridian shell palette");
+            Check(app.TryFindResource("PgSurfaceBrush") is Brush shellSurface &&
+                  shellSurface == ImportedThemeRuntime.Engine.GetToken("SurfacePrimary"),
+                "imported surface reaches the visible Meridian shell palette");
+            Check(app.TryFindResource("PgCardRadius") is CornerRadius shellRadius &&
+                  shellRadius == (CornerRadius)ImportedThemeRuntime.Engine.GetToken("CardCornerRadius"),
+                "imported geometry reaches live Meridian card styles");
+            Check(app.TryFindResource("PgFontBody") is double shellFont &&
+                  shellFont == (double)ImportedThemeRuntime.Engine.GetToken("FontSizeBody"),
+                "imported typography reaches live Meridian typography styles");
             Check(app.TryFindResource("PrimaryButtonStyle") is Style primaryStyle &&
                   ReferenceEquals(primaryStyle, ImportedThemeRuntime.Engine.GetResource("PrimaryButton")),
                 "host primary-button style resolves to the active imported family style");
@@ -74,6 +92,12 @@ internal static class RuntimeChecks
                 Check(ImportedThemeRuntime.Engine.ActiveAppearance == (dark ? Appearance.Dark : Appearance.Light), family + " mode active");
                 Check(ReferenceEquals(app.TryFindResource("PrimaryButtonStyle"),
                     ImportedThemeRuntime.Engine.GetResource("PrimaryButton")), family + " explicit button style active");
+                Check(app.TryFindResource("PgAccentBrush") is Brush activeShellAccent &&
+                      activeShellAccent == ImportedThemeRuntime.Engine.GetToken("AccentPrimary"),
+                    family + " palette reaches the visible shell");
+                Check(app.TryFindResource("PgCardRadius") is CornerRadius activeShellRadius &&
+                      activeShellRadius == (CornerRadius)ImportedThemeRuntime.Engine.GetToken("CardCornerRadius"),
+                    family + " geometry reaches visible cards");
                 ResourceValidation.Validate(ImportedThemeRuntime.Engine.Load(
                     dark ? Appearance.Dark : Appearance.Light, expected), family + " / " + (dark ? "Dark" : "Light"));
                 Check(app.Resources.MergedDictionaries.Count == slotCount, "theme switch keeps a single package slot");
@@ -87,6 +111,9 @@ internal static class RuntimeChecks
             Check(app.TryFindResource("AccentBrush") is SolidColorBrush platedAccent &&
                   platedAccent.Color == Color.FromRgb(0x1F, 0x6B, 0x4A),
                 "custom color plate role reaches the ERP host resource graph");
+            Check(app.TryFindResource("PgAccentBrush") is SolidColorBrush platedShellAccent &&
+                  platedShellAccent.Color == Color.FromRgb(0x1F, 0x6B, 0x4A),
+                "custom color plate role visibly reaches the Meridian shell");
             foreach (IconMarkStyle style in Enum.GetValues<IconMarkStyle>())
             {
                 IconService.Apply(new IconCustomizationState(style));

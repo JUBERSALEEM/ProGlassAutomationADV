@@ -473,8 +473,8 @@
                             <Style TargetType="Button" BasedOn="{StaticResource PgTopIconButtonStyle}">
                                 <Style.Triggers>
                                     <DataTrigger Binding="{Binding AiChatVM.IsOpen}" Value="True">
-                                        <Setter Property="Background" Value="{StaticResource PgLavenderRibbonBrush}"/>
-                                        <Setter Property="Foreground" Value="{StaticResource PgFocusRimBrush}"/>
+                                        <Setter Property="Background" Value="{DynamicResource PgLavenderRibbonBrush}"/>
+                                        <Setter Property="Foreground" Value="{DynamicResource PgFocusRimBrush}"/>
                                     </DataTrigger>
                                 </Style.Triggers>
                             </Style>
@@ -491,8 +491,8 @@
                             <Style TargetType="Button" BasedOn="{StaticResource PgTopIconButtonStyle}">
                                 <Style.Triggers>
                                     <DataTrigger Binding="{Binding IsAgentChatOpen}" Value="True">
-                                        <Setter Property="Background" Value="{StaticResource PgLavenderRibbonBrush}"/>
-                                        <Setter Property="Foreground" Value="{StaticResource PgFocusRimBrush}"/>
+                                        <Setter Property="Background" Value="{DynamicResource PgLavenderRibbonBrush}"/>
+                                        <Setter Property="Foreground" Value="{DynamicResource PgFocusRimBrush}"/>
                                     </DataTrigger>
                                 </Style.Triggers>
                             </Style>
@@ -509,8 +509,8 @@
                             <Style TargetType="Button" BasedOn="{StaticResource PgTopIconButtonStyle}">
                                 <Style.Triggers>
                                     <DataTrigger Binding="{Binding IsNotificationsOpen}" Value="True">
-                                        <Setter Property="Background" Value="{StaticResource PgLavenderRibbonBrush}"/>
-                                        <Setter Property="Foreground" Value="{StaticResource PgFocusRimBrush}"/>
+                                        <Setter Property="Background" Value="{DynamicResource PgLavenderRibbonBrush}"/>
+                                        <Setter Property="Foreground" Value="{DynamicResource PgFocusRimBrush}"/>
                                     </DataTrigger>
                                 </Style.Triggers>
                             </Style>
@@ -527,8 +527,8 @@
                             <Style TargetType="Button" BasedOn="{StaticResource PgTopIconButtonStyle}">
                                 <Style.Triggers>
                                     <DataTrigger Binding="{Binding IsSettingsOpen}" Value="True">
-                                        <Setter Property="Background" Value="{StaticResource PgLavenderRibbonBrush}"/>
-                                        <Setter Property="Foreground" Value="{StaticResource PgFocusRimBrush}"/>
+                                        <Setter Property="Background" Value="{DynamicResource PgLavenderRibbonBrush}"/>
+                                        <Setter Property="Foreground" Value="{DynamicResource PgFocusRimBrush}"/>
                                     </DataTrigger>
                                 </Style.Triggers>
                             </Style>
@@ -545,8 +545,8 @@
                             <Style TargetType="Button" BasedOn="{StaticResource PgTopIconButtonStyle}">
                                 <Style.Triggers>
                                     <DataTrigger Binding="{Binding IsShellMoreOpen}" Value="True">
-                                        <Setter Property="Background" Value="{StaticResource PgLavenderRibbonBrush}"/>
-                                        <Setter Property="Foreground" Value="{StaticResource PgFocusRimBrush}"/>
+                                        <Setter Property="Background" Value="{DynamicResource PgLavenderRibbonBrush}"/>
+                                        <Setter Property="Foreground" Value="{DynamicResource PgFocusRimBrush}"/>
                                     </DataTrigger>
                                 </Style.Triggers>
                             </Style>
