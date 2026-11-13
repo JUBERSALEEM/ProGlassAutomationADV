@@ -8,7 +8,7 @@
              xmlns:behaviors="clr-namespace:ProGlassAutomation.Behaviors"
              xmlns:sections="clr-namespace:ProGlassAutomation.Views.TaxInvoice.TaxInvoiceDetail.Sections"
              xmlns:loading="clr-namespace:ProGlassAutomation.Controls.LoadingState"
-             Background="{DynamicResource Ov.Canvas}"
+             Background="{DynamicResource SurfaceWorkspaceBrush}"
              FontFamily="{DynamicResource AppFontFamily}"
              TextOptions.TextFormattingMode="Ideal"
              TextOptions.TextRenderingMode="ClearType"

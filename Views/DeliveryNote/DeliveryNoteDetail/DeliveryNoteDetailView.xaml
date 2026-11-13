@@ -29,7 +29,7 @@
 
     <ScrollViewer VerticalScrollBarVisibility="Auto"
                   HorizontalScrollBarVisibility="Disabled"
-                  Background="{DynamicResource Ov.Canvas}">
+                  Background="{DynamicResource SurfaceWorkspaceBrush}">
         <Grid Background="Transparent">
             <Grid.RowDefinitions>
                 <RowDefinition Height="Auto"/>

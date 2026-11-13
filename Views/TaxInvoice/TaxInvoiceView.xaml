@@ -41,7 +41,7 @@
              xmlns:detailVm="clr-namespace:ProGlassAutomation.ViewModels.TaxInvoice.TaxInvoiceDetail"
              xmlns:godview="clr-namespace:ProGlassAutomation.Views.TaxInvoice.GodView"
              xmlns:sharedViews="clr-namespace:ProGlassAutomation.Views.Shared"
-             Background="{DynamicResource Ov.Canvas}"
+             Background="{DynamicResource SurfaceWorkspaceBrush}"
              FontFamily="{DynamicResource AppFontFamily}"
              TextOptions.TextFormattingMode="Ideal"
              TextOptions.TextRenderingMode="ClearType"

@@ -1,67 +1,31 @@
 <ResourceDictionary xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
                     xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
                     xmlns:behaviors="clr-namespace:ProGlassAutomation.Behaviors">
-    <!-- ═══════════════════════════════════════════════════════════════
-         FILE: Views/DeliveryNote/DeliveryNoteDetail/Sections/DnSectionStyles.xaml
-         MODULE: Delivery Note Detail — Overview Dashboard (Indigo Studio Bento) Edition
-         Merges IndigoStudioResources and maps all module primitives into
-         the Ov.* token family for 100% visual unification.
-         ═══════════════════════════════════════════════════════════════ -->
+    <!-- Delivery Note styles use live nine-family semantic resources. -->
 
-    <ResourceDictionary.MergedDictionaries>
-        <ResourceDictionary Source="../../../Dashboard/Overview/IndigoStudioResources.xaml"/>
-    </ResourceDictionary.MergedDictionaries>
-
-    <!-- Scoped Overview Dashboard / Indigo Studio palette aliases -->
-    <SolidColorBrush x:Key="TextPrimaryBrush" Color="{Binding Color, Source={StaticResource Ov.Ink}}"/>
-    <SolidColorBrush x:Key="TextSecondaryBrush" Color="{Binding Color, Source={StaticResource Ov.Muted}}"/>
-    <SolidColorBrush x:Key="TextTertiaryBrush" Color="{Binding Color, Source={StaticResource Ov.Muted}}"/>
-    <SolidColorBrush x:Key="PrimaryForegroundBrush" Color="{Binding Color, Source={StaticResource Ov.Ink}}"/>
-    <SolidColorBrush x:Key="SecondaryForegroundBrush" Color="{Binding Color, Source={StaticResource Ov.Muted}}"/>
-    <SolidColorBrush x:Key="AccentBrush" Color="{Binding Color, Source={StaticResource Ov.Accent}}"/>
-    <SolidColorBrush x:Key="AccentHoverBrush" Color="{Binding Color, Source={StaticResource Ov.AccentHover}}"/>
-    <SolidColorBrush x:Key="AccentDarkBrush" Color="{Binding Color, Source={StaticResource Ov.AccentHover}}"/>
-    <SolidColorBrush x:Key="SuccessBrush" Color="{Binding Color, Source={StaticResource Ov.Success}}"/>
-    <SolidColorBrush x:Key="WarningBrush" Color="{Binding Color, Source={StaticResource Ov.Warning}}"/>
-    <SolidColorBrush x:Key="DangerBrush" Color="{Binding Color, Source={StaticResource Ov.Danger}}"/>
-    <SolidColorBrush x:Key="BorderDefaultBrush" Color="{DynamicResource Appearance.StudioEdgeColor}"/>
-    <SolidColorBrush x:Key="BorderBrush" Color="{DynamicResource Appearance.StudioEdgeColor}"/>
-    <SolidColorBrush x:Key="SurfacePrimaryBrush" Color="{DynamicResource Appearance.StudioFaceColor}"/>
-    <SolidColorBrush x:Key="SurfaceSecondaryBrush" Color="{DynamicResource Appearance.StudioFaceColor}"/>
-    <SolidColorBrush x:Key="SurfaceTertiaryBrush" Color="{Binding Color, Source={StaticResource Ov.Soft}}"/>
-    <SolidColorBrush x:Key="PopupSurfaceBrush" Color="{Binding Color, Source={StaticResource Ov.Surface}}"/>
-    <SolidColorBrush x:Key="OnAccentForegroundBrush" Color="{Binding Color, Source={StaticResource Ov.OnAccent}}"/>
-    <SolidColorBrush x:Key="TintIndigoBrush" Color="{Binding Color, Source={StaticResource Ov.Soft}}"/>
-    <SolidColorBrush x:Key="TintBlueBrush" Color="{Binding Color, Source={StaticResource Ov.Soft}}"/>
-    <SolidColorBrush x:Key="TintGrayBrush" Color="{Binding Color, Source={StaticResource Ov.Soft}}"/>
-    <SolidColorBrush x:Key="TintRedBrush" Color="{Binding Color, Source={StaticResource Ov.DangerSoft}}"/>
-    <SolidColorBrush x:Key="TintAmberBrush" Color="{Binding Color, Source={StaticResource Ov.WarningSoft}}"/>
-    <SolidColorBrush x:Key="TintGreenBrush" Color="{Binding Color, Source={StaticResource Ov.SuccessSoft}}"/>
-    <SolidColorBrush x:Key="Surface.Primary.BackgroundBrush" Color="{DynamicResource Appearance.StudioFaceColor}"/>
-    <SolidColorBrush x:Key="Surface.Secondary.BackgroundBrush" Color="{DynamicResource Appearance.StudioFaceColor}"/>
-
-    <!-- Bento Card Styles for Delivery Note -->
-    <Style x:Key="CompactStatTileStyle" TargetType="Border" BasedOn="{StaticResource Ov.CardMicro}">
+<!-- Scoped Overview Dashboard / Indigo Studio palette aliases -->
+<!-- Bento Card Styles for Delivery Note -->
+    <Style x:Key="CompactStatTileStyle" TargetType="Border" BasedOn="{StaticResource ProGlassRewriteInsetStyle}">
         <Setter Property="Padding" Value="14,10"/>
         <Setter Property="CornerRadius" Value="12"/>
     </Style>
 
     <Style x:Key="MasterHeroStripStyle" TargetType="Border">
-        <Setter Property="Background" Value="{DynamicResource Ov.Hero}"/>
+        <Setter Property="Background" Value="{DynamicResource ThemeCardFaceBrush}"/>
         <Setter Property="CornerRadius" Value="18,18,0,0"/>
         <Setter Property="Padding" Value="16,10"/>
         <Setter Property="SnapsToDevicePixels" Value="True"/>
     </Style>
 
-    <Style x:Key="SpecGroupCardStyle" TargetType="Border" BasedOn="{StaticResource Ov.Card}">
+    <Style x:Key="SpecGroupCardStyle" TargetType="Border" BasedOn="{StaticResource ProGlassRewriteCardStyle}">
         <Setter Property="Margin" Value="0,0,0,10"/>
         <Setter Property="Padding" Value="0"/>
         <Setter Property="ClipToBounds" Value="True"/>
     </Style>
 
     <Style x:Key="SectionHeaderStyle" TargetType="Border">
-        <Setter Property="Background" Value="{DynamicResource Ov.Soft}"/>
-        <Setter Property="BorderBrush" Value="{DynamicResource Ov.Line}"/>
+        <Setter Property="Background" Value="{DynamicResource ThemeCardHighlightBrush}"/>
+        <Setter Property="BorderBrush" Value="{DynamicResource ThemeCardEdgeBrush}"/>
         <Setter Property="BorderThickness" Value="0,0,0,1"/>
         <Setter Property="Padding" Value="16,10"/>
         <Setter Property="CornerRadius" Value="18,18,0,0"/>

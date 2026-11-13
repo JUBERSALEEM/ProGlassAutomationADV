@@ -69,7 +69,7 @@
         </ResourceDictionary>
     </UserControl.Resources>
 
-    <Grid Background="{DynamicResource Ov.Canvas}">
+    <Grid Background="{DynamicResource SurfaceWorkspaceBrush}">
         <Grid.RowDefinitions>
             <RowDefinition Height="Auto"/>
             <RowDefinition Height="*"/>
