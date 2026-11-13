@@ -144,7 +144,8 @@
             <!-- Live family proof: these are the same tokens consumed by the
                  ERP card/control/navigation styles. Switching any of the nine
                  families must repaint every sample below, not only the page canvas. -->
-            <Border Margin="{StaticResource SettingsStackBottom8}"
+            <Border AutomationProperties.AutomationId="Settings.Appearance.LiveFamilyPreview"
+                    Margin="{StaticResource SettingsStackBottom8}"
                     Padding="12"
                     Background="{DynamicResource ThemeCardFaceBrush}"
                     BorderBrush="{DynamicResource ThemeCardEdgeBrush}"
@@ -188,6 +189,7 @@
                             <ColumnDefinition Width="*"/>
                         </Grid.ColumnDefinitions>
                         <Border Grid.Column="0"
+                                AutomationProperties.AutomationId="Settings.Appearance.PreviewControlSurface"
                                 Margin="0,0,5,0"
                                 Padding="10,8"
                                 Background="{DynamicResource ThemeControlFaceBrush}"
@@ -205,6 +207,7 @@
                             </StackPanel>
                         </Border>
                         <Border Grid.Column="1"
+                                AutomationProperties.AutomationId="Settings.Appearance.PreviewHighlightSurface"
                                 Margin="5,0,0,0"
                                 Padding="10,8"
                                 Background="{DynamicResource ThemeCardHighlightBrush}"
@@ -230,7 +233,8 @@
                             <ColumnDefinition Width="*"/>
                         </Grid.ColumnDefinitions>
                         <StackPanel Grid.Column="0" Orientation="Horizontal" VerticalAlignment="Center">
-                            <Border Background="{DynamicResource ThemeNavigationSelectedBrush}"
+                            <Border AutomationProperties.AutomationId="Settings.Appearance.PreviewNavigationSelected"
+                                    Background="{DynamicResource ThemeNavigationSelectedBrush}"
                                     CornerRadius="{DynamicResource ControlCornerRadius}"
                                     Padding="9,6" Margin="0,0,5,0">
                                 <TextBlock Text="SELECTED"
@@ -238,7 +242,8 @@
                                            FontSize="{DynamicResource FontSize.Caption}"
                                            FontWeight="{DynamicResource Weight.Bold}"/>
                             </Border>
-                            <Border Background="{DynamicResource ThemeNavigationHoverBrush}"
+                            <Border AutomationProperties.AutomationId="Settings.Appearance.PreviewNavigationHover"
+                                    Background="{DynamicResource ThemeNavigationHoverBrush}"
                                     CornerRadius="{DynamicResource ControlCornerRadius}"
                                     Padding="9,6">
                                 <TextBlock Text="HOVER"
@@ -246,7 +251,9 @@
                                            FontSize="{DynamicResource FontSize.Caption}"/>
                             </Border>
                         </StackPanel>
-                        <Border Grid.Column="1" Margin="8,0,0,0"
+                        <Border Grid.Column="1"
+                                AutomationProperties.AutomationId="Settings.Appearance.PreviewTableSurface"
+                                Margin="8,0,0,0"
                                 Background="{DynamicResource ThemeTableSurfaceBrush}"
                                 BorderBrush="{DynamicResource ThemeTableBorderBrush}"
                                 BorderThickness="{DynamicResource CardEdgeThickness}"
