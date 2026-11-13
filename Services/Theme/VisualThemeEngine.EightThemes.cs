@@ -216,6 +216,10 @@ namespace ProGlassAutomation.Services.Theme
             Color navSelectedText = navLuminance > 0.62 ? Colors.Black : Colors.White;
             resources["ThemeNavigationSelectedBrush"] = navSelected;
             resources["ThemeNavigationSelectedForegroundBrush"] = Solid(navSelectedText);
+            // Settings mode chip is also family-owned. Do not point this
+            // small but persistent control at the legacy iOS palette keys.
+            resources["ThemeModeChipBackgroundBrush"] = Alpha(palette.Accent, (byte)(dark ? 0x42 : 0x24));
+            resources["ThemeModeChipForegroundBrush"] = Solid(palette.Ink);
             resources["ThemeNavigationHoverBrush"] = Alpha(palette.Accent, (byte)(dark ? 0x48 : 0x24));
             resources["ThemeNavigationHoverForegroundBrush"] = Solid(palette.Ink);
             resources["ThemeNavigationFocusBrush"] = Solid(palette.Accent);
