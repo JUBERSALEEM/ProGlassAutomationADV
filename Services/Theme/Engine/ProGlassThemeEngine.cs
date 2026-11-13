@@ -125,6 +125,7 @@ namespace ProGlassAutomation.Services.Theme.Engine
                 ApplyMaterialTokens(resources);
                 PublishGlassBlushAliases(resources);
                 PublishIndigoAliases(resources);
+                PublishAboutAliases(resources);
                 DualWriteLegacy(resources);
 
                 bool reduced = appearance?.ReducedMotion == true;
