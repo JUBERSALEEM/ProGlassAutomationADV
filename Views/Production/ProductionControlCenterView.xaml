@@ -55,9 +55,9 @@
                 <Border Grid.Column="0" Style="{StaticResource OptHeroCard}" Margin="0,0,12,0">
                     <StackPanel VerticalAlignment="Center">
                         <TextBlock Text="{Binding Title}" FontSize="22" FontWeight="SemiBold"
-                                   Foreground="{StaticResource OptOnIndigo}"/>
+                                   Foreground="{DynamicResource ThemeNavigationSelectedForegroundBrush}"/>
                         <TextBlock Text="{Binding Subtitle}" FontSize="12"
-                                   Foreground="{StaticResource OptOnIndigoMuted}" Margin="0,6,0,0" TextWrapping="Wrap"/>
+                                   Foreground="{DynamicResource ThemeNavigationSelectedForegroundBrush}" Margin="0,6,0,0" TextWrapping="Wrap"/>
                     </StackPanel>
                 </Border>
                 <StackPanel Grid.Column="1" Orientation="Horizontal" VerticalAlignment="Center">
@@ -101,7 +101,7 @@
                                         <DataTrigger Binding="{Binding IsSelected}" Value="True">
                                             <Setter Property="Background" Value="{StaticResource OptIndigo}"/>
                                             <Setter Property="BorderBrush" Value="{StaticResource OptIndigo}"/>
-                                            <Setter Property="Foreground" Value="{StaticResource OptOnIndigo}"/>
+                                            <Setter Property="Foreground" Value="{DynamicResource ThemeNavigationSelectedForegroundBrush}"/>
                                         </DataTrigger>
                                     </Style.Triggers>
                                 </Style>
