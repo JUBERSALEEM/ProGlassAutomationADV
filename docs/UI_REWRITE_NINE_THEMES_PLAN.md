@@ -354,3 +354,11 @@ Theme-specific styling must be token-driven and use dynamic resource resolution 
 - Removed page-local copies of Accent, Info, Success, Warning, Danger, foreground, text, and popup brushes from the six-module Indigo dashboard dictionary.
 - The dashboard chart and module templates now resolve the engine-published semantic resources, preventing local StaticResource brush snapshots from becoming stale after theme switches.
 - Preserved the six dashboard page templates, KPI layouts, chart templates, and sizing resources; added regression coverage.
+
+
+### Production hero and work-center family adoption — source changes committed
+- Cross-check found that the eight production stage pages and three production work-center surfaces still consumed the Optimization module's fixed Indigo hero background and fixed white/lilac text/chip brushes through `StaticResource`. Those values did not follow the selected design family, even though the page workspace roots had already migrated.
+- `OptHeroCard` now resolves its fill and border from the live `ThemeNavigationSelectedBrush` and `ThemeNavigationFocusBrush` resources. Its foreground/chip treatments in the eight stage pages, cutting/process/control work centers, and production unit detail control now resolve from the live selected-foreground and navigation-hover resources.
+- Optimization selected navigation and primary action states now use the active family selection brush instead of fixed Indigo. The hero-pill foreground remains on the active accent token to preserve contrast on its light surface.
+- Scope: 13 XAML/resource files; no ViewModel, workflow, production data, or glass-processing logic changed.
+- Source re-fetch confirmed the migrated production views no longer contain the fixed `OptOnIndigo*` hero references. Windows build, regression execution, and rendered theme-switch screenshots remain pending.
