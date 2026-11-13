@@ -331,3 +331,9 @@ Theme-specific styling must be token-driven and use dynamic resource resolution 
 - ProGlassThemeEngine now publishes the complete Ov.* brush contract from the active family resources before module views are constructed.
 - Existing Overview, dashboard, report, and other legacy XAML consumers retain their resource keys while automatically following nine-family Light/Dark surfaces, text, accents, borders, and status tints.
 - Dashboard cards use family-owned card face/edge materials; regression coverage guards the engine publisher and palette-free component dictionary.
+
+
+### About module theme bridge
+- The About module's legacy Ios26 palette names are now published by ProGlassThemeEngine from the active nine-family palette.
+- About text, accent, success/warning, tile, border, hover, orbital, and canvas brushes now follow the selected family and Light/Dark mode while its existing component styles and type scale remain intact.
+- Removed the About style dictionary's unused Indigo palette import and moved the About workspace root to the shared theme workspace brush; added regression coverage.

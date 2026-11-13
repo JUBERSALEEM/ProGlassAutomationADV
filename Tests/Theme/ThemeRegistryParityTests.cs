@@ -1053,6 +1053,22 @@ namespace ProGlassAutomation.Tests.Theme
             Assert.DoesNotContain("#F3F0FA", components, StringComparison.Ordinal);
         }
 
+        [Fact]
+        public void About_module_legacy_palette_is_published_by_the_nine_family_engine()
+        {
+            string engine = Read("Services/Theme/Engine/ProGlassThemeEngine.cs");
+            string bridge = Read("Services/Theme/Engine/ProGlassThemeEngine.About.cs");
+            string styles = Read("Views/About/AboutStyles.xaml");
+            string view = Read("Views/About/AboutView.xaml");
+            Assert.Contains("PublishAboutAliases(resources)", engine, StringComparison.Ordinal);
+            Assert.Contains("Ios26AccentBrush", bridge, StringComparison.Ordinal);
+            Assert.Contains("Ios26TextTitleBrush", bridge, StringComparison.Ordinal);
+            Assert.Contains("Ios26CanvasBrush", bridge, StringComparison.Ordinal);
+            Assert.Contains("Ios26SuccessBrush", bridge, StringComparison.Ordinal);
+            Assert.DoesNotContain("IndigoStudioResources.xaml", styles, StringComparison.Ordinal);
+            Assert.Contains("DynamicResource SurfaceWorkspaceBrush", view, StringComparison.Ordinal);
+        }
+
         private static string ConstValue(string name)
         {
             var field = typeof(VisualThemeEngine).GetField(
