@@ -143,13 +143,13 @@
 
         <!-- Shared top-bar pill typography — one treatment for every pill. -->
         <Style x:Key="TopPillTitleStyle" TargetType="TextBlock">
-            <Setter Property="FontSize" Value="{StaticResource TextBody}"/>
+            <Setter Property="FontSize" Value="{DynamicResource TextBody}"/>
             <Setter Property="FontWeight" Value="SemiBold"/>
             <Setter Property="Foreground" Value="{DynamicResource TextPrimaryBrush}"/>
             <Setter Property="VerticalAlignment" Value="Center"/>
         </Style>
         <Style x:Key="TopPillCaptionStyle" TargetType="TextBlock">
-            <Setter Property="FontSize" Value="{StaticResource TextXSmall}"/>
+            <Setter Property="FontSize" Value="{DynamicResource TextXSmall}"/>
             <Setter Property="FontWeight" Value="Medium"/>
             <Setter Property="Foreground" Value="{DynamicResource TextTertiaryBrush}"/>
             <Setter Property="VerticalAlignment" Value="Center"/>
@@ -248,7 +248,7 @@
         ═══════════════════════════════════════════════════════════════ -->
 
         <Style x:Key="SidebarGroupLabel" TargetType="TextBlock">
-            <Setter Property="FontSize" Value="{StaticResource TextXSmall}"/>
+            <Setter Property="FontSize" Value="{DynamicResource TextXSmall}"/>
             <Setter Property="FontWeight" Value="Bold"/>
             <Setter Property="Foreground" Value="{DynamicResource TextTertiaryBrush}"/>
             <Setter Property="Margin" Value="24,18,24,6"/>
