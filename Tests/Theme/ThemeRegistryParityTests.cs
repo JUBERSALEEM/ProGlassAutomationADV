@@ -978,6 +978,34 @@ namespace ProGlassAutomation.Tests.Theme
             Assert.Contains("GlassBlush.Accent", tokens, StringComparison.Ordinal);
         }
 
+        [Fact]
+        public void Personal_shell_and_all_personal_workspaces_use_the_live_glass_blush_bridge()
+        {
+            string[] views =
+            {
+                "Views/Personal/GlassShell.xaml",
+                "Views/Personal/PersonalAiChatView.xaml",
+                "Views/Personal/PersonalDashboardOverviewView.xaml",
+                "Views/Personal/PersonalDashboardView.xaml",
+                "Views/Personal/PersonalDeliveryNoteView.xaml",
+                "Views/Personal/PersonalExecutiveReportView.xaml",
+                "Views/Personal/PersonalJobOrderView.xaml",
+                "Views/Personal/PersonalProductionControlCenterView.xaml",
+                "Views/Personal/PersonalProformaInvoiceView.xaml",
+                "Views/Personal/PersonalSalesReportView.xaml",
+                "Views/Personal/PersonalSettingsView.xaml",
+                "Views/Personal/PersonalSheetStoreView.xaml",
+                "Views/Personal/PersonalTaxInvoiceDashboardView.xaml"
+            };
+            foreach (string path in views)
+            {
+                string xaml = Read(path);
+                Assert.DoesNotContain("IndigoStudioResources.xaml", xaml, StringComparison.Ordinal);
+                Assert.DoesNotContain("Ov.Canvas", xaml, StringComparison.Ordinal);
+                Assert.Contains("GlassBlush.Background", xaml, StringComparison.Ordinal);
+            }
+        }
+
         private static string ConstValue(string name)
         {
             var field = typeof(VisualThemeEngine).GetField(

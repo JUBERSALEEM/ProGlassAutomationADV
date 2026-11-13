@@ -318,3 +318,9 @@ Theme-specific styling must be token-driven and use dynamic resource resolution 
 - The Personal UI's legacy GlassBlush token plane is now republished by the authoritative ProGlassThemeEngine on every theme publish.
 - Personal surfaces, rail, borders, text, accents, status colors, atmospheric layers, and night-production brushes now alias the active nine-family Light/Dark palette instead of retaining the original fixed sapphire/azure palette.
 - Existing GlassBlush component styles and all Personal view bindings remain intact; the bridge changes only resource values. Added engine/token regression coverage.
+
+
+### Personal application-wide theme bridge adoption
+- The Personal shell and all 12 Personal module views now use the GlassBlush resource contract that ProGlassThemeEngine republishes from the selected nine-family Light/Dark palette.
+- Removed the Indigo dashboard dictionary dependency and replaced fixed Indigo canvas references with the live GlassBlush workspace brush.
+- Existing Personal component templates, view models, navigation, module workflows, and GlassBlush composition are preserved; added a 13-view regression guard.
