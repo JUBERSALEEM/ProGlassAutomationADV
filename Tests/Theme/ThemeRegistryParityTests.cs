@@ -322,6 +322,28 @@ namespace ProGlassAutomation.Tests.Theme
             Assert.Contains("DynamicResource Surface.Secondary.BackgroundBrush", globalStyles, StringComparison.Ordinal);
         }
 
+
+        [Fact]
+        public void Shared_inputs_and_secondary_buttons_consume_family_control_materials()
+        {
+            string inputs = Read("Themes/Styles/InputStyles.xaml");
+            Assert.Contains("DynamicResource ThemeControlFaceBrush", inputs, StringComparison.Ordinal);
+            Assert.Contains("DynamicResource ThemeControlEdgeBrush", inputs, StringComparison.Ordinal);
+
+            string global = Read("Themes/Styles/GlobalDesignSystem.xaml");
+            int inputStart = global.IndexOf("<Style x:Key=\"Input.TextBox\"", StringComparison.Ordinal);
+            Assert.True(inputStart >= 0);
+            int inputEnd = global.IndexOf("<!-- ═══════════════════════════════════════════════════════════════", inputStart + 10, StringComparison.Ordinal);
+            Assert.True(inputEnd > inputStart);
+            string inputBlock = global.Substring(inputStart, inputEnd - inputStart);
+            Assert.Contains("DynamicResource ThemeControlFaceBrush", inputBlock, StringComparison.Ordinal);
+            Assert.Contains("DynamicResource ThemeControlEdgeBrush", inputBlock, StringComparison.Ordinal);
+
+            string buttons = Read("Styles/ButtonStyles.xaml");
+            Assert.Contains("DynamicResource ThemeControlFaceBrush", buttons, StringComparison.Ordinal);
+            Assert.Contains("DynamicResource ThemeControlEdgeBrush", buttons, StringComparison.Ordinal);
+        }
+
         [Fact]
         public void Every_approved_family_has_separate_light_and_dark_palette_recipes()
         {

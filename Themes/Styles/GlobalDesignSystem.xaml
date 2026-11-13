@@ -707,8 +707,8 @@
          12. INPUTS — ONE CANONICAL SYSTEM
     ═══════════════════════════════════════════════════════════════ -->
     <Style x:Key="Input.TextBox" TargetType="TextBox">
-        <Setter Property="Background" Value="{DynamicResource SurfaceInputBrush}"/>
-        <Setter Property="BorderBrush" Value="{DynamicResource InputBorderBrush}"/>
+        <Setter Property="Background" Value="{DynamicResource ThemeControlFaceBrush}"/>
+        <Setter Property="BorderBrush" Value="{DynamicResource ThemeControlEdgeBrush}"/>
         <Setter Property="BorderThickness" Value="{DynamicResource Border.Thin}"/>
         <Setter Property="Padding" Value="{DynamicResource Space.Control}"/>
         <Setter Property="FontFamily" Value="{DynamicResource FontFamily.App}"/>
@@ -753,9 +753,9 @@
          for non-editable pickers only (all current consumers). Editable
          combos must keep using ModernEditableComboBoxStyle. -->
     <Style x:Key="Input.ComboBox" TargetType="ComboBox">
-        <Setter Property="Background" Value="{DynamicResource SurfaceInputBrush}"/>
+        <Setter Property="Background" Value="{DynamicResource ThemeControlFaceBrush}"/>
         <Setter Property="Foreground" Value="{DynamicResource TextPrimaryBrush}"/>
-        <Setter Property="BorderBrush" Value="{DynamicResource InputBorderBrush}"/>
+        <Setter Property="BorderBrush" Value="{DynamicResource ThemeControlEdgeBrush}"/>
         <Setter Property="BorderThickness" Value="{DynamicResource Border.Thin}"/>
         <Setter Property="Padding" Value="{DynamicResource Space.Control}"/>
         <Setter Property="FontFamily" Value="{DynamicResource FontFamily.App}"/>
@@ -782,8 +782,8 @@
         </Style.Triggers>
     </Style>
     <Style x:Key="Input.DatePicker" TargetType="DatePicker">
-        <Setter Property="Background" Value="{DynamicResource SurfaceInputBrush}"/>
-        <Setter Property="BorderBrush" Value="{DynamicResource InputBorderBrush}"/>
+        <Setter Property="Background" Value="{DynamicResource ThemeControlFaceBrush}"/>
+        <Setter Property="BorderBrush" Value="{DynamicResource ThemeControlEdgeBrush}"/>
         <Setter Property="BorderThickness" Value="{DynamicResource Border.Thin}"/>
         <Setter Property="Padding" Value="{DynamicResource Space.Control}"/>
         <Setter Property="FontFamily" Value="{DynamicResource FontFamily.App}"/>
@@ -793,8 +793,8 @@
         <Setter Property="VerticalContentAlignment" Value="Center"/>
     </Style>
     <Style x:Key="Input.PasswordBox" TargetType="PasswordBox">
-        <Setter Property="Background" Value="{DynamicResource SurfaceInputBrush}"/>
-        <Setter Property="BorderBrush" Value="{DynamicResource InputBorderBrush}"/>
+        <Setter Property="Background" Value="{DynamicResource ThemeControlFaceBrush}"/>
+        <Setter Property="BorderBrush" Value="{DynamicResource ThemeControlEdgeBrush}"/>
         <Setter Property="BorderThickness" Value="{DynamicResource Border.Thin}"/>
         <Setter Property="Padding" Value="{DynamicResource Space.Control}"/>
         <Setter Property="FontFamily" Value="{DynamicResource FontFamily.App}"/>
