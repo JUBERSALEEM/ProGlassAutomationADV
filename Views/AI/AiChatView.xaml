@@ -25,14 +25,10 @@
              UseLayoutRounding="True"
              SnapsToDevicePixels="True"
              Focusable="False"
-             Background="{DynamicResource Ov.Canvas}">
+             Background="{DynamicResource SurfaceWorkspaceBrush}">
 
     <UserControl.Resources>
         <ResourceDictionary>
-            <ResourceDictionary.MergedDictionaries>
-                <ResourceDictionary Source="../Dashboard/Overview/IndigoStudioResources.xaml"/>
-            </ResourceDictionary.MergedDictionaries>
-
         <LinearGradientBrush x:Key="ChatBrand"
                              StartPoint="0,0" EndPoint="1,1">
             <GradientStop Color="{DynamicResource AccentDarkColor}" Offset="0"/>

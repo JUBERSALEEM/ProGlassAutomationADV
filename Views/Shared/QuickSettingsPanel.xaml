@@ -20,10 +20,6 @@
 
     <UserControl.Resources>
         <ResourceDictionary>
-            <ResourceDictionary.MergedDictionaries>
-                <ResourceDictionary Source="../Dashboard/Overview/IndigoStudioResources.xaml"/>
-            </ResourceDictionary.MergedDictionaries>
-
         <CollectionViewSource x:Key="QuickSettingsView"
                               Source="{Binding SettingsVM.NavRows}">
             <CollectionViewSource.GroupDescriptions>
@@ -71,7 +67,7 @@
             </Border.Effect>
             <Border CornerRadius="{DynamicResource CardCornerRadiusLarge}"
                     Background="{DynamicResource ShellLiquidBrush}"
-                    BorderBrush="{DynamicResource Ov.Line}"
+                    BorderBrush="{DynamicResource ThemeCardEdgeBrush}"
                     BorderThickness="{DynamicResource Border.HairlineThickness}"
                     ClipToBounds="True">
 
@@ -83,7 +79,7 @@
                     </Grid.RowDefinitions>
 
                     <Border Grid.Row="0"
-                            Background="{DynamicResource Ov.Hero}"
+                            Background="{DynamicResource ThemeCardFaceBrush}"
                             Padding="16,10">
                         <StackPanel>
                             <TextBlock Text="{DynamicResource Shell.NavSettings}"
