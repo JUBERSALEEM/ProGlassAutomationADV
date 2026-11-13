@@ -47,38 +47,49 @@
                 Background="{TemplateBinding Background}"
                 BorderBrush="{TemplateBinding BorderBrush}"
                 BorderThickness="{TemplateBinding BorderThickness}"
-                CornerRadius="{DynamicResource Radius.Control}"
+                CornerRadius="{DynamicResource ControlCornerRadius}"
                 Padding="{TemplateBinding Padding}"
                 Height="{TemplateBinding Height}"
                 SnapsToDevicePixels="True">
-            <StackPanel Orientation="Horizontal"
-                        HorizontalAlignment="Center"
-                        VerticalAlignment="Center">
-                <TextBlock x:Name="Icon"
-                           Text="{TemplateBinding Tag}"
-                           FontFamily="{DynamicResource FontFamily.Icon}"
-                           FontSize="{DynamicResource FontSize.Title}"
-                           Foreground="{TemplateBinding Foreground}"
-                           VerticalAlignment="Center"
-                           Margin="0,0,10,0">
-                    <TextBlock.Style>
-                        <Style TargetType="TextBlock">
-                            <Style.Triggers>
-                                <Trigger Property="Text" Value="">
-                                    <Setter Property="Visibility" Value="Collapsed"/>
-                                </Trigger>
-                                <Trigger Property="Text" Value="{x:Null}">
-                                    <Setter Property="Visibility" Value="Collapsed"/>
-                                </Trigger>
-                            </Style.Triggers>
-                        </Style>
-                    </TextBlock.Style>
-                </TextBlock>
-                <ContentPresenter VerticalAlignment="Center"
-                                  TextElement.FontSize="{DynamicResource FontSize.Body}"
-                                  TextElement.FontWeight="SemiBold"
-                                  TextElement.Foreground="{TemplateBinding Foreground}"/>
-            </StackPanel>
+            <Grid>
+                <!-- Family-owned highlight makes the same shared button template
+                     pick up the active theme's edge/specular language at runtime. -->
+                <Border Height="2"
+                        VerticalAlignment="Top"
+                        Margin="1,0,1,0"
+                        CornerRadius="{DynamicResource ControlCornerRadius}"
+                        Background="{DynamicResource ThemeCardHighlightBrush}"
+                        Opacity="0.7"
+                        IsHitTestVisible="False"/>
+                <StackPanel Orientation="Horizontal"
+                            HorizontalAlignment="Center"
+                            VerticalAlignment="Center">
+                    <TextBlock x:Name="Icon"
+                               Text="{TemplateBinding Tag}"
+                               FontFamily="{DynamicResource FontFamily.Icon}"
+                               FontSize="{DynamicResource FontSize.Title}"
+                               Foreground="{TemplateBinding Foreground}"
+                               VerticalAlignment="Center"
+                               Margin="0,0,10,0">
+                        <TextBlock.Style>
+                            <Style TargetType="TextBlock">
+                                <Style.Triggers>
+                                    <Trigger Property="Text" Value="">
+                                        <Setter Property="Visibility" Value="Collapsed"/>
+                                    </Trigger>
+                                    <Trigger Property="Text" Value="{x:Null}">
+                                        <Setter Property="Visibility" Value="Collapsed"/>
+                                    </Trigger>
+                                </Style.Triggers>
+                            </Style>
+                        </TextBlock.Style>
+                    </TextBlock>
+                    <ContentPresenter VerticalAlignment="Center"
+                                      TextElement.FontSize="{DynamicResource FontSize.Body}"
+                                      TextElement.FontWeight="SemiBold"
+                                      TextElement.Foreground="{TemplateBinding Foreground}"/>
+                </StackPanel>
+            </Grid>
         </Border>
         <ControlTemplate.Triggers>
             <Trigger Property="IsMouseOver" Value="True">
