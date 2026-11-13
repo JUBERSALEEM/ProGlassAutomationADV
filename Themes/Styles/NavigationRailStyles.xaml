@@ -40,10 +40,11 @@
             <Setter.Value>
                 <ControlTemplate TargetType="Button">
                     <Border x:Name="Bg"
-                            Background="{TemplateBinding Background}"
+                            Background="{DynamicResource ThemeControlFaceBrush}"
+                            BorderBrush="{DynamicResource ThemeControlEdgeBrush}"
+                            BorderThickness="{DynamicResource CardBorderThickness}"
                             CornerRadius="{DynamicResource ControlCornerRadius}"
-                            SnapsToDevicePixels="True"
-                            Style="{StaticResource SurfacePrimaryStyle}">
+                            SnapsToDevicePixels="True">
                         <TextBlock Text="&#xE700;"
                                    FontFamily="{DynamicResource FontFamily.Icon}"
                                    FontSize="{DynamicResource FontSize.H3}"
@@ -53,11 +54,11 @@
                     </Border>
                     <ControlTemplate.Triggers>
                         <Trigger Property="IsMouseOver" Value="True">
-                            <Setter TargetName="Bg" Property="Background" Value="{DynamicResource SurfaceTertiaryBrush}"/>
+                            <Setter TargetName="Bg" Property="Background" Value="{DynamicResource ThemeNavigationHoverBrush}"/>
                             <Setter Property="Foreground" Value="{DynamicResource AccentBrush}"/>
                         </Trigger>
                         <Trigger Property="IsPressed" Value="True">
-                            <Setter TargetName="Bg" Property="Background" Value="{DynamicResource TintBlueBrush}"/>
+                            <Setter TargetName="Bg" Property="Background" Value="{DynamicResource ThemeNavigationSelectedBrush}"/>
                         </Trigger>
                     </ControlTemplate.Triggers>
                 </ControlTemplate>
