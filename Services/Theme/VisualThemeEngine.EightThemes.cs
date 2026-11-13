@@ -318,6 +318,17 @@ namespace ProGlassAutomation.Services.Theme
                 : family == Neumorphism
                     ? Alpha(palette.Edge, (byte)0x55)
                     : Alpha(palette.Edge, (byte)(palette.Glass ? 0x95 : 0xC0));
+            // Settings hero chrome is part of the live family material system.
+            // Derive its gradient and foreground from the selected palette so
+            // the Settings overview cannot remain purple when another family is active.
+            Color settingsHeroInk = navLuminance > 0.62 ? Colors.Black : Colors.White;
+            Color settingsHeroOverlay = settingsHeroInk == Colors.White ? Colors.White : Colors.Black;
+            resources["SettingsHeroBrush"] = Gradient(
+                palette.Accent, palette.SecondAccent, palette.Accent);
+            resources["SettingsOnAccentBrush"] = Solid(settingsHeroInk);
+            resources["SettingsOnAccentMutedBrush"] = Alpha(settingsHeroInk, (byte)0xD0);
+            resources["SettingsHeroOverlayBrush"] = Alpha(settingsHeroOverlay, (byte)(dark ? 0x18 : 0x20));
+            resources["SettingsHeroOverlayEdgeBrush"] = Alpha(settingsHeroOverlay, (byte)0x38);
             resources["SettingsCardFaceBrush"] = settingsFace;
             resources["SettingsCardEdgeBrush"] = settingsEdge;
             resources["SettingsInnerEdgeBrush"] = settingsInnerEdge;
