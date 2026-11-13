@@ -166,11 +166,11 @@ namespace ProGlassAutomation.ViewModels.Settings
         }
 
         /// <summary>
-        /// Brush KEY for the page-header mode chip's fill — not a brush. The
-        /// chip resolves it through BrushKeyConverter, which looks the key up in
-        /// Application.Resources on every evaluation, so a theme switch repaints
-        /// the chip without any code, and the grammar keeps owning the palette
-        /// (no colour literal ever reaches a view).
+        /// Brush KEY for the page-header mode chip's fill — not a brush.
+        /// BrushKeyConverter resolves the selected family's published token in
+        /// Application.Resources. The family setter raises PropertyChanged for
+        /// both chip keys after the canonical pipeline republishes the palette;
+        /// the mode setter does the same for Light/Dark changes.
         /// </summary>
         public string ThemeModeChipBackgroundKey =>
             "ThemeModeChipBackgroundBrush";
