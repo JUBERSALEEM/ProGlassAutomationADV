@@ -5,34 +5,15 @@
     <!-- Indigo Studio: intentionally page-scoped. No app theme or other module's
          card/button templates are replaced. No design-time/sample data ships here. -->
     <local:EmptyDeliverySnapshotConverter x:Key="Ov.EmptyDelivery"/>
-    <SolidColorBrush x:Key="Ov.Canvas" Color="#F3F0FA"/>
-    <SolidColorBrush x:Key="Ov.Surface" Color="#FFFEFC"/>
-    <SolidColorBrush x:Key="Ov.Soft" Color="#EEE8F8"/>
-    <SolidColorBrush x:Key="Ov.Line" Color="#E2DBEF"/>
-    <SolidColorBrush x:Key="Ov.Ink" Color="#2C2440"/>
-    <SolidColorBrush x:Key="Ov.Muted" Color="#6B6078"/>
-    <SolidColorBrush x:Key="Ov.Accent" Color="#6546B5"/>
-    <SolidColorBrush x:Key="Ov.AccentHover" Color="#533698"/>
-    <SolidColorBrush x:Key="Ov.AreaEnd" Color="#B4A1E1"/>
-    <SolidColorBrush x:Key="Ov.OnAccent" Color="#FFFFFF"/>
-    <SolidColorBrush x:Key="Ov.OnAccentMuted" Color="#E3DAF7"/>
-    <SolidColorBrush x:Key="Ov.Success" Color="#22714E"/>
-    <SolidColorBrush x:Key="Ov.Danger" Color="#B83E50"/>
-    <SolidColorBrush x:Key="Ov.DangerSoft" Color="#FBECEF"/>
-    <SolidColorBrush x:Key="Ov.Warning" Color="#92601F"/>
-    <SolidColorBrush x:Key="Ov.SuccessSoft" Color="#EAF4EF"/>
-    <SolidColorBrush x:Key="Ov.WarningSoft" Color="#FAF2E7"/>
+    <!-- Ov.* palette brushes are published by ProGlassThemeEngine before
+         any module view is constructed. This dictionary owns only the legacy
+         component styles, templates and converter — never a fixed palette. -->
     <local:IndigoStatusBrushConverter x:Key="Ov.StatusBrush"
         Accent="{StaticResource Ov.Accent}" AccentSoft="{StaticResource Ov.Soft}"
         Success="{StaticResource Ov.Success}" SuccessSoft="{StaticResource Ov.SuccessSoft}"
         Danger="{StaticResource Ov.Danger}" DangerSoft="{StaticResource Ov.DangerSoft}"
         Warning="{StaticResource Ov.Warning}" WarningSoft="{StaticResource Ov.WarningSoft}"
         Neutral="{StaticResource Ov.Muted}" NeutralSoft="{StaticResource Ov.Soft}"/>
-    <LinearGradientBrush x:Key="Ov.Hero" StartPoint="0,0" EndPoint="1,1">
-        <GradientStop Color="#6744B9" Offset="0"/>
-        <GradientStop Color="#493080" Offset="1"/>
-    </LinearGradientBrush>
-
     <Style x:Key="Ov.Text" TargetType="TextBlock">
         <Setter Property="FontFamily" Value="Segoe UI"/>
         <Setter Property="FontSize" Value="14"/>
@@ -68,8 +49,8 @@
          because Ov.Surface is a fixed studio white, and aliased snapping
          dropped the corner arc of the edge colour. -->
     <Style x:Key="Ov.Card" TargetType="Border">
-        <Setter Property="Background" Value="{DynamicResource Appearance.StudioFace}"/>
-        <Setter Property="BorderBrush" Value="{DynamicResource Appearance.StudioEdge}"/>
+        <Setter Property="Background" Value="{DynamicResource ThemeCardFaceBrush}"/>
+        <Setter Property="BorderBrush" Value="{DynamicResource ThemeCardEdgeBrush}"/>
         <Setter Property="BorderThickness" Value="1"/>
         <Setter Property="CornerRadius" Value="18"/>
         <Setter Property="Padding" Value="24"/>
