@@ -73,7 +73,6 @@ namespace ProGlassAutomation.Services.Theme
                     deferPostProcessing: true);
                 RebuildFamily(
                     $"full-rebuild · {reason} · mode={(isDark ? "Dark" : "Light")}");
-                ThemeManager.NotifyThemeChanged();
             }
             catch (Exception ex)
             {
@@ -139,6 +138,12 @@ namespace ProGlassAutomation.Services.Theme
                 ThemeManager.ReapplyOutlinePreference();
                 ThemeManager.ReapplySemanticSurfaces();
                 ThemeManager.PublishProGlassDesignSystem();
+
+                // Family-only switches must notify the same subscribers as
+                // Light/Dark switches, but only after every family resource
+                // and semantic surface has been republished. Rebuild() uses
+                // this same path, so the event is raised exactly once.
+                ThemeManager.NotifyThemeChanged();
 
                 // 2026-09-17: Ensure About surface tokens (corner radii + borders)
                 // stay in sync with the live family & slider on every family rebuild.
