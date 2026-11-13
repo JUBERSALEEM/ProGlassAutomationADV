@@ -230,4 +230,12 @@
         </Style.Triggers>
     </Style>
 
+
+    <!-- Global defaults route every uncustomized ERP grid through the active
+         family's table materials. Explicit module styles still take priority. -->
+    <Style TargetType="DataGrid" BasedOn="{StaticResource ErpDataGridStyle}"/>
+    <Style TargetType="DataGridColumnHeader" BasedOn="{StaticResource ErpDataGridColumnHeaderStyle}"/>
+    <Style TargetType="DataGridCell" BasedOn="{StaticResource ErpDataGridCellStyle}"/>
+    <Style TargetType="DataGridRow" BasedOn="{StaticResource ErpDataGridRowStyle}"/>
+
 </ResourceDictionary>
