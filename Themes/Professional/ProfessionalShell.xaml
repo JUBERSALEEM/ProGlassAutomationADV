@@ -38,6 +38,15 @@
     <SolidColorBrush x:Key="PgTextMutedBrush"         Color="#6B6078" po:Freeze="True"/>
     <SolidColorBrush x:Key="PgWhiteBrush"             Color="#FFFFFF" po:Freeze="True"/>
 
+    <!-- Runtime nine-family navigation materials; neutral Bento-safe fallbacks. -->
+    <SolidColorBrush x:Key="ThemeNavigationSelectedBrush" Color="#FF443A86"/>
+    <SolidColorBrush x:Key="ThemeNavigationSelectedForegroundBrush" Color="#FFFFFFFF"/>
+    <SolidColorBrush x:Key="ThemeNavigationHoverBrush" Color="#243D6DCC"/>
+    <SolidColorBrush x:Key="ThemeNavigationHoverForegroundBrush" Color="#FF211D31"/>
+    <SolidColorBrush x:Key="ThemeNavigationFocusBrush" Color="#FF6546B5"/>
+    <SolidColorBrush x:Key="ThemeNavigationBorderBrush" Color="#FFE2DBEF"/>
+    <SolidColorBrush x:Key="ThemeNavigationMutedBrush" Color="#FF6B6078"/>
+
     <!-- ═══════════════════════════════════════════════════════════════
          1 · TOP BAR & HEADER
     ═══════════════════════════════════════════════════════════════ -->
@@ -427,9 +436,9 @@
                                     <Binding Path="DataContext.CurrentModuleKey" RelativeSource="{RelativeSource TemplatedParent}"/>
                                 </MultiBinding>
                             </DataTrigger.Binding>
-                            <Setter TargetName="Bg" Property="Background" Value="{StaticResource PgSelectedRowBrush}"/>
-                            <Setter TargetName="Icon" Property="Foreground" Value="{StaticResource PgWhiteBrush}"/>
-                            <Setter TargetName="Label" Property="Foreground" Value="{StaticResource PgWhiteBrush}"/>
+                            <Setter TargetName="Bg" Property="Background" Value="{DynamicResource ThemeNavigationSelectedBrush}"/>
+                            <Setter TargetName="Icon" Property="Foreground" Value="{DynamicResource ThemeNavigationSelectedForegroundBrush}"/>
+                            <Setter TargetName="Label" Property="Foreground" Value="{DynamicResource ThemeNavigationSelectedForegroundBrush}"/>
                             <Setter TargetName="Label" Property="FontWeight" Value="SemiBold"/>
                         </DataTrigger>
                     </ControlTemplate.Triggers>
@@ -476,7 +485,7 @@
                                        Text="&#xE76C;"
                                        FontFamily="Segoe MDL2 Assets"
                                        FontSize="10"
-                                       Foreground="{StaticResource PgTextMutedBrush}"
+                                       Foreground="{DynamicResource ThemeNavigationMutedBrush}"
                                        HorizontalAlignment="Right"
                                        VerticalAlignment="Center"
                                        RenderTransformOrigin="0.5,0.5">
@@ -488,12 +497,12 @@
                     </Border>
                     <ControlTemplate.Triggers>
                         <Trigger Property="IsMouseOver" Value="True">
-                            <Setter TargetName="Bg" Property="Background" Value="{StaticResource PgLavenderRibbonBrush}"/>
-                            <Setter TargetName="Icon" Property="Foreground" Value="{StaticResource PgVioletInkBrush}"/>
-                            <Setter TargetName="Label" Property="Foreground" Value="{StaticResource PgVioletInkBrush}"/>
+                            <Setter TargetName="Bg" Property="Background" Value="{DynamicResource ThemeNavigationHoverBrush}"/>
+                            <Setter TargetName="Icon" Property="Foreground" Value="{DynamicResource ThemeNavigationHoverForegroundBrush}"/>
+                            <Setter TargetName="Label" Property="Foreground" Value="{DynamicResource ThemeNavigationHoverForegroundBrush}"/>
                         </Trigger>
                         <Trigger Property="IsChecked" Value="True">
-                            <Setter TargetName="Chevron" Property="Foreground" Value="{StaticResource PgSelectedRowBrush}"/>
+                            <Setter TargetName="Chevron" Property="Foreground" Value="{DynamicResource ThemeNavigationSelectedBrush}"/>
                             <Trigger.EnterActions>
                                 <BeginStoryboard>
                                     <Storyboard>
@@ -521,7 +530,7 @@
 
     <!-- Sub-menu container -->
     <Style x:Key="PgSidebarSubListStyle" TargetType="Border">
-        <Setter Property="BorderBrush" Value="{StaticResource PgKeylineBrush}"/>
+        <Setter Property="BorderBrush" Value="{DynamicResource ThemeNavigationBorderBrush}"/>
         <Setter Property="BorderThickness" Value="1,0,0,0"/>
         <Setter Property="Padding" Value="4,2,2,2"/>
         <Setter Property="Margin" Value="24,0,10,4"/>

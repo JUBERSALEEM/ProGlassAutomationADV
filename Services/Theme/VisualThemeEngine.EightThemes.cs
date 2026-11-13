@@ -200,6 +200,27 @@ namespace ProGlassAutomation.Services.Theme
             resources["ThemeTableRowHoverBrush"] = Alpha(palette.Accent, (byte)(dark ? 0x38 : 0x20));
             resources["ThemeTableSelectionBrush"] = Alpha(palette.Accent, (byte)(dark ? 0x78 : 0x58));
             resources["ThemeTableBorderBrush"] = edge;
+
+            // Professional shell navigation follows the selected family as well.
+            // The selected item remains high-contrast; hover and group states use
+            // restrained accent tints so dense navigation stays readable.
+            Brush navSelected = family switch
+            {
+                HolographicIridescent => Gradient(palette.Accent, palette.SecondAccent, palette.Accent),
+                FluentAcrylic => Alpha(palette.Accent, (byte)(dark ? 0xE8 : 0xD8)),
+                LiquidGlass or Glassmorphism => Alpha(palette.Accent, (byte)(dark ? 0xE8 : 0xD8)),
+                SpatialImmersive => Gradient(palette.Accent, palette.SecondAccent, palette.Accent),
+                _ => Solid(palette.Accent)
+            };
+            double navLuminance = (0.2126 * palette.Accent.R + 0.7152 * palette.Accent.G + 0.0722 * palette.Accent.B) / 255.0;
+            Color navSelectedText = navLuminance > 0.62 ? Colors.Black : Colors.White;
+            resources["ThemeNavigationSelectedBrush"] = navSelected;
+            resources["ThemeNavigationSelectedForegroundBrush"] = Solid(navSelectedText);
+            resources["ThemeNavigationHoverBrush"] = Alpha(palette.Accent, (byte)(dark ? 0x48 : 0x24));
+            resources["ThemeNavigationHoverForegroundBrush"] = Solid(palette.Text);
+            resources["ThemeNavigationFocusBrush"] = Solid(palette.Accent);
+            resources["ThemeNavigationBorderBrush"] = Alpha(palette.Edge, (byte)(dark ? 0xE0 : 0xFF));
+            resources["ThemeNavigationMutedBrush"] = Solid(palette.TextMuted);
             resources["ThemeFamilyId"] = family;
             resources["ThemeMaterialProfile"] = family switch
             {

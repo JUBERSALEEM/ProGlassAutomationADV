@@ -371,6 +371,32 @@ namespace ProGlassAutomation.Tests.Theme
             Assert.Contains("DynamicResource ThemeTableSurfaceBrush", global.Substring(start, end - start), StringComparison.Ordinal);
         }
 
+
+        [Fact]
+        public void Professional_sidebar_uses_runtime_nine_family_navigation_materials()
+        {
+            string overlay = Read("Services/Theme/VisualThemeEngine.EightThemes.cs");
+            foreach (var key in new[]
+            {
+                "ThemeNavigationSelectedBrush", "ThemeNavigationSelectedForegroundBrush",
+                "ThemeNavigationHoverBrush", "ThemeNavigationHoverForegroundBrush",
+                "ThemeNavigationFocusBrush", "ThemeNavigationBorderBrush",
+                "ThemeNavigationMutedBrush"
+            })
+                Assert.Contains("resources[\"" + key + "\"]", overlay, StringComparison.Ordinal);
+
+            string shell = Read("Themes/Professional/ProfessionalShell.xaml");
+            int start = shell.IndexOf("<Style x:Key=\"PgSidebarItemStyle\"", StringComparison.Ordinal);
+            int end = shell.IndexOf("</Style>", shell.IndexOf("<Style x:Key=\"PgSidebarSubListStyle\"", start, StringComparison.Ordinal), StringComparison.Ordinal);
+            Assert.True(start >= 0 && end > start);
+            string navStyles = shell.Substring(start, end - start);
+            Assert.Contains("DynamicResource ThemeNavigationSelectedBrush", navStyles, StringComparison.Ordinal);
+            Assert.Contains("DynamicResource ThemeNavigationSelectedForegroundBrush", navStyles, StringComparison.Ordinal);
+            Assert.Contains("DynamicResource ThemeNavigationHoverBrush", navStyles, StringComparison.Ordinal);
+            Assert.Contains("DynamicResource ThemeNavigationBorderBrush", navStyles, StringComparison.Ordinal);
+            Assert.DoesNotContain("StaticResource PgSelectedRowBrush", navStyles, StringComparison.Ordinal);
+        }
+
         [Fact]
         public void Every_approved_family_has_separate_light_and_dark_palette_recipes()
         {
