@@ -173,6 +173,22 @@ namespace ProGlassAutomation.Tests.Theme
         }
 
         [Fact]
+        public void Appearance_light_dark_chip_uses_selected_family_tokens()
+        {
+            string viewModel = Read("ViewModels/Settings/SettingsViewModel.Appearance.AccentsDensity.cs");
+            string engine = Read("Services/Theme/VisualThemeEngine.EightThemes.cs");
+            string modeCard = Read("Views/Settings/Sections/Cards/AppearanceModeCard.xaml");
+
+            Assert.Contains("IsDarkTheme ? \"Dark\" : \"Light\"", viewModel, StringComparison.Ordinal);
+            Assert.Contains("ThemePipeline.Rebuild(", viewModel, StringComparison.Ordinal);
+            Assert.Contains("\"ThemeModeChipBackgroundBrush\"", viewModel, StringComparison.Ordinal);
+            Assert.Contains("\"ThemeModeChipForegroundBrush\"", viewModel, StringComparison.Ordinal);
+            Assert.Contains("resources[\"ThemeModeChipBackgroundBrush\"]", engine, StringComparison.Ordinal);
+            Assert.Contains("resources[\"ThemeModeChipForegroundBrush\"]", engine, StringComparison.Ordinal);
+            Assert.Contains("SelectedValue=\"{Binding ThemeMode, Mode=TwoWay}\"", modeCard, StringComparison.Ordinal);
+        }
+
+        [Fact]
         public void Live_family_preview_uses_the_same_tokens_as_erp_components()
         {
             string layout = Read("Views/Settings/Sections/Cards/AppearanceThemeLayoutCard.xaml");
