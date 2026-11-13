@@ -141,7 +141,7 @@
                 <ControlTemplate TargetType="RadioButton">
                     <Border x:Name="Root" CornerRadius="12" HorizontalAlignment="Stretch"
                             Background="{DynamicResource SurfacePrimaryBrush}"
-                            BorderBrush="{StaticResource OptIndigo}"
+                            BorderBrush="{DynamicResource ThemeCardEdgeBrush}"
                             BorderThickness="1.5" Padding="14,10" SnapsToDevicePixels="True">
                         <StackPanel Orientation="Horizontal" VerticalAlignment="Center">
                             <TextBlock x:Name="Icon" FontFamily="Segoe MDL2 Assets" FontSize="14"
@@ -167,7 +167,7 @@
                     </Border>
                     <ControlTemplate.Triggers>
                         <Trigger Property="IsMouseOver" Value="True">
-                            <Setter TargetName="Root" Property="Background" Value="{StaticResource OptIndigoSoft}"/>
+                            <Setter TargetName="Root" Property="Background" Value="{DynamicResource ThemeCardHighlightBrush}"/>
                         </Trigger>
                         <Trigger Property="IsChecked" Value="True">
                             <Setter TargetName="Root" Property="Background" Value="{StaticResource OptIndigo}"/>
@@ -406,7 +406,7 @@
     <!-- ══ Multi-Sheet Gallery Card Style ═══════════════════════════ -->
     <Style x:Key="OptGalleryCard" TargetType="Border">
         <Setter Property="Background" Value="{DynamicResource SurfacePrimaryBrush}"/>
-        <Setter Property="BorderBrush" Value="{StaticResource OptIndigo}"/>
+        <Setter Property="BorderBrush" Value="{DynamicResource ThemeCardEdgeBrush}"/>
         <Setter Property="BorderThickness" Value="1.5"/>
         <Setter Property="CornerRadius" Value="{DynamicResource OptCardRadius}"/>
         <Setter Property="Padding" Value="14"/>

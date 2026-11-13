@@ -686,6 +686,14 @@ namespace ProGlassAutomation.Tests.Theme
             }
         }
 
+        [Fact]
+        public void Optimization_gallery_and_unselected_rail_use_family_materials()
+        {
+            string styles = Read("Themes/Styles/OptimizationStyles.xaml");
+            Assert.Contains("DynamicResource ThemeCardEdgeBrush", styles, StringComparison.Ordinal);
+            Assert.Contains("DynamicResource ThemeCardHighlightBrush", styles, StringComparison.Ordinal);
+        }
+
         private static string ConstValue(string name)
         {
             var field = typeof(VisualThemeEngine).GetField(

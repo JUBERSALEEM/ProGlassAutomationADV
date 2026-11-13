@@ -199,3 +199,9 @@ Theme-specific styling must be token-driven and use dynamic resource resolution 
 - Migrated the stock, summary, jobs, and report tab status badge backgrounds to live theme-engine tint resources.
 - Migrated their badge outlines to the active family card-edge material.
 - Added a regression test that prevents these four tabs from reintroducing fixed Opt* status badge resources.
+
+
+### Optimization gallery and rail surface pass
+- Unselected optimization rail items now use the family-owned card edge; hover uses the family card highlight.
+- The multi-sheet gallery card now uses the family-owned card edge rather than the fixed Indigo outline.
+- Selected navigation and primary action Indigo accents remain intentional brand accents.
