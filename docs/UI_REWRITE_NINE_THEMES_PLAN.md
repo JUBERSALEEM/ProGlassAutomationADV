@@ -343,3 +343,8 @@ Theme-specific styling must be token-driven and use dynamic resource resolution 
 - Statement and Order Report module shells no longer merge the Indigo dashboard dictionary or use its legacy canvas key.
 - Both workspace roots now bind directly to the shared family-aware workspace surface; report generation, filters, data, and navigation remain unchanged.
 - Added regression coverage for the two report shell resource boundaries.
+
+
+### Tax Invoice and Order Report page roots
+- Tax Invoice Report and Order Report generator/list roots now use the family-aware workspace surface directly rather than the legacy Ov.Canvas alias.
+- All report data, preview, execution, filters, and navigation bindings are preserved; added regression coverage.

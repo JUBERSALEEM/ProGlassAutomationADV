@@ -1102,6 +1102,23 @@ namespace ProGlassAutomation.Tests.Theme
             }
         }
 
+        [Fact]
+        public void Tax_invoice_and_order_report_generator_pages_use_theme_workspace_roots()
+        {
+            string[] paths =
+            {
+                "Views/Reports/TaxInvoiceReport/TaxInvoiceReportView.xaml",
+                "Views/Reports/OrderReport/OrderReportGeneratorView.xaml",
+                "Views/Reports/OrderReport/OrderReportListView.xaml"
+            };
+            foreach (string path in paths)
+            {
+                string xaml = Read(path);
+                Assert.Contains("DynamicResource SurfaceWorkspaceBrush", xaml, StringComparison.Ordinal);
+                Assert.DoesNotContain("DynamicResource Ov.Canvas", xaml, StringComparison.Ordinal);
+            }
+        }
+
         private static string ConstValue(string name)
         {
             var field = typeof(VisualThemeEngine).GetField(
