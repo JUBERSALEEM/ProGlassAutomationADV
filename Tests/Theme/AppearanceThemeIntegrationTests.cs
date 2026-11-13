@@ -1,6 +1,7 @@
 using System.Windows;
 using System.Windows.Media;
 using System.Reflection;
+using System.Linq;
 using System;
 using System.IO;
 using System.Xml;
@@ -250,6 +251,8 @@ namespace ProGlassAutomation.Tests.Theme
                 .GetMethod("ApplyEightThemeMaterial",
                     BindingFlags.NonPublic | BindingFlags.Static);
             Assert.NotNull(publisher);
+            var familyFaceSignatures = new string[9];
+            int familyIndex = 0;
 
             foreach (var family in new[]
             {
@@ -262,6 +265,13 @@ namespace ProGlassAutomation.Tests.Theme
                 publisher!.Invoke(null, new object[] { resources, family });
 
                 Assert.Equal(family, resources["ThemeFamilyId"]);
+                Brush familyFace = Assert.IsAssignableFrom<Brush>(resources["ThemeCardFaceBrush"]);
+                familyFaceSignatures[familyIndex++] = familyFace switch
+                {
+                    SolidColorBrush solid => solid.Color.ToString(),
+                    LinearGradientBrush gradient => gradient.GradientStops[0].Color.ToString(),
+                    _ => familyFace.ToString() ?? string.Empty
+                };
                 foreach (var key in new[]
                 {
                     "SettingsCardFaceBrush", "SettingsCardEdgeBrush",
@@ -280,6 +290,8 @@ namespace ProGlassAutomation.Tests.Theme
                 Assert.IsAssignableFrom<System.Windows.Media.Effects.DropShadowEffect>(
                     resources["SettingsCardShadow"]);
             }
+
+            Assert.Equal(9, familyFaceSignatures.Distinct().Count());
         }
 
         [Fact]
