@@ -887,6 +887,25 @@ namespace ProGlassAutomation.Tests.Theme
             }
         }
 
+        [Fact]
+        public void Primary_module_dashboards_use_live_nine_family_palette_resources()
+        {
+            string[] dashboards =
+            {
+                "Views/Dashboard/JobOrder/JoDashboard/JoDashboardView.xaml",
+                "Views/Dashboard/ProformaInvoice/PiDashboardView.xaml",
+                "Views/Dashboard/SheetStore/SheetStoreDashboardView.xaml"
+            };
+            foreach (string path in dashboards)
+            {
+                string xaml = Read(path);
+                Assert.Contains("DynamicResource SurfaceWorkspaceBrush", xaml, StringComparison.Ordinal);
+                Assert.Contains("DynamicResource TextPrimaryBrush", xaml, StringComparison.Ordinal);
+                Assert.Contains("DynamicResource ThemeControlFaceBrush", xaml, StringComparison.Ordinal);
+                Assert.DoesNotContain("DynamicResource Ov.", xaml, StringComparison.Ordinal);
+            }
+        }
+
         private static string ConstValue(string name)
         {
             var field = typeof(VisualThemeEngine).GetField(

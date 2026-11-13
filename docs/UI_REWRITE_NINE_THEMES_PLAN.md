@@ -281,3 +281,9 @@ Theme-specific styling must be token-driven and use dynamic resource resolution 
 - Job Order saved list and God View now use active family workspace, text, accent, control-edge, and semantic danger/status brushes rather than the fixed Indigo dashboard palette.
 - Existing shared list card templates, KPI bindings, filters, search, open/history actions, and navigation remain unchanged.
 - Added regression coverage for both Job Order list surfaces.
+
+
+### Primary module dashboard palette migration
+- Job Order, Proforma Invoice, and Sheet Store dashboards now resolve workspace, text, accent, control, warning, success, and danger brushes from the active nine-family theme resources.
+- Existing dashboard-specific chart templates, status converters, KPI bindings, and navigation are retained; no financial or operational metrics were changed.
+- Added regression coverage for the three dashboard palette boundaries.

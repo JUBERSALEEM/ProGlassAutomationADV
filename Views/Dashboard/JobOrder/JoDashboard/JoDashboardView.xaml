@@ -13,8 +13,8 @@
     TextOptions.TextHintingMode="Fixed"
     UseLayoutRounding="True"
     SnapsToDevicePixels="True"
-    Foreground="{DynamicResource Ov.Ink}"
-    Background="{DynamicResource Ov.Canvas}">
+    Foreground="{DynamicResource TextPrimaryBrush}"
+    Background="{DynamicResource SurfaceWorkspaceBrush}">
     <UserControl.Resources>
         <ResourceDictionary>
             <ResourceDictionary.MergedDictionaries>
@@ -54,7 +54,7 @@
                 <StackPanel>
                     <Border
                         Style="{StaticResource Ds.StateBandStyle}"
-                        Background="{DynamicResource Ov.Soft}"
+                        Background="{DynamicResource ThemeControlFaceBrush}"
                         Visibility="{Binding IsLoading, Converter={StaticResource BoolToVisibilityConverter}}">
                         <Grid>
                             <Grid.ColumnDefinitions>
@@ -76,7 +76,7 @@
                     </Border>
                     <Border
                         Style="{StaticResource Ds.StateBandStyle}"
-                        Background="{DynamicResource Ov.DangerSoft}"
+                        Background="{DynamicResource TintRedBrush}"
                         Visibility="{Binding HasError, Converter={StaticResource BoolToVisibilityConverter}}">
                         <TextBlock Text="{Binding ErrorMessage}" Style="{StaticResource Ds.ErrorTextStyle}" TextWrapping="Wrap" />
                     </Border>
@@ -209,10 +209,10 @@
                                         <trend:TrendChartControl
                                             Points="{Binding StatusBars}"
                                             SeriesKind="Bar"
-                                            SeriesBrush="{DynamicResource Ov.Accent}"
-                                            SeriesEndBrush="{DynamicResource Ov.AreaEnd}"
-                                            GridBrush="{DynamicResource Ov.Line}"
-                                            LabelBrush="{DynamicResource Ov.Muted}"
+                                            SeriesBrush="{DynamicResource AccentBrush}"
+                                            SeriesEndBrush="{DynamicResource AccentBrush}"
+                                            GridBrush="{DynamicResource ThemeControlEdgeBrush}"
+                                            LabelBrush="{DynamicResource TextSecondaryBrush}"
                                             EmptyMessage="" />
                                     </Border>
                                     <StackPanel
@@ -276,10 +276,10 @@
                                         <trend:TrendChartControl
                                             Points="{Binding PriorityBars}"
                                             SeriesKind="Bar"
-                                            SeriesBrush="{DynamicResource Ov.Warning}"
-                                            SeriesEndBrush="{DynamicResource Ov.Warning}"
-                                            GridBrush="{DynamicResource Ov.Line}"
-                                            LabelBrush="{DynamicResource Ov.Muted}"
+                                            SeriesBrush="{DynamicResource WarningBrush}"
+                                            SeriesEndBrush="{DynamicResource WarningBrush}"
+                                            GridBrush="{DynamicResource ThemeControlEdgeBrush}"
+                                            LabelBrush="{DynamicResource TextSecondaryBrush}"
                                             EmptyMessage="" />
                                     </Border>
                                     <StackPanel
