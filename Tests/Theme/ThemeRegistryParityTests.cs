@@ -442,7 +442,7 @@ namespace ProGlassAutomation.Tests.Theme
             {
                 "BentoGrid", "SpatialImmersive", "SwissInternational",
                 "HolographicIridescent", "Neumorphism", "Claymorphism",
-                "LiquidGlass", "Glassmorphism"
+                "LiquidGlass", "Glassmorphism", "FluentAcrylic"
             })
             {
                 // Every switch arm must explicitly provide a dark and light
@@ -470,7 +470,8 @@ namespace ProGlassAutomation.Tests.Theme
         [InlineData(VisualThemeEngine.Claymorphism)]
         [InlineData(VisualThemeEngine.LiquidGlass)]
         [InlineData(VisualThemeEngine.Glassmorphism)]
-        public void Eight_theme_family_identity_round_trips(string family)
+        [InlineData(VisualThemeEngine.FluentAcrylic)]
+        public void Nine_theme_family_identity_round_trips(string family)
         {
             var parsed = ProGlassAutomation.Services.Theme.Engine.ProGlassThemeEngine.ParseFamily(family);
             Assert.Equal(family,
