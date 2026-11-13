@@ -238,3 +238,10 @@ Theme-specific styling must be token-driven and use dynamic resource resolution 
 - Eight production stage pages (polish, cutting, pairing, mitring, tempering, holes/cutouts, edge deletion, and doubling/lamination) now bind their page canvas to the live family workspace surface.
 - Removed the page-local Indigo dashboard palette merge from these pages; their production-stage hero and pipeline components remain intact.
 - Added regression coverage ensuring these stage pages no longer import the fixed Indigo canvas.
+
+
+### Job Order detail and list theme migration
+- Job Order detail style dictionary no longer imports the fixed Indigo dashboard palette or depends on its Ov.* resources.
+- Job Order cards and inset panels now inherit the nine-family rewrite card materials; form controls and line-item headers use family-owned control surfaces and edges.
+- Job Order list/detail workspace roots now use the live theme workspace surface. Status and semantic text colors resolve through the application's active theme resources.
+- Added regression coverage for the Job Order style and workspace resource contract.

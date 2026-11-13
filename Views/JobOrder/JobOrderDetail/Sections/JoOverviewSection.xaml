@@ -67,7 +67,7 @@
                                Style="{StaticResource Field.Label}"
                                Margin="0,0,0,6"/>
                     <Border Style="{StaticResource ModuleListKpiStripStyle}"
-                            BorderBrush="{DynamicResource BorderDefaultBrush}"
+                            BorderBrush="{DynamicResource ThemeCardEdgeBrush}"
                             BorderThickness="{DynamicResource CardBorderThickness}"
                             CornerRadius="{DynamicResource CardCornerRadius}"
                             Margin="0,0,0,8">
@@ -153,7 +153,7 @@
                                 <Border Style="{StaticResource SpecGroupCardStyle}">
                                     <StackPanel>
 
-                                        <Border Background="{DynamicResource SurfaceTertiaryBrush}"
+                                        <Border Background="{DynamicResource ThemeControlFaceBrush}"
                                                 Padding="12,6"
                                                 BorderBrush="{DynamicResource DividerBrush}"
                                                 BorderThickness="{DynamicResource Border.BottomHairlineThickness}">

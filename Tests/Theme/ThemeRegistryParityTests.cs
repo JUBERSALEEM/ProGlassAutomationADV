@@ -776,6 +776,22 @@ namespace ProGlassAutomation.Tests.Theme
             }
         }
 
+        [Fact]
+        public void Job_order_detail_styles_use_nine_family_materials_without_indigo_dictionary()
+        {
+            string styles = Read("Views/JobOrder/JobOrderDetail/Sections/JoSectionStyles.xaml");
+            string overview = Read("Views/JobOrder/JobOrderDetail/Sections/JoOverviewSection.xaml");
+            string detail = Read("Views/JobOrder/JobOrderDetail/JobOrderDetailView.xaml");
+            string list = Read("Views/JobOrder/JobOrderView.xaml");
+            Assert.DoesNotContain("IndigoStudioResources.xaml", styles, StringComparison.Ordinal);
+            Assert.DoesNotContain("Ov.", styles, StringComparison.Ordinal);
+            Assert.Contains("ProGlassRewriteCardStyle", styles, StringComparison.Ordinal);
+            Assert.Contains("ProGlassRewriteInsetStyle", styles, StringComparison.Ordinal);
+            Assert.Contains("DynamicResource ThemeCardEdgeBrush", overview, StringComparison.Ordinal);
+            Assert.Contains("DynamicResource SurfaceWorkspaceBrush", detail, StringComparison.Ordinal);
+            Assert.Contains("DynamicResource SurfaceWorkspaceBrush", list, StringComparison.Ordinal);
+        }
+
         private static string ConstValue(string name)
         {
             var field = typeof(VisualThemeEngine).GetField(
