@@ -30,16 +30,26 @@ public sealed class ThemeService : INotifyPropertyChanged
     private Action<ResourceDictionary, Appearance>? activeConfiguration;
     private static readonly Dictionary<(string Theme, Appearance Mode), ResourceDictionary> packed = new();
 
-    public void Initialize(ResourceDictionary resources)
+    public void Initialize(ResourceDictionary resources) =>
+        Initialize(resources, Bento, Appearance.Light);
+
+    /// <summary>Stage and validate the requested initial package before adding the slot.</summary>
+    public void Initialize(ResourceDictionary resources, string theme, Appearance appearance,
+        Action<ResourceDictionary, Appearance>? configure = null)
     {
         Application.Current.Dispatcher.VerifyAccess();
+        ArgumentNullException.ThrowIfNull(resources);
         if (applicationResources is not null)
             throw new InvalidOperationException("The theme engine is already initialized.");
-        var package = Load(Appearance.Light);
-        // One complete theme package; no visual dictionary survives a theme replacement.
+        // Load/validate before mutating the application resource graph. If this
+        // fails, the host keeps its old theme with no half-installed package.
+        var package = Load(appearance, theme, configure);
         resources.MergedDictionaries.Add(package);
         applicationResources = resources;
         activeResources = package;
+        activeConfiguration = configure;
+        ActiveTheme = theme;
+        ActiveAppearance = appearance;
     }
 
     public void Apply(string theme, Appearance appearance, Action<ResourceDictionary, Appearance>? configure = null)

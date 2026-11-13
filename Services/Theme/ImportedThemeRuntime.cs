@@ -41,14 +41,12 @@ public static class ImportedThemeRuntime
                 catch (Exception ex) when (ex is IOException or ArgumentException or InvalidOperationException)
                 { Logging.AppLogService.Warning("Could not synchronize imported customization snapshot: " + ex.Message); }
             }
-            engine.Initialize(resources);
+            engine.Initialize(resources, activeTheme, activeMode,
+                Configure(saved, activeTheme));
             engine.PackageChanged += OnPackageChanged;
             initialized = true;
             IconService.Apply(saved.Icons ?? new IconCustomizationState());
-            applyingFromHost = true;
-            engine.Apply(activeTheme, activeMode,
-                Configure(saved, ToImportedTheme(hostFamily)));
-            applyingFromHost = false;
+            PublishToHost();
             if (persistenceEnabled && !string.IsNullOrWhiteSpace(CustomizationStore.LoadWarning))
                 Logging.AppLogService.Warning("Theme customization recovered with defaults: " + CustomizationStore.LoadWarning);
         }
