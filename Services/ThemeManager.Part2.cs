@@ -948,6 +948,16 @@ namespace ProGlassAutomation.Services
             {
                 RestoreThemeBrush(resources, "SettingsCardFaceBrush");
                 RestoreThemeBrush(resources, "SettingsInnerFaceBrush");
+                // RestoreThemeBrush returns the Light/Dark dictionary baseline.
+                // Reattach the selected family's own Settings materials after
+                // a custom plate is cleared; otherwise Appearance silently
+                // falls back to one generic inner/card face for every family.
+                if (resources.Contains("ThemeSettingsCardFaceBrush") &&
+                    resources["ThemeSettingsCardFaceBrush"] is Brush familySettingsFace)
+                    resources["SettingsCardFaceBrush"] = familySettingsFace;
+                if (resources.Contains("ThemeSettingsInnerFaceBrush") &&
+                    resources["ThemeSettingsInnerFaceBrush"] is Brush familySettingsInnerFace)
+                    resources["SettingsInnerFaceBrush"] = familySettingsInnerFace;
                 RestoreThemeBrush(resources, "SurfacePrimaryBrush");
                 RestoreThemeBrush(resources, "SurfaceSecondaryBrush");
                 RestoreThemeBrush(resources, "SurfaceTertiaryBrush");
