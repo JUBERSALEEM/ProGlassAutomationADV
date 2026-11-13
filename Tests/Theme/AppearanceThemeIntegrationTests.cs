@@ -114,6 +114,7 @@ namespace ProGlassAutomation.Tests.Theme
             {
                 "SettingsHeroBrush", "SettingsOnAccentBrush", "SettingsOnAccentMutedBrush",
                 "SettingsHeroOverlayBrush", "SettingsHeroOverlayEdgeBrush",
+                "Ios26ValuePillBrush", "Ios26TextFaintBrush",
                 "SettingsCardFaceBrush", "SettingsCardEdgeBrush", "SettingsInnerEdgeBrush",
                 "SettingsCardShadow", "ThemeSettingsCardFaceBrush", "ThemeSettingsInnerFaceBrush", "ThemeSettingsCardEdgeBrush", "ThemeSettingsInnerEdgeBrush", "ThemeCardFaceBrush", "ThemeCardEdgeBrush",
                 "ThemeControlFaceBrush", "ThemeControlEdgeBrush", "ThemeCardHighlightBrush",
