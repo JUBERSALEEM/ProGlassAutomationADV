@@ -130,7 +130,7 @@
     <!-- ══ Bento Navigation Rail Tab ════════════════════════════════ -->
     <Style x:Key="OptRailTab" TargetType="RadioButton">
         <Setter Property="Foreground" Value="{DynamicResource TextPrimaryBrush}"/>
-        <Setter Property="FontSize" Value="{StaticResource TextBody}"/>
+        <Setter Property="FontSize" Value="{DynamicResource TextBody}"/>
         <Setter Property="FontWeight" Value="SemiBold"/>
         <Setter Property="Cursor" Value="Hand"/>
         <Setter Property="Margin" Value="0,0,8,0"/>
@@ -194,7 +194,7 @@
         <Setter Property="MinHeight" Value="36"/>
         <Setter Property="Padding" Value="10,0"/>
         <Setter Property="VerticalContentAlignment" Value="Center"/>
-        <Setter Property="FontSize" Value="{StaticResource TextBody}"/>
+        <Setter Property="FontSize" Value="{DynamicResource TextBody}"/>
         <Setter Property="behaviors:TextBoxBehaviors.SelectAllOnFocus" Value="True"/>
         <Setter Property="behaviors:TextBoxBehaviors.AcceptIntegersOnly" Value="True"/>
         <Setter Property="Template">
@@ -252,7 +252,7 @@
         <Setter Property="Foreground" Value="{DynamicResource PrimaryForegroundBrush}"/>
         <Setter Property="BorderBrush" Value="{DynamicResource ThemeControlEdgeBrush}"/>
         <Setter Property="BorderThickness" Value="1"/>
-        <Setter Property="FontSize" Value="{StaticResource TextBody}"/>
+        <Setter Property="FontSize" Value="{DynamicResource TextBody}"/>
         <Setter Property="ItemContainerStyle" Value="{StaticResource OptComboItem}"/>
         <Setter Property="Template">
             <Setter.Value>
@@ -274,7 +274,7 @@
                                                 <ColumnDefinition Width="Auto"/>
                                             </Grid.ColumnDefinitions>
                                             <TextBlock Grid.Column="1" Text="&#xE70D;" FontFamily="Segoe MDL2 Assets"
-                                                       FontSize="{StaticResource TextXSmall}" Foreground="{DynamicResource MutedForegroundBrush}"
+                                                       FontSize="{DynamicResource TextXSmall}" Foreground="{DynamicResource MutedForegroundBrush}"
                                                        VerticalAlignment="Center" Margin="0,0,10,0"/>
                                         </Grid>
                                     </Border>
@@ -320,7 +320,7 @@
         <Setter Property="Background" Value="Transparent"/>
         <Setter Property="BorderThickness" Value="0"/>
         <Setter Property="Foreground" Value="{DynamicResource MutedForegroundBrush}"/>
-        <Setter Property="FontSize" Value="{StaticResource TextCaption}"/>
+        <Setter Property="FontSize" Value="{DynamicResource TextCaption}"/>
         <Setter Property="FontWeight" Value="SemiBold"/>
         <Setter Property="Padding" Value="8,5"/>
         <Setter Property="Cursor" Value="Hand"/>
@@ -379,12 +379,12 @@
                             BorderThickness="1" SnapsToDevicePixels="True">
                         <StackPanel>
                             <TextBlock x:Name="No" Text="{Binding SheetNo, StringFormat='Sheet {0}'}"
-                                       FontSize="{StaticResource TextCaption}" FontWeight="Bold"
+                                       FontSize="{DynamicResource TextCaption}" FontWeight="Bold"
                                        Foreground="{DynamicResource PrimaryForegroundBrush}"/>
                             <TextBlock x:Name="Util" Text="{Binding Utilization}"
-                                       FontSize="{StaticResource TextXSmall}" FontWeight="SemiBold"
+                                       FontSize="{DynamicResource TextXSmall}" FontWeight="SemiBold"
                                        Foreground="{DynamicResource SuccessBrush}" Margin="0,1,0,0"/>
-                            <TextBlock Text="{Binding StockLabel}" FontSize="{StaticResource TextXSmall}"
+                            <TextBlock Text="{Binding StockLabel}" FontSize="{DynamicResource TextXSmall}"
                                        Foreground="{DynamicResource MutedForegroundBrush}" Margin="0,1,0,0"/>
                         </StackPanel>
                     </Border>
@@ -431,7 +431,7 @@
         <Setter Property="BorderThickness" Value="1"/>
         <Setter Property="Height" Value="36"/>
         <Setter Property="Padding" Value="16,0"/>
-        <Setter Property="FontSize" Value="{StaticResource TextBody}"/>
+        <Setter Property="FontSize" Value="{DynamicResource TextBody}"/>
         <Setter Property="FontWeight" Value="SemiBold"/>
         <Setter Property="Cursor" Value="Hand"/>
         <Setter Property="Template">
@@ -467,7 +467,7 @@
         <Setter Property="BorderThickness" Value="1"/>
         <Setter Property="Height" Value="36"/>
         <Setter Property="Padding" Value="14,0"/>
-        <Setter Property="FontSize" Value="{StaticResource TextBody}"/>
+        <Setter Property="FontSize" Value="{DynamicResource TextBody}"/>
         <Setter Property="FontWeight" Value="SemiBold"/>
         <Setter Property="Cursor" Value="Hand"/>
         <Setter Property="Template">
