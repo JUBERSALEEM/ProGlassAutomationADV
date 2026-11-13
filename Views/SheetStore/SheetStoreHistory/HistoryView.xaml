@@ -16,8 +16,8 @@
              DialogIcon="&#xE81C;"
              DialogSubtitle="{DynamicResource SheetStore.ChangeSheetStoreRecordedHere}"
              FontFamily="{DynamicResource AppFontFamily}"
-             Background="{DynamicResource Ov.Canvas}"
-             Foreground="{DynamicResource Ov.Ink}">
+             Background="{DynamicResource SurfaceWorkspaceBrush}"
+             Foreground="{DynamicResource TextPrimaryBrush}">
 
     <Window.InputBindings>
         <KeyBinding Key="Escape" Command="{Binding CloseCommand}"/>
@@ -176,7 +176,7 @@
                                         <TextBlock Text="{Binding Action}"
                                                    FontSize="{DynamicResource FontSize.BodySmall}"
                                                    FontWeight="{DynamicResource Weight.Bold}"
-                                                   Foreground="{DynamicResource Ov.OnAccent}"/>
+                                                   Foreground="{DynamicResource OnAccentForegroundBrush}"/>
                                     </Border>
 
                                     <!-- Sheet description -->
@@ -184,7 +184,7 @@
                                                Text="{Binding SheetDescription}"
                                                FontSize="{DynamicResource FontSize.Body}"
                                                FontWeight="{DynamicResource Weight.SemiBold}"
-                                               Foreground="{DynamicResource Ov.Ink}"
+                                               Foreground="{DynamicResource TextPrimaryBrush}"
                                                TextTrimming="CharacterEllipsis"
                                                VerticalAlignment="Center"
                                                ToolTip="{Binding SheetDescription}"/>
@@ -194,15 +194,15 @@
                                         <TextBlock Text="{Binding Details}"
                                                    FontSize="{DynamicResource FontSize.Body}"
                                                    TextTrimming="CharacterEllipsis"
-                                                   Foreground="{DynamicResource Ov.Ink}"
+                                                   Foreground="{DynamicResource TextPrimaryBrush}"
                                                    ToolTip="{Binding Details}"/>
                                         <Border Margin="0,3,0,0" Padding="8,2"
                                                 HorizontalAlignment="Left" CornerRadius="{DynamicResource Radius.Small}"
-                                                Background="{DynamicResource Ov.WarningSoft}"
+                                                Background="{DynamicResource TintAmberBrush}"
                                                 Visibility="{Binding IsReversed, Converter={StaticResource BoolToVisibilityConverter}}">
                                             <TextBlock Text="{DynamicResource SheetStore.ReversedBadge}"
                                                        FontSize="{DynamicResource FontSize.Caption}" FontWeight="{DynamicResource Weight.Bold}"
-                                                       Foreground="{DynamicResource Ov.Warning}"/>
+                                                       Foreground="{DynamicResource WarningBrush}"/>
                                         </Border>
                                     </StackPanel>
 
@@ -214,7 +214,7 @@
                                                HorizontalAlignment="Right"
                                                VerticalAlignment="Center"
                                                Typography.NumeralAlignment="Tabular"
-                                               Foreground="{DynamicResource Ov.Ink}"/>
+                                               Foreground="{DynamicResource TextPrimaryBrush}"/>
 
                                     <!-- User name -->
                                     <TextBlock Grid.Column="8"
@@ -222,7 +222,7 @@
                                                FontSize="{DynamicResource FontSize.BodySmall}"
                                                TextTrimming="CharacterEllipsis"
                                                VerticalAlignment="Center"
-                                               Foreground="{DynamicResource Ov.Muted}"
+                                               Foreground="{DynamicResource TextSecondaryBrush}"
                                                ToolTip="{Binding UserName}"/>
 
                                     <!-- Date & time -->
@@ -231,12 +231,12 @@
                                                    FontSize="{DynamicResource FontSize.BodySmall}"
                                                    FontWeight="{DynamicResource Weight.SemiBold}"
                                                    HorizontalAlignment="Right"
-                                                   Foreground="{DynamicResource Ov.Ink}"
+                                                   Foreground="{DynamicResource TextPrimaryBrush}"
                                                    Typography.NumeralAlignment="Tabular"/>
                                         <TextBlock Text="{Binding TimeDisplay}"
                                                    FontSize="{DynamicResource FontSize.Caption}"
                                                    HorizontalAlignment="Right"
-                                                   Foreground="{DynamicResource Ov.Muted}"
+                                                   Foreground="{DynamicResource TextSecondaryBrush}"
                                                    Typography.NumeralAlignment="Tabular"/>
                                     </StackPanel>
 
@@ -265,7 +265,7 @@
             <TextBlock VerticalAlignment="Center"
                        Margin="0,0,16,0"
                        FontSize="{DynamicResource FontSize.Body}"
-                       Foreground="{DynamicResource Ov.Muted}">
+                       Foreground="{DynamicResource TextSecondaryBrush}">
                 <TextBlock.Inlines>
                     <Run Text="{Binding TotalEntries, Mode=OneWay}"/>
                     <Run Text=" "/>

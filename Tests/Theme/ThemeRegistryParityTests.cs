@@ -817,6 +817,22 @@ namespace ProGlassAutomation.Tests.Theme
             Assert.DoesNotContain("Ov.", generator, StringComparison.Ordinal);
         }
 
+        [Fact]
+        public void Sheet_store_add_edit_and_history_use_nine_family_theme_surfaces()
+        {
+            string editor = Read("Views/SheetStore/AddEditSheetView.xaml");
+            string history = Read("Views/SheetStore/SheetStoreHistory/HistoryView.xaml");
+            Assert.DoesNotContain("IndigoStudioResources.xaml", editor, StringComparison.Ordinal);
+            Assert.DoesNotContain("Ov.", editor, StringComparison.Ordinal);
+            Assert.Contains("DynamicResource SurfaceWorkspaceBrush", editor, StringComparison.Ordinal);
+            Assert.Contains("ProGlassRewriteInsetStyle", editor, StringComparison.Ordinal);
+            Assert.Contains("ProGlassRewriteControlSurfaceStyle", editor, StringComparison.Ordinal);
+            Assert.Contains("DynamicResource SurfaceWorkspaceBrush", history, StringComparison.Ordinal);
+            Assert.Contains("DynamicResource TextPrimaryBrush", history, StringComparison.Ordinal);
+            Assert.Contains("DynamicResource TintAmberBrush", history, StringComparison.Ordinal);
+            Assert.DoesNotContain("Ov.", history, StringComparison.Ordinal);
+        }
+
         private static string ConstValue(string name)
         {
             var field = typeof(VisualThemeEngine).GetField(

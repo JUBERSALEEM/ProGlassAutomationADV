@@ -17,7 +17,7 @@
         WindowStartupLocation="CenterOwner"
         ResizeMode="CanResizeWithGrip"
         FontFamily="{DynamicResource AppFontFamily}"
-        Background="{DynamicResource Ov.Canvas}"
+        Background="{DynamicResource SurfaceWorkspaceBrush}"
         TextOptions.TextFormattingMode="Ideal"
         TextOptions.TextRenderingMode="ClearType"
         UseLayoutRounding="True"
@@ -30,10 +30,7 @@
 
     <Window.Resources>
         <ResourceDictionary>
-            <ResourceDictionary.MergedDictionaries>
-                <ResourceDictionary Source="../Dashboard/Overview/IndigoStudioResources.xaml"/>
-            </ResourceDictionary.MergedDictionaries>
-        </ResourceDictionary>
+            </ResourceDictionary>
     </Window.Resources>
 
     <Grid Margin="24">
@@ -50,14 +47,14 @@
                 <ColumnDefinition Width="Auto"/>
                 <ColumnDefinition Width="*"/>
             </Grid.ColumnDefinitions>
-            <Border Style="{StaticResource Ov.IconBox}" Grid.Column="0" Margin="0,0,12,0">
-                <TextBlock Text="&#xE7B8;" Style="{StaticResource Ov.Glyph}"/>
+            <Border Style="{StaticResource ProGlassRewriteControlSurfaceStyle}" Grid.Column="0" Margin="0,0,12,0">
+                <TextBlock Text="&#xE7B8;" Style="{StaticResource ProGlassRewriteCaptionStyle}"/>
             </Border>
             <StackPanel Grid.Column="1" VerticalAlignment="Center">
                 <TextBlock Text="{Binding DialogTitle}"
-                           Style="{StaticResource Ov.CardTitle}" FontSize="{DynamicResource FontSize.H2}"/>
+                           Style="{StaticResource ProGlassRewriteSectionTitleStyle}" FontSize="{DynamicResource FontSize.H2}"/>
                 <TextBlock Text="{DynamicResource SheetStore.EnterGlassSheetInventoryDetails}"
-                           Style="{StaticResource Ov.Meta}" Margin="0,2,0,0"/>
+                           Style="{StaticResource ProGlassRewriteCaptionStyle}" Margin="0,2,0,0"/>
             </StackPanel>
         </Grid>
 
@@ -74,10 +71,10 @@
                       behaviors:SmoothScrollBehavior.IsEnabled="True">
             <StackPanel>
                 <!-- Card 1: Glass Identity & Dimensions -->
-                <Border Style="{StaticResource Ov.CardCompact}" Margin="0,0,0,12">
+                <Border Style="{StaticResource ProGlassRewriteInsetStyle}" Margin="0,0,0,12">
                     <StackPanel>
                         <TextBlock Text="SPECIFICATIONS &amp; DIMENSIONS"
-                                   Style="{StaticResource Ov.Meta}"
+                                   Style="{StaticResource ProGlassRewriteCaptionStyle}"
                                    FontWeight="{DynamicResource Weight.Bold}"
                                    Foreground="{DynamicResource AccentBrush}"
                                    Margin="0,0,0,10"/>
@@ -159,10 +156,10 @@
                 </Border>
 
                 <!-- Card 2: Pricing & Stock Valuation -->
-                <Border Style="{StaticResource Ov.CardCompact}">
+                <Border Style="{StaticResource ProGlassRewriteInsetStyle}">
                     <StackPanel>
                         <TextBlock Text="COMMERCIAL PRICING &amp; OPENING STOCK"
-                                   Style="{StaticResource Ov.Meta}"
+                                   Style="{StaticResource ProGlassRewriteCaptionStyle}"
                                    FontWeight="{DynamicResource Weight.Bold}"
                                    Foreground="{DynamicResource AccentBrush}"
                                    Margin="0,0,0,10"/>
@@ -200,7 +197,7 @@
 
         <!-- Error Banner -->
         <Border Grid.Row="2"
-                Background="{DynamicResource Ov.DangerSoft}"
+                Background="{DynamicResource TintRedBrush}"
                 BorderBrush="{DynamicResource DangerBrush}"
                 BorderThickness="1"
                 CornerRadius="{DynamicResource Radius.Medium}"
