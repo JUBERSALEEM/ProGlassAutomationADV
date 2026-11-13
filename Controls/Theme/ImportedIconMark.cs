@@ -1,20 +1,19 @@
 using System.Windows;
 using System.Windows.Media;
-using System.Windows.Shapes;
 using ProGlassAutomation.Customization;
 
 namespace ProGlassAutomation.Controls.Theme;
 
 /// <summary>Live application icon mark backed by the imported icon catalog.</summary>
-public sealed class ImportedIconMark : Path
+public sealed class ImportedIconMark : FrameworkElement
 {
     public static readonly DependencyProperty IconNameProperty = DependencyProperty.Register(
         nameof(IconName), typeof(string), typeof(ImportedIconMark),
-        new FrameworkPropertyMetadata(string.Empty, OnNameChanged));
+        new FrameworkPropertyMetadata(string.Empty, OnVisualPropertyChanged));
 
     public static readonly DependencyProperty ForegroundProperty = DependencyProperty.Register(
         nameof(Foreground), typeof(Brush), typeof(ImportedIconMark),
-        new FrameworkPropertyMetadata(Brushes.Gray, OnNameChanged));
+        new FrameworkPropertyMetadata(Brushes.Gray, OnVisualPropertyChanged));
 
     public string IconName
     {
@@ -30,44 +29,75 @@ public sealed class ImportedIconMark : Path
 
     public ImportedIconMark()
     {
-        Stretch = Stretch.Uniform;
         Width = 14;
         Height = 14;
-        StrokeLineJoin = PenLineJoin.Round;
-        StrokeStartLineCap = PenLineCap.Round;
-        StrokeEndLineCap = PenLineCap.Round;
         Loaded += OnLoaded;
         Unloaded += OnUnloaded;
-        UpdateMark();
     }
 
-    private static void OnNameChanged(DependencyObject sender, DependencyPropertyChangedEventArgs e) =>
-        ((ImportedIconMark)sender).UpdateMark();
+    private static void OnVisualPropertyChanged(DependencyObject sender, DependencyPropertyChangedEventArgs e) =>
+        ((ImportedIconMark)sender).InvalidateVisual();
 
     private void OnLoaded(object sender, RoutedEventArgs e)
     {
         IconService.Changed += OnIconStyleChanged;
-        UpdateMark();
+        InvalidateVisual();
     }
 
     private void OnUnloaded(object sender, RoutedEventArgs e) => IconService.Changed -= OnIconStyleChanged;
-    private void OnIconStyleChanged(object? sender, EventArgs e) => UpdateMark();
+    private void OnIconStyleChanged(object? sender, EventArgs e) => InvalidateVisual();
 
-    private void UpdateMark()
+    protected override void OnRender(DrawingContext drawingContext)
     {
+        base.OnRender(drawingContext);
+        if (ActualWidth <= 0 || ActualHeight <= 0) return;
+
         IconMarkStyle style = IconService.Active.Style;
         IconRecipe recipe = IconService.Recipe(style);
-        IconKind kind = IconService.Resolve(IconName, fallback: IconKind.Theme);
-        Data = IconService.Mark(kind, style);
-        StrokeThickness = recipe.Stroke;
-        Fill = recipe.Filled || recipe.Duotone ? Foreground : null;
-        Stroke = recipe.Filled && !recipe.Duotone ? null : Foreground;
-        Opacity = recipe.Scale;
+        Geometry geometry = IconService.Mark(IconService.Resolve(IconName, fallback: IconKind.Theme), style);
+        Rect bounds = geometry.Bounds;
+        if (bounds.IsEmpty || bounds.Width <= 0 || bounds.Height <= 0) return;
+
+        double scale = Math.Min(ActualWidth / bounds.Width, ActualHeight / bounds.Height) * recipe.Scale;
+        double x = (ActualWidth - bounds.Width * scale) / 2 - bounds.Left * scale;
+        double y = (ActualHeight - bounds.Height * scale) / 2 - bounds.Top * scale;
+        drawingContext.PushTransform(new TransformGroup
+        {
+            Children =
+            {
+                new ScaleTransform(scale, scale),
+                new TranslateTransform(x, y)
+            }
+        });
+
         if (recipe.Plate)
         {
-            // Preserve shape legibility on the soft-chip styles without a
-            // hard dependency on a specific theme's plate brush.
-            Opacity = Math.Min(1d, recipe.Scale + 0.12d);
+            var plate = new SolidColorBrush(Color.FromArgb(0x24, 128, 128, 128));
+            plate.Freeze();
+            drawingContext.DrawEllipse(plate, null,
+                new Point(bounds.Left + bounds.Width / 2, bounds.Top + bounds.Height / 2),
+                bounds.Width * 0.55, bounds.Height * 0.55);
         }
+
+        Brush? fill = null;
+        if (recipe.Filled || recipe.Duotone)
+        {
+            if (recipe.Duotone)
+            {
+                var tint = Foreground is SolidColorBrush solid
+                    ? new SolidColorBrush(Color.FromArgb(0x55, solid.Color.R, solid.Color.G, solid.Color.B))
+                    : Foreground;
+                if (tint?.CanFreeze == true) tint.Freeze();
+                fill = tint;
+            }
+            else fill = Foreground;
+        }
+
+        Pen? pen = recipe.Stroke > 0
+            ? new Pen(Foreground, recipe.Stroke / Math.Max(scale, 0.01))
+            : null;
+        if (pen?.CanFreeze == true) pen.Freeze();
+        drawingContext.DrawGeometry(fill, pen, geometry);
+        drawingContext.Pop();
     }
 }
