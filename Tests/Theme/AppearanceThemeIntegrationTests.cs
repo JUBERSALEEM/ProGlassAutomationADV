@@ -112,7 +112,7 @@ namespace ProGlassAutomation.Tests.Theme
                 "SettingsHeroBrush", "SettingsOnAccentBrush", "SettingsOnAccentMutedBrush",
                 "SettingsHeroOverlayBrush", "SettingsHeroOverlayEdgeBrush",
                 "SettingsCardFaceBrush", "SettingsCardEdgeBrush", "SettingsInnerEdgeBrush",
-                "SettingsCardShadow", "ThemeSettingsCardFaceBrush", "ThemeSettingsInnerFaceBrush", "ThemeCardFaceBrush", "ThemeCardEdgeBrush",
+                "SettingsCardShadow", "ThemeSettingsCardFaceBrush", "ThemeSettingsInnerFaceBrush", "ThemeSettingsCardEdgeBrush", "ThemeSettingsInnerEdgeBrush", "ThemeCardFaceBrush", "ThemeCardEdgeBrush",
                 "ThemeControlFaceBrush", "ThemeControlEdgeBrush", "ThemeCardHighlightBrush",
                 "ThemeNavigationSelectedBrush", "ThemeTableBorderBrush"
             })
@@ -133,6 +133,23 @@ namespace ProGlassAutomation.Tests.Theme
             Assert.Contains("resources[\"ThemeSettingsInnerFaceBrush\"] is Brush familySettingsInnerFace",
                 composer, StringComparison.Ordinal);
             Assert.Contains("resources[\"SettingsInnerFaceBrush\"] = familySettingsInnerFace;",
+                composer, StringComparison.Ordinal);
+        }
+
+        [Fact]
+        public void Disabling_custom_outline_reattaches_family_owned_settings_edges()
+        {
+            string composer = Read("Services/ThemeManager.Part2.cs");
+
+            Assert.Contains("RestoreThemeBrush(resources, \"SettingsCardEdgeBrush\");",
+                composer, StringComparison.Ordinal);
+            Assert.Contains("resources[\"ThemeSettingsCardEdgeBrush\"] is Brush familyCardEdge",
+                composer, StringComparison.Ordinal);
+            Assert.Contains("resources[\"SettingsCardEdgeBrush\"] = familyCardEdge;",
+                composer, StringComparison.Ordinal);
+            Assert.Contains("resources[\"ThemeSettingsInnerEdgeBrush\"] is Brush familyInnerEdge",
+                composer, StringComparison.Ordinal);
+            Assert.Contains("resources[\"SettingsInnerEdgeBrush\"] = familyInnerEdge;",
                 composer, StringComparison.Ordinal);
         }
 
