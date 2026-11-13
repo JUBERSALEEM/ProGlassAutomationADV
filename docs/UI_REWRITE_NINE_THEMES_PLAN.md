@@ -232,3 +232,9 @@ Theme-specific styling must be token-driven and use dynamic resource resolution 
 - Production control-center KPI cards and the cutting work-center KPI panel use the active family card edge for their outlines.
 - Selected stage navigation and intentional hero branding remain unchanged; workflow data and production behavior are untouched.
 - Added regression coverage for the production workspace and card-edge resources.
+
+
+### Production stage page workspace migration
+- Eight production stage pages (polish, cutting, pairing, mitring, tempering, holes/cutouts, edge deletion, and doubling/lamination) now bind their page canvas to the live family workspace surface.
+- Removed the page-local Indigo dashboard palette merge from these pages; their production-stage hero and pipeline components remain intact.
+- Added regression coverage ensuring these stage pages no longer import the fixed Indigo canvas.

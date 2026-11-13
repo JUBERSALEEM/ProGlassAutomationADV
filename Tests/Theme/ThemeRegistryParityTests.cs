@@ -753,6 +753,29 @@ namespace ProGlassAutomation.Tests.Theme
             Assert.DoesNotContain("DynamicResource Ov.Canvas", release, StringComparison.Ordinal);
         }
 
+        [Fact]
+        public void Production_stage_pages_do_not_import_fixed_indigo_dashboard_canvas()
+        {
+            string[] pages =
+            {
+                "Views/Production/PolishView.xaml",
+                "Views/Production/CuttingView.xaml",
+                "Views/Production/PairingView.xaml",
+                "Views/Production/MitringView.xaml",
+                "Views/Production/TemperingView.xaml",
+                "Views/Production/HolesCutoutsView.xaml",
+                "Views/Production/EdgeDeletionView.xaml",
+                "Views/Production/DoublingLaminationView.xaml"
+            };
+            foreach (string path in pages)
+            {
+                string xaml = Read(path);
+                Assert.Contains("DynamicResource SurfaceWorkspaceBrush", xaml, StringComparison.Ordinal);
+                Assert.DoesNotContain("IndigoStudioResources.xaml", xaml, StringComparison.Ordinal);
+                Assert.DoesNotContain("Ov.Canvas", xaml, StringComparison.Ordinal);
+            }
+        }
+
         private static string ConstValue(string name)
         {
             var field = typeof(VisualThemeEngine).GetField(
