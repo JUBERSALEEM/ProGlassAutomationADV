@@ -462,6 +462,36 @@ namespace ProGlassAutomation.Tests.Theme
         }
 
         [Theory]
+        [InlineData(ProGlassAutomation.Services.Theme.Engine.ProGlassThemeFamily.BentoGrid)]
+        [InlineData(ProGlassAutomation.Services.Theme.Engine.ProGlassThemeFamily.SpatialImmersive)]
+        [InlineData(ProGlassAutomation.Services.Theme.Engine.ProGlassThemeFamily.SwissInternational)]
+        [InlineData(ProGlassAutomation.Services.Theme.Engine.ProGlassThemeFamily.HolographicIridescent)]
+        [InlineData(ProGlassAutomation.Services.Theme.Engine.ProGlassThemeFamily.Neumorphism)]
+        [InlineData(ProGlassAutomation.Services.Theme.Engine.ProGlassThemeFamily.Claymorphism)]
+        [InlineData(ProGlassAutomation.Services.Theme.Engine.ProGlassThemeFamily.LiquidGlass)]
+        [InlineData(ProGlassAutomation.Services.Theme.Engine.ProGlassThemeFamily.Glassmorphism)]
+        [InlineData(ProGlassAutomation.Services.Theme.Engine.ProGlassThemeFamily.FluentAcrylic)]
+        public void Fallback_palette_is_family_specific_in_both_modes(
+            ProGlassAutomation.Services.Theme.Engine.ProGlassThemeFamily family)
+        {
+            var industrialLight = ProGlassAutomation.Services.Theme.Engine.ProGlassPalettes.Resolve(
+                ProGlassAutomation.Services.Theme.Engine.ProGlassThemeFamily.Industrial,
+                ProGlassAutomation.Services.Theme.Engine.ProGlassThemeMode.Light);
+            var industrialDark = ProGlassAutomation.Services.Theme.Engine.ProGlassPalettes.Resolve(
+                ProGlassAutomation.Services.Theme.Engine.ProGlassThemeFamily.Industrial,
+                ProGlassAutomation.Services.Theme.Engine.ProGlassThemeMode.Dark);
+            var light = ProGlassAutomation.Services.Theme.Engine.ProGlassPalettes.Resolve(
+                family, ProGlassAutomation.Services.Theme.Engine.ProGlassThemeMode.Light);
+            var dark = ProGlassAutomation.Services.Theme.Engine.ProGlassPalettes.Resolve(
+                family, ProGlassAutomation.Services.Theme.Engine.ProGlassThemeMode.Dark);
+
+            Assert.NotEqual(industrialLight.Window, light.Window);
+            Assert.NotEqual(industrialLight.Accent, light.Accent);
+            Assert.NotEqual(industrialDark.Window, dark.Window);
+            Assert.NotEqual(industrialDark.Accent, dark.Accent);
+        }
+
+        [Theory]
         [InlineData(VisualThemeEngine.BentoGrid)]
         [InlineData(VisualThemeEngine.SpatialImmersive)]
         [InlineData(VisualThemeEngine.SwissInternational)]
