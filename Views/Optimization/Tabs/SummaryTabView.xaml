@@ -70,8 +70,8 @@
                             <Grid Margin="0,0,0,4">
                                 <TextBlock Text="TOTAL OFFCUT / SCRAP" Style="{StaticResource OptHeader}"/>
                                 <Border HorizontalAlignment="Right" Style="{StaticResource OptKpiBadge}"
-                                        Width="26" Height="26" Background="{StaticResource OptWarningBg}"
-                                        BorderBrush="{StaticResource OptWarningBorder}" BorderThickness="1">
+                                        Width="26" Height="26" Background="{DynamicResource TintAmberBrush}"
+                                        BorderBrush="{DynamicResource ThemeCardEdgeBrush}" BorderThickness="1">
                                     <TextBlock Text="&#xE9D9;" FontFamily="Segoe MDL2 Assets" FontSize="13"
                                                Foreground="{StaticResource OptWarningInk}"
                                                HorizontalAlignment="Center" VerticalAlignment="Center"/>
@@ -92,8 +92,8 @@
                             <Grid Margin="0,0,0,4">
                                 <TextBlock Text="UNPLACED PIECES" Style="{StaticResource OptHeader}"/>
                                 <Border HorizontalAlignment="Right" Style="{StaticResource OptKpiBadge}"
-                                        Width="26" Height="26" Background="{StaticResource OptInfoBg}"
-                                        BorderBrush="{StaticResource OptInfoBorder}" BorderThickness="1">
+                                        Width="26" Height="26" Background="{DynamicResource TintBlueBrush}"
+                                        BorderBrush="{DynamicResource ThemeCardEdgeBrush}" BorderThickness="1">
                                     <TextBlock Text="&#xE80A;" FontFamily="Segoe MDL2 Assets" FontSize="13"
                                                Foreground="{StaticResource OptInfoInk}"
                                                HorizontalAlignment="Center" VerticalAlignment="Center"/>
@@ -113,8 +113,8 @@
                             <Grid Margin="0,0,0,4">
                                 <TextBlock Text="ENGINE VERIFICATION" Style="{StaticResource OptHeader}"/>
                                 <Border HorizontalAlignment="Right" Style="{StaticResource OptKpiBadge}"
-                                        Width="26" Height="26" Background="{StaticResource OptSuccessBg}"
-                                        BorderBrush="{StaticResource OptSuccessBorder}" BorderThickness="1">
+                                        Width="26" Height="26" Background="{DynamicResource TintGreenBrush}"
+                                        BorderBrush="{DynamicResource ThemeCardEdgeBrush}" BorderThickness="1">
                                     <TextBlock Text="&#xE73E;" FontFamily="Segoe MDL2 Assets" FontSize="13"
                                                Foreground="{StaticResource OptSuccessInk}"
                                                HorizontalAlignment="Center" VerticalAlignment="Center"/>
@@ -303,10 +303,10 @@
                                                                 CornerRadius="4" Padding="6,2">
                                                             <Border.Style>
                                                                 <Style TargetType="Border">
-                                                                    <Setter Property="Background" Value="{StaticResource OptSuccessBg}"/>
+                                                                    <Setter Property="Background" Value="{DynamicResource TintGreenBrush}"/>
                                                                     <Style.Triggers>
                                                                         <DataTrigger Binding="{Binding UtilizationTone}" Value="Mid">
-                                                                            <Setter Property="Background" Value="{StaticResource OptWarningBg}"/>
+                                                                            <Setter Property="Background" Value="{DynamicResource TintAmberBrush}"/>
                                                                         </DataTrigger>
                                                                         <DataTrigger Binding="{Binding UtilizationTone}" Value="Low">
                                                                             <Setter Property="Background" Value="{DynamicResource TintRedBrush}"/>
@@ -352,8 +352,8 @@
 
                         <!-- Unplaced pieces warning alert banner -->
                         <StackPanel Margin="0,16,0,0" Visibility="{Binding HasUnplaced, Converter={StaticResource BoolToVisibilityConverter}}">
-                            <Border CornerRadius="8" Background="{StaticResource OptWarningBg}"
-                                    BorderBrush="{StaticResource OptWarningBorder}" BorderThickness="1"
+                            <Border CornerRadius="8" Background="{DynamicResource TintAmberBrush}"
+                                    BorderBrush="{DynamicResource ThemeCardEdgeBrush}" BorderThickness="1"
                                     Padding="14,10" Margin="0,0,0,8">
                                 <StackPanel Orientation="Horizontal">
                                     <TextBlock Text="&#xE7BA;" FontFamily="Segoe MDL2 Assets" FontSize="16"

@@ -207,8 +207,8 @@
                             </StackPanel>
 
                             <StackPanel Grid.Column="1" Orientation="Horizontal" VerticalAlignment="Center">
-                                <Border CornerRadius="6" Background="{StaticResource OptSuccessBg}"
-                                        BorderBrush="{StaticResource OptSuccessBorder}" BorderThickness="1"
+                                <Border CornerRadius="6" Background="{DynamicResource TintGreenBrush}"
+                                        BorderBrush="{DynamicResource ThemeCardEdgeBrush}" BorderThickness="1"
                                         Padding="10,6" VerticalAlignment="Center" Margin="0,0,14,0">
                                     <TextBlock Text="{Binding ResultOracle}" FontSize="11"
                                                FontWeight="Bold" Foreground="{StaticResource OptSuccessInk}"/>
@@ -442,10 +442,10 @@
                                                         CornerRadius="4" Padding="6,2">
                                                     <Border.Style>
                                                         <Style TargetType="Border">
-                                                            <Setter Property="Background" Value="{StaticResource OptSuccessBg}"/>
+                                                            <Setter Property="Background" Value="{DynamicResource TintGreenBrush}"/>
                                                             <Style.Triggers>
                                                                 <DataTrigger Binding="{Binding UtilizationTone}" Value="Mid">
-                                                                    <Setter Property="Background" Value="{StaticResource OptWarningBg}"/>
+                                                                    <Setter Property="Background" Value="{DynamicResource TintAmberBrush}"/>
                                                                 </DataTrigger>
                                                                 <DataTrigger Binding="{Binding UtilizationTone}" Value="Low">
                                                                     <Setter Property="Background" Value="#FEE2E2"/>

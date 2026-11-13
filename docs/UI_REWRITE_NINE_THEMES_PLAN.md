@@ -193,3 +193,9 @@ Theme-specific styling must be token-driven and use dynamic resource resolution 
 - Integer inputs and combo boxes now use the nine-family control face and edge materials.
 - Optimization navigation rail cards now inherit family card edges while retaining the selected Indigo identity accent.
 - Added source regression coverage for the shared optimization primitives. The branded hero and its on-brand text contrast are intentionally preserved.
+
+
+### Optimization tab badge migration
+- Migrated the stock, summary, jobs, and report tab status badge backgrounds to live theme-engine tint resources.
+- Migrated their badge outlines to the active family card-edge material.
+- Added a regression test that prevents these four tabs from reintroducing fixed Opt* status badge resources.

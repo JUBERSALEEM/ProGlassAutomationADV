@@ -665,6 +665,27 @@ namespace ProGlassAutomation.Tests.Theme
             Assert.Contains("DynamicResource SurfacePrimaryBrush", styles, StringComparison.Ordinal);
         }
 
+        [Fact]
+        public void Optimization_tabs_do_not_use_fixed_status_badge_brushes()
+        {
+            string[] paths =
+            {
+                "Views/Optimization/Tabs/StocksTabView.xaml",
+                "Views/Optimization/Tabs/SummaryTabView.xaml",
+                "Views/Optimization/Tabs/JobsTabView.xaml",
+                "Views/Optimization/Tabs/ReportTabView.xaml"
+            };
+            foreach (string path in paths)
+            {
+                string xaml = Read(path);
+                Assert.DoesNotContain("StaticResource OptSuccessBg", xaml, StringComparison.Ordinal);
+                Assert.DoesNotContain("StaticResource OptWarningBg", xaml, StringComparison.Ordinal);
+                Assert.DoesNotContain("StaticResource OptInfoBg", xaml, StringComparison.Ordinal);
+                Assert.DoesNotContain("StaticResource OptSuccessBorder", xaml, StringComparison.Ordinal);
+                Assert.DoesNotContain("StaticResource OptWarningBorder", xaml, StringComparison.Ordinal);
+            }
+        }
+
         private static string ConstValue(string name)
         {
             var field = typeof(VisualThemeEngine).GetField(

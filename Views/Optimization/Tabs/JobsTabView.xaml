@@ -99,17 +99,17 @@
 
                                         <!-- Badge Pills -->
                                         <StackPanel Orientation="Horizontal">
-                                            <Border Background="{StaticResource OptInfoBg}" BorderBrush="{StaticResource OptInfoBorder}"
+                                            <Border Background="{DynamicResource TintBlueBrush}" BorderBrush="{DynamicResource ThemeCardEdgeBrush}"
                                                     BorderThickness="1" CornerRadius="4" Padding="6,2">
                                                 <TextBlock Text="{Binding PiecesLabel}" FontSize="10"
                                                            FontWeight="Bold" Foreground="{StaticResource OptInfoInk}"/>
                                             </Border>
-                                            <Border Background="{StaticResource OptWarningBg}" BorderBrush="{StaticResource OptWarningBorder}"
+                                            <Border Background="{DynamicResource TintAmberBrush}" BorderBrush="{DynamicResource ThemeCardEdgeBrush}"
                                                     BorderThickness="1" CornerRadius="4" Padding="6,2" Margin="6,0,0,0">
                                                 <TextBlock Text="{Binding AreaLabel}" FontSize="10"
                                                            FontWeight="Bold" Foreground="{StaticResource OptWarningInk}"/>
                                             </Border>
-                                            <Border Background="{StaticResource OptSuccessBg}" BorderBrush="{StaticResource OptSuccessBorder}"
+                                            <Border Background="{DynamicResource TintGreenBrush}" BorderBrush="{DynamicResource ThemeCardEdgeBrush}"
                                                     BorderThickness="1" CornerRadius="4" Padding="6,2" Margin="6,0,0,0">
                                                 <TextBlock Text="{Binding SpecCountLabel}" FontSize="10"
                                                            FontWeight="Bold" Foreground="{StaticResource OptSuccessInk}"/>

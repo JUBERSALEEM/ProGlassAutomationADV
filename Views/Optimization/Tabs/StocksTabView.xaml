@@ -169,7 +169,7 @@
                                                 <Run Text="{Binding AvailableText, Mode=OneWay}"/>
                                             </TextBlock>
                                             <Border Grid.Column="4" HorizontalAlignment="Left" VerticalAlignment="Center"
-                                                    Background="{StaticResource OptSuccessBg}" BorderBrush="{StaticResource OptSuccessBorder}"
+                                                    Background="{DynamicResource TintGreenBrush}" BorderBrush="{DynamicResource ThemeCardEdgeBrush}"
                                                     BorderThickness="1" CornerRadius="4" Padding="6,2"
                                                     Visibility="{Binding HasUsed, Converter={StaticResource BoolToVisibilityConverter}}">
                                                 <TextBlock Text="{Binding UsedLabel}" FontSize="11" FontWeight="Bold"
