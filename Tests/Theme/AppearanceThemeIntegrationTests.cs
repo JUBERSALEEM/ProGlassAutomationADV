@@ -112,11 +112,28 @@ namespace ProGlassAutomation.Tests.Theme
                 "SettingsHeroBrush", "SettingsOnAccentBrush", "SettingsOnAccentMutedBrush",
                 "SettingsHeroOverlayBrush", "SettingsHeroOverlayEdgeBrush",
                 "SettingsCardFaceBrush", "SettingsCardEdgeBrush", "SettingsInnerEdgeBrush",
-                "SettingsCardShadow", "ThemeCardFaceBrush", "ThemeCardEdgeBrush",
+                "SettingsCardShadow", "ThemeSettingsCardFaceBrush", "ThemeSettingsInnerFaceBrush", "ThemeCardFaceBrush", "ThemeCardEdgeBrush",
                 "ThemeControlFaceBrush", "ThemeControlEdgeBrush", "ThemeCardHighlightBrush",
                 "ThemeNavigationSelectedBrush", "ThemeTableBorderBrush"
             })
                 Assert.Contains($"resources[\"{key}\"]", engine, StringComparison.Ordinal);
+        }
+
+        [Fact]
+        public void Clearing_custom_surface_settings_reattaches_family_owned_settings_materials()
+        {
+            string composer = Read("Services/ThemeManager.Part2.cs");
+
+            Assert.Contains("RestoreThemeBrush(resources, \"SettingsCardFaceBrush\");",
+                composer, StringComparison.Ordinal);
+            Assert.Contains("resources[\"ThemeSettingsCardFaceBrush\"] is Brush familySettingsFace",
+                composer, StringComparison.Ordinal);
+            Assert.Contains("resources[\"SettingsCardFaceBrush\"] = familySettingsFace;",
+                composer, StringComparison.Ordinal);
+            Assert.Contains("resources[\"ThemeSettingsInnerFaceBrush\"] is Brush familySettingsInnerFace",
+                composer, StringComparison.Ordinal);
+            Assert.Contains("resources[\"SettingsInnerFaceBrush\"] = familySettingsInnerFace;",
+                composer, StringComparison.Ordinal);
         }
 
         [Fact]
