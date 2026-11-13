@@ -643,7 +643,7 @@
     <!-- ROW 3 · the one primary action — solid white pill, indigo text -->
     <Style x:Key="OptHeroPillButton" TargetType="Button">
         <Setter Property="Background" Value="{DynamicResource ThemeNavigationSelectedForegroundBrush}"/>
-        <Setter Property="Foreground" Value="{DynamicResource ThemeNavigationSelectedBrush}"/>
+        <Setter Property="Foreground" Value="{DynamicResource AccentBrush}"/>
         <Setter Property="BorderBrush" Value="{DynamicResource ThemeNavigationSelectedForegroundBrush}"/>
         <Setter Property="BorderThickness" Value="1"/>
         <Setter Property="Height" Value="36"/>
