@@ -37,6 +37,11 @@ internal static class RuntimeChecks
                 ["PgPageBrush"] = Brushes.Black,
                 ["PgSurfaceBrush"] = Brushes.Black,
                 ["PgAccentBrush"] = Brushes.Black,
+                ["Surface.Primary.BackgroundBrush"] = Brushes.Black,
+                ["Surface.Primary.BorderBrush"] = Brushes.Black,
+                ["Surface.Primary.BorderThickness"] = new Thickness(1),
+                ["Surface.Primary.CornerRadius"] = new CornerRadius(2),
+                ["Surface.Primary.Padding"] = new Thickness(4),
                 ["PgText1Brush"] = Brushes.Black,
                 ["PgCardRadius"] = new CornerRadius(2),
                 ["PgFontBody"] = 10d,
@@ -84,6 +89,21 @@ internal static class RuntimeChecks
             Check(app.TryFindResource("PgFontBody") is double shellFont &&
                   shellFont == (double)ImportedThemeRuntime.Engine.GetToken("FontSizeBody"),
                 "imported typography reaches live Meridian typography styles");
+            Check(app.TryFindResource("Surface.Primary.BackgroundBrush") is Brush semanticSurface &&
+                  semanticSurface == ImportedThemeRuntime.Engine.GetToken("SurfacePrimary"),
+                "imported primary surface reaches the existing ERP semantic surface resource");
+            Check(app.TryFindResource("Surface.Primary.BorderBrush") is Brush semanticBorder &&
+                  semanticBorder == ImportedThemeRuntime.Engine.GetToken("BorderSubtle"),
+                "imported border token reaches the existing ERP semantic border resource");
+            Check(app.TryFindResource("Surface.Primary.CornerRadius") is CornerRadius semanticRadius &&
+                  semanticRadius == (CornerRadius)ImportedThemeRuntime.Engine.GetToken("CardCornerRadius"),
+                "imported card geometry reaches the existing ERP semantic surface resource");
+            Check(app.TryFindResource("Surface.Primary.Padding") is Thickness semanticPadding &&
+                  semanticPadding == (Thickness)ImportedThemeRuntime.Engine.GetToken("PaddingCard"),
+                "imported card padding reaches the existing ERP semantic surface resource");
+            Check(app.TryFindResource("Imported.SurfacePrimaryColor") is Color localSurfaceColor &&
+                  localSurfaceColor == ((SolidColorBrush)ImportedThemeRuntime.Engine.GetToken("SurfacePrimary")).Color,
+                "imported surface color is published for view-local brush dictionaries");
             Check(app.TryFindResource("PrimaryButtonStyle") is Style primaryStyle &&
                   ReferenceEquals(primaryStyle, ImportedThemeRuntime.Engine.GetResource("PrimaryButton")),
                 "host primary-button style resolves to the active imported family style");
@@ -133,6 +153,12 @@ internal static class RuntimeChecks
                 Check(app.TryFindResource("PgCardRadius") is CornerRadius activeShellRadius &&
                       activeShellRadius == (CornerRadius)ImportedThemeRuntime.Engine.GetToken("CardCornerRadius"),
                     family + " geometry reaches visible cards");
+                Check(app.TryFindResource("Surface.Primary.BackgroundBrush") is Brush activeSemanticSurface &&
+                      activeSemanticSurface == ImportedThemeRuntime.Engine.GetToken("SurfacePrimary"),
+                    family + " primary surface reaches the ERP semantic style vocabulary");
+                Check(app.TryFindResource("Imported.SurfacePrimaryColor") is Color activeLocalSurfaceColor &&
+                      activeLocalSurfaceColor == ((SolidColorBrush)ImportedThemeRuntime.Engine.GetToken("SurfacePrimary")).Color,
+                    family + " family surface color is republished for view-local dictionaries");
                 ResourceValidation.Validate(ImportedThemeRuntime.Engine.Load(
                     dark ? Appearance.Dark : Appearance.Light, expected), family + " / " + (dark ? "Dark" : "Light"));
                 Check(app.Resources.MergedDictionaries.Count == slotCount, "theme switch keeps a single package slot");

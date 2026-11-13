@@ -191,9 +191,13 @@ public static class ImportedThemeRuntime
         CopyBrush(engine, resources, "HeroSecondaryText", "HeroSecondaryTextBrush");
         CopyBrush(engine, resources, "HeroAccent", "HeroAccentBrush");
         CopyBrush(engine, resources, "ApplicationBackground", "BackgroundBrush", "WindowBackgroundBrush", "WindowBackgroundBrush.Semantic", "PgPageBrush", "PgModuleBgBrush");
-        CopyBrush(engine, resources, "SurfacePrimary", "ModuleBackgroundBrush", "SurfacePrimaryBrush", "SurfaceInputBrush", "Surface.WorkspaceBrush", "ReportPrimaryBrush", "PgSurfaceBrush", "PgPorcelainSurfaceBrush");
-        CopyBrush(engine, resources, "SurfaceSecondary", "DialogInsetBrush", "SurfaceSecondaryBrush", "Surface.InputBrush", "ReportSecondaryBrush", "PgSurface2Brush", "PgLavenderRibbonBrush");
-        CopyBrush(engine, resources, "SurfaceElevated", "ElevatedSurfaceBrush", "SideMenuBackgroundBrush", "DialogSurfaceBrush", "SurfaceTertiaryBrush", "SurfaceOverlayBrush", "PgSurface3Brush");
+        CopyBrush(engine, resources, "SurfacePrimary", "ModuleBackgroundBrush", "SurfacePrimaryBrush", "SurfaceInputBrush", "Surface.WorkspaceBrush", "ReportPrimaryBrush", "PgSurfaceBrush", "PgPorcelainSurfaceBrush", "Surface.Primary.BackgroundBrush", "Surface.Primary.Background", "Surface.Primary.LiveFill");
+        CopyBrush(engine, resources, "SurfaceSecondary", "DialogInsetBrush", "SurfaceSecondaryBrush", "Surface.InputBrush", "ReportSecondaryBrush", "PgSurface2Brush", "PgLavenderRibbonBrush", "Surface.Secondary.BackgroundBrush", "Surface.Secondary.Background", "Surface.Secondary.LiveFill");
+        CopyBrush(engine, resources, "SurfaceElevated", "ElevatedSurfaceBrush", "SideMenuBackgroundBrush", "DialogSurfaceBrush", "SurfaceTertiaryBrush", "SurfaceOverlayBrush", "PgSurface3Brush", "Surface.Detail.BackgroundBrush", "Surface.Detail.Background", "Surface.Detail.LiveFill", "Surface.Elevated.Background", "Surface.Kpi.Background", "Surface.Glass.Background");
+        if (engine.GetToken("SurfacePrimary") is SolidColorBrush primarySurface)
+            resources["Imported.SurfacePrimaryColor"] = primarySurface.Color;
+        if (engine.GetToken("SurfaceSecondary") is SolidColorBrush secondarySurface)
+            resources["Imported.SurfaceSecondaryColor"] = secondarySurface.Color;
         CopyBrush(engine, resources, "TextPrimary", "PrimaryForegroundBrush", "TextPrimaryBrush", "ReportTextBrush", "ReportHeaderBrush", "PgText1Brush", "PgVioletInkBrush");
         CopyBrush(engine, resources, "TextSecondary", "SecondaryForegroundBrush", "TextSecondaryBrush", "PgText2Brush");
         CopyBrush(engine, resources, "TextMuted", "MutedForegroundBrush", "TextTertiaryBrush", "PgText3Brush", "PgTextMutedBrush");
@@ -204,8 +208,8 @@ public static class ImportedThemeRuntime
         CopyBrush(engine, resources, "AccentHover", "AccentHoverBrush", "PgAccentHoverBrush", "PgLavenderHoverBrush");
         CopyBrush(engine, resources, "AccentPressed", "AccentPressedBrush", "TabPressedBrush", "PgLavenderPressedBrush");
         CopyBrush(engine, resources, "FocusIndicator", "FocusIndicatorBrush", "BorderFocusBrush", "InputFocusBorderBrush", "Input.FocusBrush", "TabFocusBrush");
-        CopyBrush(engine, resources, "BorderSubtle", "BorderBrush", "OutlineDefaultBrush", "DividerBrush", "BorderDefaultBrush", "ReportBorderBrush", "PgHairlineBrush", "PgKeylineBrush");
-        CopyBrush(engine, resources, "BorderStrong", "BorderStrongBrush", "OutlineStrongBrush", "InputBorderBrush", "PgHairlineStrongBrush");
+        CopyBrush(engine, resources, "BorderSubtle", "BorderBrush", "OutlineDefaultBrush", "DividerBrush", "BorderDefaultBrush", "ReportBorderBrush", "PgHairlineBrush", "PgKeylineBrush", "Surface.Primary.BorderBrush", "Surface.Primary.Border", "Surface.Secondary.BorderBrush", "Surface.Secondary.Border", "Surface.Detail.BorderBrush", "Surface.Detail.Border");
+        CopyBrush(engine, resources, "BorderStrong", "BorderStrongBrush", "OutlineStrongBrush", "InputBorderBrush", "PgHairlineStrongBrush", "Surface.Elevated.Border", "Surface.Kpi.Border", "Surface.Glass.Border");
         CopyBrush(engine, resources, "StateHover", "StateHoverBrush");
         CopyBrush(engine, resources, "StatePressed", "StatePressedBrush");
         CopyBrush(engine, resources, "StateSelected", "StateSelectedBrush");
@@ -235,8 +239,8 @@ public static class ImportedThemeRuntime
         CopyTyped(engine, resources, "FontSizeCaption", "FontSize.Caption", "TypographyCaptionSize", "TypographyLabelSize", "PgFontBodySm", "PgFontMeta", "PgFontStatFoot", "PgFontKpiFoot", "PgFontStageFoot", "PgFontGlyphSm", "PgTopFontCap");
         CopyTyped(engine, resources, "FontWeightHeading", "Weight.SemiBold", "TypographyHeadingWeight", "TypographyTitleWeight");
         CopyTyped(engine, resources, "FontWeightBody", "Weight.Regular", "TypographyBodyWeight");
-        CopyTyped(engine, resources, "CardCornerRadius", "CardCornerRadius", "Radius.Card", "Radius.Panel", "PgCardRadius", "PgTileRadius");
-        CopyTyped(engine, resources, "ControlCornerRadius", "ControlCornerRadius", "Radius.Control", "Radius.Small", "PgCtrlRadius", "PgIconRadius", "PgIconSmRadius");
+        CopyTyped(engine, resources, "CardCornerRadius", "CardCornerRadius", "Radius.Card", "Radius.Panel", "PgCardRadius", "PgTileRadius", "Surface.Primary.CornerRadius", "Surface.Primary.Radius", "Surface.Secondary.CornerRadius", "Surface.Secondary.Radius");
+        CopyTyped(engine, resources, "ControlCornerRadius", "ControlCornerRadius", "Radius.Control", "Radius.Small", "PgCtrlRadius", "PgIconRadius", "PgIconSmRadius", "Surface.Detail.CornerRadius", "Surface.Detail.Radius", "Surface.Elevated.Radius", "Surface.Kpi.Radius", "Surface.Glass.Radius");
         CopyTyped(engine, resources, "ChipCornerRadius", "Radius.Chip", "Radius.Badge", "Radius.Tab", "PgChipRadius");
         CopyTyped(engine, resources, "ControlMinHeight", "Density.ControlHeight", "ControlHeight.Medium", "PgTopCtrlHeight", "PgSidebarItemHeight", "PgSidebarSubItemHeight");
         CopyTyped(engine, resources, "BentoRowHeight", "Density.RowHeight");
@@ -246,12 +250,12 @@ public static class ImportedThemeRuntime
         CopyTyped(engine, resources, "SpacingSection", "Spacing.Section");
         CopyTyped(engine, resources, "SpacingPage", "Spacing.Page");
         CopyTyped(engine, resources, "PaddingControl", "Space.Control", "ControlPadding", "PgTilePadding");
-        CopyTyped(engine, resources, "PaddingCard", "Space.Card", "CardPadding", "Density.CardPadding", "PgCardPadding");
+        CopyTyped(engine, resources, "PaddingCard", "Space.Card", "CardPadding", "Density.CardPadding", "PgCardPadding", "Surface.Primary.Padding", "Surface.Secondary.Padding", "Surface.Detail.Padding", "Surface.Elevated.Padding", "Surface.Kpi.Padding", "Surface.Glass.Padding");
         CopyTyped(engine, resources, "PaddingPage", "Space.Page", "PagePadding", "Density.PagePadding", "PgPageMargin");
         CopyTyped(engine, resources, "PaddingCompact", "Space.CompactPadding", "PgRowPadding");
         CopyTyped(engine, resources, "MarginSection", "PgGutter");
         CopyTyped(engine, resources, "MarginItem", "PgGutterHalfMargin");
-        CopyTyped(engine, resources, "BorderThicknessControl", "Border.Default", "BorderThickness.Control");
+        CopyTyped(engine, resources, "BorderThicknessControl", "Border.Default", "BorderThickness.Control", "Surface.Primary.BorderThickness", "Surface.Secondary.BorderThickness", "Surface.Detail.BorderThickness", "Surface.Elevated.BorderThickness", "Surface.Kpi.BorderThickness", "Surface.Glass.BorderThickness");
         CopyTyped(engine, resources, "FocusThickness", "Border.Focus", "FocusThickness");
         CopyTyped(engine, resources, "DisabledOpacity", "Opacity.Disabled");
         CopyTyped(engine, resources, "ChartPlotHeight", "Chart.PlotHeight");

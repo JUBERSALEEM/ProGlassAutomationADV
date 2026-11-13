@@ -37,8 +37,8 @@
     <SolidColorBrush x:Key="TintRedBrush" Color="{Binding Color, Source={StaticResource Ov.DangerSoft}}"/>
     <SolidColorBrush x:Key="TintAmberBrush" Color="{Binding Color, Source={StaticResource Ov.WarningSoft}}"/>
     <SolidColorBrush x:Key="TintGreenBrush" Color="{Binding Color, Source={StaticResource Ov.SuccessSoft}}"/>
-    <SolidColorBrush x:Key="Surface.Primary.BackgroundBrush" Color="{DynamicResource Appearance.StudioFaceColor}"/>
-    <SolidColorBrush x:Key="Surface.Secondary.BackgroundBrush" Color="{DynamicResource Appearance.StudioFaceColor}"/>
+    <SolidColorBrush x:Key="Surface.Primary.BackgroundBrush" Color="{DynamicResource Imported.SurfacePrimaryColor}"/>
+    <SolidColorBrush x:Key="Surface.Secondary.BackgroundBrush" Color="{DynamicResource Imported.SurfaceSecondaryColor}"/>
 
     <!-- Bento Card Styles for Job Order -->
     <Style x:Key="SurfaceDetailStyle" TargetType="Border" BasedOn="{StaticResource Ov.CardCompact}">

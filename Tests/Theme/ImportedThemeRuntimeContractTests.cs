@@ -51,6 +51,22 @@ public sealed class ImportedThemeRuntimeContractTests
         Assert.Contains("IconKind.Search", iconCatalog);
         Assert.Contains("IconKind.Add", iconCatalog);
         Assert.Contains("IconKind.Delete", iconCatalog);
+
+        foreach (string relativePath in new[]
+        {
+            "Views/DeliveryNote/DeliveryNoteDetail/Sections/DnSectionStyles.xaml",
+            "Views/JobOrder/JobOrderDetail/Sections/JoSectionStyles.xaml",
+            "Views/Shared/Lists/StudioListResources.xaml",
+            "Views/TaxInvoice/TaxInvoiceDetail/Sections/TiSectionStyles.xaml"
+        })
+        {
+            string localResources = File.ReadAllText(Path.Combine(root, relativePath));
+            Assert.Contains("DynamicResource Imported.SurfacePrimaryColor", localResources);
+            Assert.Contains("DynamicResource Imported.SurfaceSecondaryColor", localResources);
+        }
+        Assert.Contains("Imported.SurfacePrimaryColor", runtime);
+        Assert.Contains("Surface.Primary.BackgroundBrush", runtime);
+        Assert.Contains("Surface.Primary.CornerRadius", runtime);
     }
 
     private static string FindRepositoryRoot()

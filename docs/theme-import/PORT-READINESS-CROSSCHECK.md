@@ -66,12 +66,13 @@ The current adapter captures named `Style` resources from the **application reso
 
 This strategy deliberately avoids replacing business templates and is safer than a blanket dictionary swap. Its coverage boundary is material:
 
-- Only styles reachable from `Application.Resources` are captured; view/window-local resources are not.
+- Only styles reachable from `Application.Resources` are captured; view/window-local styles are not.
 - A host style receives nothing if a package has no implicit style for that exact `TargetType`.
 - Properties outside the setter allowlist remain host-owned.
 - Local values, direct XAML literals, frozen/static resources, and control templates can override or bypass style setters.
 - Package-specific templates/material renderers are intentionally not copied into existing business controls.
-- No execution has verified style sealing, dynamic-resource expression behavior, resource precedence, startup cost, or rendering after this broad adaptation.
+- The audit also found four local section dictionaries shadowing `Surface.*.BackgroundBrush` with the old `Appearance.StudioFaceColor`. Those four now reference root-published `Imported.SurfacePrimaryColor` / `Imported.SurfaceSecondaryColor` aliases, and the runtime harness asserts those values through all 18 switches. Other view-local resources have not been comprehensively inventoried.
+- No execution has verified style sealing, dynamic-resource expression behavior, resource precedence, startup cost, or rendering after this adaptation.
 
 Consequently this is a stronger shared-style bridge, not proof that all 497 resource keys or all 6,148 use sites now express each theme.
 
