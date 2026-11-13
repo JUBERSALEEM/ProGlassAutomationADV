@@ -643,6 +643,18 @@ namespace ProGlassAutomation.Tests.Theme
             Assert.DoesNotContain("DynamicResource DialogInsetBrush", dialogs, StringComparison.Ordinal);
         }
 
+        [Fact]
+        public void Optimization_summary_uses_semantic_theme_status_colors()
+        {
+            string summary = Read("Views/Optimization/Tabs/SummaryTabView.xaml");
+            Assert.Contains("DynamicResource OnAccentForegroundBrush", summary, StringComparison.Ordinal);
+            Assert.Contains("DynamicResource TintRedBrush", summary, StringComparison.Ordinal);
+            Assert.Contains("DynamicResource DangerBrush", summary, StringComparison.Ordinal);
+            Assert.DoesNotContain("#FFFFFF", summary, StringComparison.OrdinalIgnoreCase);
+            Assert.DoesNotContain("#FEE2E2", summary, StringComparison.OrdinalIgnoreCase);
+            Assert.DoesNotContain("#991B1B", summary, StringComparison.OrdinalIgnoreCase);
+        }
+
         private static string ConstValue(string name)
         {
             var field = typeof(VisualThemeEngine).GetField(

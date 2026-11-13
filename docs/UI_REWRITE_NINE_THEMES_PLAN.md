@@ -180,3 +180,9 @@ Theme-specific styling must be token-driven and use dynamic resource resolution 
 - This central migration applies to dialogs built on `ThemedDialogWindow` without editing their code-behind, commands, validation, or business workflows.
 - Added source regression coverage for the shared dialog resource contract.
 - Windows build and regression verification is pending for the preceding module-tab/context-menu commit; this dialog change is prepared as the next implementation slice.
+
+
+### Optimization summary status colors
+- Removed hard-coded white and pale-red status colors from the optimization summary.
+- Optimal-state text now uses the semantic on-accent foreground; low-utilization state uses semantic danger tint and foreground resources.
+- Added source regression checks to prevent these fixed colors from returning.
