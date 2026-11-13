@@ -140,6 +140,90 @@
                       Height="32" Padding="8,5"
                       Margin="{StaticResource SettingsStackBottom8}"
                       Style="{StaticResource ComboBoxStyle}"/>
+
+            <!-- Live family proof: these are the same tokens consumed by the
+                 ERP card/control/navigation styles. Switching any of the nine
+                 families must repaint every sample below, not only the page canvas. -->
+            <Border Margin="{StaticResource SettingsStackBottom8}"
+                    Padding="12"
+                    Background="{DynamicResource ThemeCardFaceBrush}"
+                    BorderBrush="{DynamicResource ThemeCardEdgeBrush}"
+                    BorderThickness="{DynamicResource CardEdgeThickness}"
+                    CornerRadius="{DynamicResource CardCornerRadius}"
+                    Effect="{DynamicResource ShadowSoft}">
+                <Grid>
+                    <Grid.RowDefinitions>
+                        <RowDefinition Height="Auto"/>
+                        <RowDefinition Height="Auto"/>
+                    </Grid.RowDefinitions>
+                    <Grid.ColumnDefinitions>
+                        <ColumnDefinition Width="*"/>
+                        <ColumnDefinition Width="Auto"/>
+                    </Grid.ColumnDefinitions>
+                    <StackPanel Grid.Row="0" Grid.Column="0">
+                        <TextBlock Text="LIVE FAMILY PREVIEW"
+                                   FontSize="{DynamicResource FontSize.Caption}"
+                                   FontWeight="{DynamicResource Weight.Bold}"
+                                   Foreground="{DynamicResource TextSecondaryBrush}"/>
+                        <TextBlock Text="{Binding SelectedVisualTheme}"
+                                   FontSize="{DynamicResource FontSize.Title}"
+                                   FontWeight="{DynamicResource Weight.Bold}"
+                                   Foreground="{DynamicResource TextPrimaryBrush}"
+                                   Margin="0,3,0,0"/>
+                    </StackPanel>
+                    <Border Grid.Row="0" Grid.Column="1"
+                            Background="{DynamicResource ThemeNavigationSelectedBrush}"
+                            CornerRadius="{DynamicResource ControlCornerRadius}"
+                            Padding="10,5"
+                            VerticalAlignment="Center">
+                        <TextBlock Text="SELECTED"
+                                   Foreground="{DynamicResource ThemeNavigationSelectedForegroundBrush}"
+                                   FontSize="{DynamicResource FontSize.Caption}"
+                                   FontWeight="{DynamicResource Weight.Bold}"/>
+                    </Border>
+                    <Grid Grid.Row="1" Grid.ColumnSpan="2" Margin="0,12,0,0">
+                        <Grid.ColumnDefinitions>
+                            <ColumnDefinition Width="*"/>
+                            <ColumnDefinition Width="*"/>
+                        </Grid.ColumnDefinitions>
+                        <Border Grid.Column="0"
+                                Margin="0,0,5,0"
+                                Padding="10,8"
+                                Background="{DynamicResource ThemeControlFaceBrush}"
+                                BorderBrush="{DynamicResource ThemeControlEdgeBrush}"
+                                BorderThickness="{DynamicResource CardEdgeThickness}"
+                                CornerRadius="{DynamicResource ControlCornerRadius}">
+                            <StackPanel>
+                                <TextBlock Text="CONTROL SURFACE"
+                                           FontSize="{DynamicResource FontSize.Caption}"
+                                           Foreground="{DynamicResource TextSecondaryBrush}"/>
+                                <TextBlock Text="Live control material"
+                                           Margin="0,4,0,0"
+                                           FontSize="{DynamicResource FontSize.Body}"
+                                           Foreground="{DynamicResource TextPrimaryBrush}"/>
+                            </StackPanel>
+                        </Border>
+                        <Border Grid.Column="1"
+                                Margin="5,0,0,0"
+                                Padding="10,8"
+                                Background="{DynamicResource ThemeCardHighlightBrush}"
+                                BorderBrush="{DynamicResource ThemeTableBorderBrush}"
+                                BorderThickness="{DynamicResource CardEdgeThickness}"
+                                CornerRadius="{DynamicResource ControlCornerRadius}">
+                            <StackPanel>
+                                <TextBlock Text="HIGHLIGHT / EDGE"
+                                           FontSize="{DynamicResource FontSize.Caption}"
+                                           Foreground="{DynamicResource TextSecondaryBrush}"/>
+                                <TextBlock Text="Family accent treatment"
+                                           Margin="0,4,0,0"
+                                           FontSize="{DynamicResource FontSize.Body}"
+                                           Foreground="{DynamicResource TextPrimaryBrush}"/>
+                            </StackPanel>
+                        </Border>
+                    </Grid>
+                </Grid>
+            </Border>
+
             <StackPanel Orientation="Horizontal" Margin="{StaticResource SettingsStackBottom8}">
                 <Button AutomationProperties.AutomationId="Settings.ExportThemePackAppearance"
                         Command="{Binding ExportThemeProfileCommand}"
