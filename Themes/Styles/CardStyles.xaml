@@ -186,7 +186,7 @@
         <Setter Property="behaviors:BounceHover.IsEnabled" Value="True"/>
         <Style.Triggers>
             <Trigger Property="IsMouseOver" Value="True">
-                <Setter Property="Effect"      Value="{StaticResource ShadowElevated}"/>
+                <Setter Property="Effect"      Value="{DynamicResource ShadowElevated}"/>
                 <Setter Property="BorderBrush" Value="{DynamicResource AccentBrush}"/>
             </Trigger>
         </Style.Triggers>
@@ -199,7 +199,7 @@
         <Setter Property="behaviors:BounceHover.IsEnabled" Value="True"/>
         <Style.Triggers>
             <Trigger Property="IsMouseOver" Value="True">
-                <Setter Property="Effect"      Value="{StaticResource ShadowElevated}"/>
+                <Setter Property="Effect"      Value="{DynamicResource ShadowElevated}"/>
                 <Setter Property="BorderBrush" Value="{DynamicResource AccentBrush}"/>
             </Trigger>
         </Style.Triggers>
@@ -213,7 +213,7 @@
         <Setter Property="behaviors:BounceHover.HoverScale" Value="1.02"/>
         <Style.Triggers>
             <Trigger Property="IsMouseOver" Value="True">
-                <Setter Property="Effect"      Value="{StaticResource ShadowElevated}"/>
+                <Setter Property="Effect"      Value="{DynamicResource ShadowElevated}"/>
                 <Setter Property="BorderBrush" Value="{DynamicResource AccentBrush}"/>
             </Trigger>
         </Style.Triggers>
