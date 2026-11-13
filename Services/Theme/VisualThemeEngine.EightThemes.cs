@@ -138,6 +138,77 @@ namespace ProGlassAutomation.Services.Theme
                 ? Gradient(palette.Edge, palette.Accent, palette.SecondAccent)
                 : edge;
 
+            // Family-owned component materials. Shared WPF styles consume these
+            // tokens so one card/control template changes its material language
+            // when the user switches family; no per-theme view duplication is needed.
+            Brush themeCardFace = family switch
+            {
+                Claymorphism => Gradient(palette.Surface, palette.Raised, palette.Surface),
+                SpatialImmersive => Gradient(palette.Surface, palette.Raised, palette.Inset),
+                HolographicIridescent => Gradient(palette.Surface, palette.Raised, palette.Inset),
+                LiquidGlass => Gradient(
+                    Color.FromArgb(dark ? (byte)0xC8 : (byte)0xDA, palette.Surface.R, palette.Surface.G, palette.Surface.B),
+                    Color.FromArgb(dark ? (byte)0xA8 : (byte)0xC8, palette.Raised.R, palette.Raised.G, palette.Raised.B),
+                    Color.FromArgb(dark ? (byte)0xD0 : (byte)0xE8, palette.Surface.R, palette.Surface.G, palette.Surface.B)),
+                Glassmorphism => Gradient(
+                    Color.FromArgb(dark ? (byte)0xC8 : (byte)0xDC, palette.Surface.R, palette.Surface.G, palette.Surface.B),
+                    Color.FromArgb(dark ? (byte)0xB8 : (byte)0xD0, palette.Raised.R, palette.Raised.G, palette.Raised.B),
+                    Color.FromArgb(dark ? (byte)0xC8 : (byte)0xDC, palette.Surface.R, palette.Surface.G, palette.Surface.B)),
+                FluentAcrylic => Gradient(
+                    Color.FromArgb(dark ? (byte)0xE8 : (byte)0xF0, palette.Surface.R, palette.Surface.G, palette.Surface.B),
+                    Color.FromArgb(dark ? (byte)0xD8 : (byte)0xE8, palette.Raised.R, palette.Raised.G, palette.Raised.B),
+                    Color.FromArgb(dark ? (byte)0xE8 : (byte)0xF0, palette.Surface.R, palette.Surface.G, palette.Surface.B)),
+                _ => Solid(palette.Surface)
+            };
+            Brush themeControlFace = family switch
+            {
+                Neumorphism => Solid(palette.Inset),
+                Claymorphism => Gradient(palette.Raised, palette.Surface, palette.Raised),
+                SpatialImmersive => Gradient(palette.Inset, palette.Surface, palette.Raised),
+                HolographicIridescent => Gradient(palette.Surface, palette.Raised, palette.Inset),
+                LiquidGlass or Glassmorphism => Alpha(palette.Raised, (byte)(dark ? 0xC8 : 0xE2)),
+                FluentAcrylic => Alpha(palette.Raised, (byte)(dark ? 0xE8 : 0xE8)),
+                _ => Solid(palette.Raised)
+            };
+            Brush themeCardEdge = family switch
+            {
+                HolographicIridescent => Gradient(Colors.White, palette.Accent, palette.SecondAccent),
+                SwissInternational => Solid(palette.Accent),
+                Neumorphism => Alpha(palette.Edge, (byte)(dark ? 0x70 : 0x88)),
+                _ => edge
+            };
+            Brush themeControlEdge = family == HolographicIridescent
+                ? Gradient(palette.Edge, palette.Accent, palette.SecondAccent)
+                : family == SwissInternational ? Solid(palette.Accent) : edge;
+            Brush themeCardHighlight = family switch
+            {
+                Claymorphism or Neumorphism => Alpha(Colors.White, (byte)(dark ? 0x16 : 0xA0)),
+                FluentAcrylic => Alpha(Colors.White, (byte)(dark ? 0x18 : 0x72)),
+                LiquidGlass or Glassmorphism => Alpha(Colors.White, (byte)(dark ? 0x28 : 0x68)),
+                HolographicIridescent => Gradient(Colors.White, palette.Accent, palette.SecondAccent),
+                SpatialImmersive => Alpha(palette.SecondAccent, (byte)(dark ? 0x38 : 0x28)),
+                _ => Alpha(Colors.White, (byte)(dark ? 0x08 : 0x38))
+            };
+            resources["ThemeCardFaceBrush"] = themeCardFace;
+            resources["ThemeCardEdgeBrush"] = themeCardEdge;
+            resources["ThemeControlFaceBrush"] = themeControlFace;
+            resources["ThemeControlEdgeBrush"] = themeControlEdge;
+            resources["ThemeCardHighlightBrush"] = themeCardHighlight;
+            resources["ThemeFamilyId"] = family;
+            resources["ThemeMaterialProfile"] = family switch
+            {
+                BentoGrid => "Modular",
+                Claymorphism => "Clay",
+                FluentAcrylic => "Acrylic",
+                Neumorphism => "Embossed",
+                LiquidGlass => "LiquidCrystal",
+                Glassmorphism => "FrostedGlass",
+                SpatialImmersive => "SpatialDepth",
+                SwissInternational => "SwissEditorial",
+                HolographicIridescent => "Iridescent",
+                _ => "Standard"
+            };
+
             // These are the actual source tokens used by ThemeManager's semantic
             // surface composer. Populate them BEFORE that composer runs in
             // ThemePipeline.RebuildFamily, so its dynamic surface aliases inherit

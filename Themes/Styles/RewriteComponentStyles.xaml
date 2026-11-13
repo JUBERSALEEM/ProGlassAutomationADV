@@ -12,15 +12,40 @@
         <Setter Property="UseLayoutRounding" Value="True"/>
     </Style>
 
+    <!-- Fallbacks keep legacy/migration themes safe; the active nine-family
+         painter replaces these application-level resources at runtime. -->
+    <SolidColorBrush x:Key="ThemeCardFaceBrush" Color="#FFFFFFFF"/>
+    <SolidColorBrush x:Key="ThemeCardEdgeBrush" Color="#FFD8DEE8"/>
+    <SolidColorBrush x:Key="ThemeControlFaceBrush" Color="#FFF4F6FA"/>
+    <SolidColorBrush x:Key="ThemeControlEdgeBrush" Color="#FFD8DEE8"/>
+    <SolidColorBrush x:Key="ThemeCardHighlightBrush" Color="#22FFFFFF"/>
+
     <Style x:Key="ProGlassRewriteCardStyle" TargetType="Border">
-        <Setter Property="Background" Value="{DynamicResource SurfaceCardBrush}"/>
-        <Setter Property="BorderBrush" Value="{DynamicResource BorderSubtleBrush}"/>
+        <Setter Property="Background" Value="{DynamicResource ThemeCardFaceBrush}"/>
+        <Setter Property="BorderBrush" Value="{DynamicResource ThemeCardEdgeBrush}"/>
         <Setter Property="BorderThickness" Value="{DynamicResource CardEdgeThickness}"/>
         <Setter Property="CornerRadius" Value="{DynamicResource RadiusCard}"/>
         <Setter Property="Padding" Value="18"/>
         <Setter Property="Effect" Value="{DynamicResource ShadowSoft}"/>
         <Setter Property="SnapsToDevicePixels" Value="True"/>
         <Setter Property="UseLayoutRounding" Value="True"/>
+    </Style>
+
+
+    <Style x:Key="ProGlassRewriteControlSurfaceStyle" TargetType="Border">
+        <Setter Property="Background" Value="{DynamicResource ThemeControlFaceBrush}"/>
+        <Setter Property="BorderBrush" Value="{DynamicResource ThemeControlEdgeBrush}"/>
+        <Setter Property="BorderThickness" Value="1"/>
+        <Setter Property="CornerRadius" Value="{DynamicResource RadiusControl}"/>
+        <Setter Property="Padding" Value="10,7"/>
+        <Setter Property="SnapsToDevicePixels" Value="True"/>
+    </Style>
+
+    <Style x:Key="ProGlassRewriteCardHighlightStyle" TargetType="Border">
+        <Setter Property="Background" Value="{DynamicResource ThemeCardHighlightBrush}"/>
+        <Setter Property="BorderThickness" Value="0"/>
+        <Setter Property="CornerRadius" Value="{DynamicResource RadiusCard}"/>
+        <Setter Property="IsHitTestVisible" Value="False"/>
     </Style>
 
     <Style x:Key="ProGlassRewriteRaisedCardStyle" TargetType="Border"
