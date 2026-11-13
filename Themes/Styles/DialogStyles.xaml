@@ -57,8 +57,8 @@
         <Setter Property="Width" Value="42"/>
         <Setter Property="Height" Value="42"/>
         <Setter Property="CornerRadius" Value="{DynamicResource CardCornerRadius}"/>
-        <Setter Property="Background" Value="{DynamicResource DialogInsetBrush}"/>
-        <Setter Property="BorderBrush" Value="{DynamicResource BorderDefaultBrush}"/>
+        <Setter Property="Background" Value="{DynamicResource ThemeControlFaceBrush}"/>
+        <Setter Property="BorderBrush" Value="{DynamicResource ThemeCardEdgeBrush}"/>
         <Setter Property="BorderThickness" Value="{DynamicResource Border.HairlineThickness}"/>
         <Setter Property="VerticalAlignment" Value="Center"/>
         <Setter Property="SnapsToDevicePixels" Value="True"/>
@@ -111,8 +111,8 @@
          identically in every dialog (replaces the 14,10 / 12,9 / 10,6
          hand-rolled variants). -->
     <Style x:Key="DialogSectionCardStyle" TargetType="Border">
-        <Setter Property="Background" Value="{DynamicResource DialogInsetBrush}"/>
-        <Setter Property="BorderBrush" Value="{DynamicResource BorderDefaultBrush}"/>
+        <Setter Property="Background" Value="{DynamicResource ThemeControlFaceBrush}"/>
+        <Setter Property="BorderBrush" Value="{DynamicResource ThemeCardEdgeBrush}"/>
         <Setter Property="BorderThickness" Value="{DynamicResource Border.HairlineThickness}"/>
         <Setter Property="CornerRadius" Value="{DynamicResource Radius.Medium}"/>
         <Setter Property="Padding" Value="14,12"/>
@@ -121,8 +121,8 @@
 
     <!-- Footer strip (kept key for backwards compatibility). -->
     <Style x:Key="DialogFooterStyle" TargetType="Border" BasedOn="{StaticResource SurfaceSecondaryStyle}">
-        <Setter Property="Background" Value="{DynamicResource Surface.Secondary.BackgroundBrush}"/>
-        <Setter Property="BorderBrush" Value="{DynamicResource Surface.Secondary.BorderBrush}"/>
+        <Setter Property="Background" Value="{DynamicResource ThemeControlFaceBrush}"/>
+        <Setter Property="BorderBrush" Value="{DynamicResource ThemeControlEdgeBrush}"/>
         <Setter Property="BorderThickness" Value="0,1,0,0"/>
         <Setter Property="Padding" Value="20,14"/>
         <Setter Property="SnapsToDevicePixels" Value="True"/>
@@ -158,7 +158,7 @@
                         </Trigger>
                         <Trigger Property="IsPressed" Value="True">
                             <Setter TargetName="Chrome" Property="Background"
-                                    Value="{DynamicResource DialogInsetBrush}"/>
+                                    Value="{DynamicResource ThemeControlFaceBrush}"/>
                         </Trigger>
                     </ControlTemplate.Triggers>
                 </ControlTemplate>
@@ -191,8 +191,8 @@
 
                         <!-- The card: single glass surface + outline + elevation. -->
                         <Border x:Name="PART_Card"
-                                Background="{DynamicResource DialogSurfaceBrush}"
-                                BorderBrush="{DynamicResource BorderDefaultBrush}"
+                                Background="{DynamicResource ThemeCardFaceBrush}"
+                                BorderBrush="{DynamicResource ThemeCardEdgeBrush}"
                                 BorderThickness="{DynamicResource CardBorderThickness}"
                                 CornerRadius="{DynamicResource CardCornerRadiusLarge}"
                                 Effect="{StaticResource ShadowElevated}"
@@ -320,8 +320,8 @@
         <Setter Property="Template">
             <Setter.Value>
                 <ControlTemplate TargetType="ToolTip">
-                    <Border Background="{DynamicResource PopupSurfaceBrush}"
-                            BorderBrush="{DynamicResource BorderDefaultBrush}"
+                    <Border Background="{DynamicResource ThemeCardFaceBrush}"
+                            BorderBrush="{DynamicResource ThemeCardEdgeBrush}"
                             BorderThickness="1"
                             CornerRadius="{DynamicResource ControlCornerRadius}"
                             Padding="12,8"

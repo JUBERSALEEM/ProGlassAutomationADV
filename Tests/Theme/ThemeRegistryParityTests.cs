@@ -631,6 +631,18 @@ namespace ProGlassAutomation.Tests.Theme
             Assert.DoesNotContain("DynamicResource MenuHoverBrush", menus, StringComparison.Ordinal);
         }
 
+        [Fact]
+        public void Shared_dialog_chrome_uses_nine_family_surface_materials()
+        {
+            string dialogs = Read("Themes/Styles/DialogStyles.xaml");
+            Assert.Contains("DynamicResource ThemeCardFaceBrush", dialogs, StringComparison.Ordinal);
+            Assert.Contains("DynamicResource ThemeCardEdgeBrush", dialogs, StringComparison.Ordinal);
+            Assert.Contains("DynamicResource ThemeControlFaceBrush", dialogs, StringComparison.Ordinal);
+            Assert.Contains("DynamicResource ThemeControlEdgeBrush", dialogs, StringComparison.Ordinal);
+            Assert.DoesNotContain("DynamicResource DialogSurfaceBrush", dialogs, StringComparison.Ordinal);
+            Assert.DoesNotContain("DynamicResource DialogInsetBrush", dialogs, StringComparison.Ordinal);
+        }
+
         private static string ConstValue(string name)
         {
             var field = typeof(VisualThemeEngine).GetField(

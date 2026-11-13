@@ -173,3 +173,10 @@ Theme-specific styling must be token-driven and use dynamic resource resolution 
 - Corrected two palette member references caught by the Windows compiler: the palette exposes `Ink` and `MutedInk`, not `Text` and `TextMuted`.
 - Added source regression coverage for tab and context-menu theme-resource consumption.
 - Windows verification of this correction is pending; the preceding run failed during WPF compilation before tests could execute.
+
+
+### Shared dialog and tooltip chrome
+- Updated the central dialog window surface, inset panels, borders, footer surfaces, and tooltip popup surface to consume the active nine-family card/control material brushes.
+- This central migration applies to dialogs built on `ThemedDialogWindow` without editing their code-behind, commands, validation, or business workflows.
+- Added source regression coverage for the shared dialog resource contract.
+- Windows build and regression verification is pending for the preceding module-tab/context-menu commit; this dialog change is prepared as the next implementation slice.
