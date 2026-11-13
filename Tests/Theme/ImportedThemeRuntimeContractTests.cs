@@ -31,6 +31,9 @@ public sealed class ImportedThemeRuntimeContractTests
         string startup = File.ReadAllText(Path.Combine(root, "App.StartupCore.cs"));
         string settings = File.ReadAllText(Path.Combine(root, "Views/Settings/Sections/SettingsThemesSection.xaml"));
         string icons = File.ReadAllText(Path.Combine(root, "Themes/Professional/ProfessionalShell.xaml"));
+        string dashboardIcons = File.ReadAllText(Path.Combine(root, "Views/Dashboard/IndigoDashboardResources.xaml"));
+        string settingsIcons = File.ReadAllText(Path.Combine(root, "Views/Settings/SettingsSectionStyles.xaml"));
+        string iconCatalog = File.ReadAllText(Path.Combine(root, "Theme/step1.g.Customization/step1.g.8.IconService.cs"));
         Assert.Contains("SharedGeometry.Compose", runtime);
         Assert.Contains("ColorPlateState", runtime);
         Assert.Contains("IconService.Apply", runtime);
@@ -43,6 +46,11 @@ public sealed class ImportedThemeRuntimeContractTests
         Assert.Contains("ImportedThemeRuntime.Initialize", startup);
         Assert.Contains("OpenImportedThemeStudioCommand", settings);
         Assert.Contains("ImportedIconMark", icons);
+        Assert.Contains("ImportedIconMark", dashboardIcons);
+        Assert.Contains("ImportedIconMark", settingsIcons);
+        Assert.Contains("IconKind.Search", iconCatalog);
+        Assert.Contains("IconKind.Add", iconCatalog);
+        Assert.Contains("IconKind.Delete", iconCatalog);
     }
 
     private static string FindRepositoryRoot()

@@ -8,16 +8,16 @@ namespace ProGlassAutomation.Controls.Theme;
 public sealed class ImportedIconMark : FrameworkElement
 {
     public static readonly DependencyProperty IconNameProperty = DependencyProperty.Register(
-        nameof(IconName), typeof(string), typeof(ImportedIconMark),
-        new FrameworkPropertyMetadata(string.Empty, OnVisualPropertyChanged));
+        nameof(IconName), typeof(object), typeof(ImportedIconMark),
+        new FrameworkPropertyMetadata(null, OnVisualPropertyChanged));
 
     public static readonly DependencyProperty ForegroundProperty = DependencyProperty.Register(
         nameof(Foreground), typeof(Brush), typeof(ImportedIconMark),
         new FrameworkPropertyMetadata(Brushes.Gray, OnVisualPropertyChanged));
 
-    public string IconName
+    public object? IconName
     {
-        get => (string)GetValue(IconNameProperty);
+        get => GetValue(IconNameProperty);
         set => SetValue(IconNameProperty, value);
     }
 
@@ -54,7 +54,7 @@ public sealed class ImportedIconMark : FrameworkElement
 
         IconMarkStyle style = IconService.Active.Style;
         IconRecipe recipe = IconService.Recipe(style);
-        Geometry geometry = IconService.Mark(IconService.Resolve(IconName, fallback: IconKind.Theme), style);
+        Geometry geometry = IconService.Mark(IconService.Resolve(IconName?.ToString(), fallback: IconKind.Theme), style);
         Rect bounds = geometry.Bounds;
         if (bounds.IsEmpty || bounds.Width <= 0 || bounds.Height <= 0) return;
 

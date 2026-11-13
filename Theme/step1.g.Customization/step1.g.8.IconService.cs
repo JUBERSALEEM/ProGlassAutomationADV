@@ -6,7 +6,9 @@ namespace ProGlassAutomation.Customization;
 public enum IconKind
 {
     Home, Theme, Texts, Colors, About, Marks,
-    Appearance, Layout, Charts, Work, Settings, Author, Engineering, Components
+    Appearance, Layout, Charts, Work, Settings, Author, Engineering, Components,
+    Search, Add, Edit, Delete, Save, Document, Folder, Close, Menu, ArrowRight,
+    Refresh, Print, Filter, More, Check, Warning, Calendar, Clock, Export, Import, Help
 }
 
 public enum IconMarkStyle
@@ -81,6 +83,27 @@ public static class IconService
     {
         if (string.IsNullOrWhiteSpace(text)) return IconKind.Home;
         string key = Normalize(text);
+        if (HasAnyWord(key, "search", "find", "lookup")) return IconKind.Search;
+        if (HasAnyWord(key, "add", "create", "new")) return IconKind.Add;
+        if (HasAnyWord(key, "edit", "modify", "pencil")) return IconKind.Edit;
+        if (HasAnyWord(key, "delete", "remove", "trash")) return IconKind.Delete;
+        if (HasAnyWord(key, "save", "apply")) return IconKind.Save;
+        if (HasAnyWord(key, "document", "file", "page")) return IconKind.Document;
+        if (HasAnyWord(key, "folder", "directory")) return IconKind.Folder;
+        if (HasAnyWord(key, "close", "cancel", "dismiss")) return IconKind.Close;
+        if (HasAnyWord(key, "menu", "navigation")) return IconKind.Menu;
+        if (HasAnyWord(key, "arrow", "next", "forward")) return IconKind.ArrowRight;
+        if (HasAnyWord(key, "refresh", "reload", "sync")) return IconKind.Refresh;
+        if (HasAnyWord(key, "print")) return IconKind.Print;
+        if (HasAnyWord(key, "filter")) return IconKind.Filter;
+        if (HasAnyWord(key, "more", "overflow", "ellipsis")) return IconKind.More;
+        if (HasAnyWord(key, "check", "done", "success")) return IconKind.Check;
+        if (HasAnyWord(key, "warning", "alert")) return IconKind.Warning;
+        if (HasAnyWord(key, "calendar", "date")) return IconKind.Calendar;
+        if (HasAnyWord(key, "clock", "time")) return IconKind.Clock;
+        if (HasAnyWord(key, "export", "download")) return IconKind.Export;
+        if (HasAnyWord(key, "import", "upload")) return IconKind.Import;
+        if (HasAnyWord(key, "help", "question")) return IconKind.Help;
         if (Contains(key, "dashboard", "home")) return IconKind.Home;
         if (Contains(key, "sheet", "store", "sales", "order", "delivery", "inventory")) return IconKind.Work;
         if (Contains(key, "specification", "component", "control")) return IconKind.Components;
@@ -106,6 +129,12 @@ public static class IconService
 
     private static string Normalize(string text) =>
         string.Join(' ', text.ToLowerInvariant().Split(new[] { ' ', '/', '-', '_', ',', '.', '·' }, StringSplitOptions.RemoveEmptyEntries));
+
+    private static bool HasAnyWord(string key, params string[] words)
+    {
+        string[] parts = key.Split(' ', StringSplitOptions.RemoveEmptyEntries);
+        return parts.Any(part => words.Contains(part, StringComparer.Ordinal));
+    }
 
     private static bool Contains(string key, params string[] tokens)
     {
@@ -157,6 +186,27 @@ public static class IconService
             (IconKind.Engineering, true, _) => "M 8,7.5 L 4,12 L 8,16.5 L 5.6,12 Z M 16,7.5 L 20,12 L 16,16.5 L 18.4,12 Z",
             (IconKind.Components, false, _) => "M 12,3.2 L 20,7.2 L 12,11.2 L 4,7.2 Z M 4,12 L 12,16 L 20,12 M 4,16.2 L 12,20.2 L 20,16.2",
             (IconKind.Components, true, _) => "M 12,3.2 L 20,7.2 L 12,11.2 L 4,7.2 Z",
+            (IconKind.Search, _, _) => "M 10,3 A 7,7 0 1 1 9.99,3 Z M 15.2,15.2 L 21,21",
+            (IconKind.Add, _, _) => "M 11,3 H 13 V 11 H 21 V 13 H 13 V 21 H 11 V 13 H 3 V 11 H 11 Z",
+            (IconKind.Edit, _, _) => "M 4,16.5 L 15.8,4.7 L 19.3,8.2 L 7.5,20 H 4 Z M 14.8,5.7 L 18.3,9.2",
+            (IconKind.Delete, _, _) => "M 5,7 H 19 M 9,7 V 5 H 15 V 7 M 7,7 L 8,20 H 16 L 17,7 M 10,10 V 17 M 14,10 V 17",
+            (IconKind.Save, _, _) => "M 4,3 H 17 L 21,7 V 21 H 3 V 4 Z M 7,3 V 9 H 16 V 3 M 7,21 V 14 H 17 V 21",
+            (IconKind.Document, _, _) => "M 6,3 H 15 L 20,8 V 21 H 4 V 3 Z M 15,3 V 8 H 20 M 7,12 H 17 M 7,16 H 17",
+            (IconKind.Folder, _, _) => "M 3,6 H 10 L 12,8 H 21 V 19 H 3 Z",
+            (IconKind.Close, _, _) => "M 5,5 L 19,19 M 19,5 L 5,19",
+            (IconKind.Menu, _, _) => "M 4,6 H 20 M 4,12 H 20 M 4,18 H 20",
+            (IconKind.ArrowRight, _, _) => "M 4,11 H 18 M 12,5 L 19,12 L 12,19",
+            (IconKind.Refresh, _, _) => "M 19,8 A 8,8 0 1 0 20,13 M 19,4 V 9 H 14",
+            (IconKind.Print, _, _) => "M 7,8 V 3 H 17 V 8 M 6,17 H 4 V 9 H 20 V 17 H 18 M 7,14 H 17 V 21 H 7 Z M 16,11 H 17",
+            (IconKind.Filter, _, _) => "M 3,4 H 21 L 14,12 V 20 L 10,18 V 12 Z",
+            (IconKind.More, _, _) => "M 5,12 A 1,1 0 1 1 4.99,12 Z M 12,12 A 1,1 0 1 1 11.99,12 Z M 19,12 A 1,1 0 1 1 18.99,12 Z",
+            (IconKind.Check, _, _) => "M 4,12 L 9,17 L 20,6",
+            (IconKind.Warning, _, _) => "M 12,3 L 22,21 H 2 Z M 12,9 V 14 M 12,17 V 18",
+            (IconKind.Calendar, _, _) => "M 4,5 H 20 V 21 H 4 Z M 8,3 V 7 M 16,3 V 7 M 4,10 H 20 M 8,13 H 10 M 13,13 H 15 M 8,16 H 10",
+            (IconKind.Clock, _, _) => "M 12,3 A 9,9 0 1 1 11.99,3 Z M 12,7 V 12 L 16,14",
+            (IconKind.Export, _, _) => "M 12,14 V 3 M 7,8 L 12,3 L 17,8 M 4,14 V 20 H 20 V 14",
+            (IconKind.Import, _, _) => "M 12,3 V 14 M 7,9 L 12,14 L 17,9 M 4,17 V 21 H 20 V 17",
+            (IconKind.Help, _, _) => "M 12,3 A 9,9 0 1 1 11.99,3 Z M 9,9 A 3,3 0 1 1 14,12 C 12,13 12,14 12,15 M 12,18 V 19",
             _ => "M 4,4 H 10.4 V 10.4 H 4 Z M 13.6,4 H 20 V 10.4 H 13.6 Z M 4,13.6 H 10.4 V 20 H 4 Z M 13.6,13.6 H 20 V 20 H 13.6 Z"
         };
         var geometry = Geometry.Parse(data);

@@ -79,15 +79,22 @@ internal static class RuntimeChecks
                 Check(app.Resources.MergedDictionaries.Count == slotCount, "theme switch keeps a single package slot");
             }
 
-            var colors = new ColorPlateState(Plate: "Ocean");
+            var colors = new ColorPlateState(Plate: "Ocean",
+                RoleHex: new Dictionary<string, string> { ["AccentPrimary"] = "#1F6B4A" });
             ImportedThemeRuntime.Engine.Overlay((package, mode) =>
                 ColorPlateService.Apply(package, mode, colors, ImportedThemeRuntime.Engine.ActiveTheme));
             Check(ImportedThemeRuntime.Engine.GetToken("AccentPrimary") is Brush, "color plate publishes typed accent");
+            Check(app.TryFindResource("AccentBrush") is SolidColorBrush platedAccent &&
+                  platedAccent.Color == Color.FromRgb(0x1F, 0x6B, 0x4A),
+                "custom color plate role reaches the ERP host resource graph");
             foreach (IconMarkStyle style in Enum.GetValues<IconMarkStyle>())
             {
                 IconService.Apply(new IconCustomizationState(style));
-                Geometry mark = IconService.Mark(IconKind.Theme, style);
-                Check(mark is not null && mark.IsFrozen, "icon geometry is available and frozen: " + style);
+                foreach (IconKind kind in Enum.GetValues<IconKind>())
+                {
+                    Geometry mark = IconService.Mark(kind, style);
+                    Check(mark.IsFrozen, $"icon geometry is available and frozen: {kind} / {style}");
+                }
             }
             Console.WriteLine("PASS: host adapter, all 18 theme/mode activations, color plate overlay and icon styles.");
             return 0;

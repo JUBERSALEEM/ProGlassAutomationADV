@@ -32,6 +32,7 @@
 ═══════════════════════════════════════════════════════════════════════ -->
 <ResourceDictionary xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
                     xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+                    xmlns:themeIcons="clr-namespace:ProGlassAutomation.Controls.Theme"
                     xmlns:sys="clr-namespace:System;assembly=mscorlib">
 
     <!-- ═══════════════════════════════════════════════════════════════
@@ -383,13 +384,13 @@
                         <StackPanel Orientation="Horizontal"
                                     HorizontalAlignment="Center"
                                     VerticalAlignment="Center">
-                            <TextBlock x:Name="Glyph"
-                                       Text="{TemplateBinding Tag}"
-                                       FontFamily="Segoe MDL2 Assets"
-                                       FontSize="{DynamicResource PgFontGlyphSm}"
-                                       Margin="0,0,7,0"
-                                       VerticalAlignment="Center"
-                                       Foreground="{TemplateBinding Foreground}"/>
+                            <themeIcons:ImportedIconMark x:Name="Glyph"
+                                                         IconName="{TemplateBinding Content}"
+                                                         Width="{DynamicResource PgFontGlyphSm}"
+                                                         Height="{DynamicResource PgFontGlyphSm}"
+                                                         Margin="0,0,7,0"
+                                                         VerticalAlignment="Center"
+                                                         Foreground="{TemplateBinding Foreground}"/>
                             <ContentPresenter VerticalAlignment="Center"/>
                         </StackPanel>
                     </Border>
@@ -435,13 +436,13 @@
                         <StackPanel Orientation="Horizontal"
                                     HorizontalAlignment="Center"
                                     VerticalAlignment="Center">
-                            <TextBlock x:Name="Glyph"
-                                       Text="{TemplateBinding Tag}"
-                                       FontFamily="Segoe MDL2 Assets"
-                                       FontSize="{DynamicResource PgFontGlyphSm}"
-                                       Margin="0,0,7,0"
-                                       VerticalAlignment="Center"
-                                       Foreground="{TemplateBinding Foreground}"/>
+                            <themeIcons:ImportedIconMark x:Name="Glyph"
+                                                         IconName="{TemplateBinding Content}"
+                                                         Width="{DynamicResource PgFontGlyphSm}"
+                                                         Height="{DynamicResource PgFontGlyphSm}"
+                                                         Margin="0,0,7,0"
+                                                         VerticalAlignment="Center"
+                                                         Foreground="{TemplateBinding Foreground}"/>
                             <ContentPresenter VerticalAlignment="Center"/>
                         </StackPanel>
                     </Border>
