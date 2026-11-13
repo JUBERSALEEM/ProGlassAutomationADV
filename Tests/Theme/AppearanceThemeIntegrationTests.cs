@@ -204,6 +204,7 @@ namespace ProGlassAutomation.Tests.Theme
             string viewModel = Read("ViewModels/Settings/SettingsViewModel.Appearance.AccentsDensity.cs");
             string engine = Read("Services/Theme/VisualThemeEngine.EightThemes.cs");
             string modeCard = Read("Views/Settings/Sections/Cards/AppearanceModeCard.xaml");
+            string settingsHeader = Read("Views/Settings/SettingsView.xaml");
 
             Assert.Contains("IsDarkTheme ? \"Dark\" : \"Light\"", viewModel, StringComparison.Ordinal);
             Assert.Contains("ThemePipeline.Rebuild(", viewModel, StringComparison.Ordinal);
@@ -212,6 +213,9 @@ namespace ProGlassAutomation.Tests.Theme
             Assert.Contains("resources[\"ThemeModeChipBackgroundBrush\"]", engine, StringComparison.Ordinal);
             Assert.Contains("resources[\"ThemeModeChipForegroundBrush\"]", engine, StringComparison.Ordinal);
             Assert.Contains("SelectedValue=\"{Binding ThemeMode, Mode=TwoWay}\"", modeCard, StringComparison.Ordinal);
+            Assert.Contains("ThemeModeChipBackgroundKey", settingsHeader, StringComparison.Ordinal);
+            Assert.Contains("ThemeModeChipForegroundKey", settingsHeader, StringComparison.Ordinal);
+            Assert.Contains("Converter={StaticResource BrushKeyConverter}", settingsHeader, StringComparison.Ordinal);
         }
 
         [Fact]
