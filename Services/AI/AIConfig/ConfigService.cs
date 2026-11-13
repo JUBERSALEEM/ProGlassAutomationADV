@@ -161,7 +161,8 @@ namespace ProGlassAutomation.Services.AI.AIConfig
                         VisualThemeEngine.Neumorphism or
                         VisualThemeEngine.Claymorphism or
                         VisualThemeEngine.LiquidGlass or
-                        VisualThemeEngine.Glassmorphism;
+                        VisualThemeEngine.Glassmorphism or
+                        VisualThemeEngine.FluentAcrylic;
 
                     if (!supported)
                     {
