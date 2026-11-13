@@ -25,10 +25,10 @@
 
     <!-- ══ TAB STRIP CONTAINER — floating transparent glass ══════════ -->
     <Style x:Key="ModuleTabStripStyle" TargetType="Border" BasedOn="{StaticResource SurfaceSecondaryStyle}">
-        <Setter Property="BorderBrush"     Value="{DynamicResource GlassBorderGradientSoft}"/>
+        <Setter Property="BorderBrush"     Value="{DynamicResource ThemeNavigationBorderBrush}"/>
         <Setter Property="BorderThickness" Value="1"/>
         <Setter Property="Background"
-                Value="{DynamicResource SurfacePrimaryBrush}"/>
+                Value="{DynamicResource ThemeControlFaceBrush}"/>
         <Setter Property="CornerRadius"
                 Value="{DynamicResource CardCornerRadius}"/>
         <Setter Property="Padding" Value="4"/>
@@ -48,11 +48,11 @@
         <Setter Property="Padding" Value="20,10"/>
         <Setter Property="BorderThickness" Value="1"/>
         <Setter Property="Background"
-                Value="{DynamicResource SurfacePrimaryBrush}"/>
+                Value="{DynamicResource ThemeControlFaceBrush}"/>
         <Setter Property="BorderBrush"
-                Value="{DynamicResource GlassBorderGradientSoft}"/>
+                Value="{DynamicResource ThemeNavigationBorderBrush}"/>
         <Setter Property="Foreground"
-                Value="{DynamicResource SecondaryForegroundBrush}"/>
+                Value="{DynamicResource ThemeNavigationHoverForegroundBrush}"/>
         <Setter Property="Template">
             <Setter.Value>
                 <ControlTemplate TargetType="Button">
@@ -91,9 +91,9 @@
                     <ControlTemplate.Triggers>
                         <Trigger Property="IsMouseOver" Value="True">
                             <Setter Property="Foreground"
-                                    Value="{DynamicResource AccentBrush}"/>
+                                    Value="{DynamicResource ThemeNavigationFocusBrush}"/>
                             <Setter Property="BorderBrush"
-                                    Value="{DynamicResource GlassBorderGradientCrystal}"/>
+                                    Value="{DynamicResource ThemeNavigationBorderBrush}"/>
                             <Setter TargetName="Glare" Property="Opacity" Value="0.5"/>
                             <Setter TargetName="Specular" Property="Opacity" Value="0.6"/>
                         </Trigger>
@@ -154,7 +154,7 @@
                 <Border BorderBrush="{DynamicResource BorderDefaultBrush}" BorderThickness="{DynamicResource Border.HairlineThickness}" Grid.Column="0"
                         Width="40" Height="40"
                         CornerRadius="{DynamicResource CardCornerRadius}"
-                        Background="{DynamicResource SurfacePrimaryBrush}"
+                        Background="{DynamicResource ThemeControlFaceBrush}"
                         VerticalAlignment="Center">
                     <TextBlock Text="{Binding Icon}"
                                FontSize="{DynamicResource FontSize.H2}"
@@ -173,7 +173,7 @@
                     <TextBlock Text="{Binding Label}"
                                FontSize="{DynamicResource FontSize.Body}"
                                Margin="0,2,0,0"
-                               Foreground="{DynamicResource SecondaryForegroundBrush}"
+                               Foreground="{DynamicResource ThemeNavigationHoverForegroundBrush}"
                                TextTrimming="CharacterEllipsis"/>
                 </StackPanel>
             </Grid>
@@ -187,11 +187,11 @@
         <Setter Property="HeadersVisibility" Value="Column"/>
         <Setter Property="GridLinesVisibility" Value="Horizontal"/>
         <Setter Property="RowBackground"
-                Value="{DynamicResource SurfacePrimaryBrush}"/>
+                Value="{DynamicResource ThemeControlFaceBrush}"/>
         <Setter Property="AlternatingRowBackground"
-                Value="{DynamicResource SurfaceTertiaryBrush}"/>
+                Value="{DynamicResource ThemeNavigationHoverBrush}"/>
         <Setter Property="Foreground"
-                Value="{DynamicResource TextPrimaryBrush}"/>
+                Value="{DynamicResource ThemeNavigationHoverForegroundBrush}"/>
         <Setter Property="FontSize" Value="{StaticResource TextBody}"/>
         <Setter Property="RowHeight" Value="{DynamicResource DensityRowHeight}"/>
         <Setter Property="SelectionMode" Value="Single"/>
@@ -204,14 +204,14 @@
          solid accent bar with bold on-accent labels. -->
     <Style x:Key="GodViewHeaderStyle" TargetType="DataGridColumnHeader">
         <Setter Property="Background"
-                Value="{DynamicResource AccentBrush}"/>
+                Value="{DynamicResource ThemeNavigationFocusBrush}"/>
         <Setter Property="Foreground"
-                Value="{DynamicResource OnAccentForegroundBrush}"/>
+                Value="{DynamicResource ThemeNavigationSelectedForegroundBrush}"/>
         <Setter Property="FontSize" Value="{StaticResource TextBody}"/>
         <Setter Property="FontWeight" Value="Bold"/>
         <Setter Property="Padding" Value="12,10"/>
         <Setter Property="BorderBrush"
-                Value="{DynamicResource AccentBrush}"/>
+                Value="{DynamicResource ThemeNavigationFocusBrush}"/>
         <Setter Property="BorderThickness" Value="0"/>
     </Style>
 
@@ -266,16 +266,16 @@
 
     <!-- Active tab — accent glass surface, white text -->
     <Style x:Key="LiquidGlassTabActive" TargetType="Button" BasedOn="{StaticResource ModuleTabButtonStyle}">
-        <Setter Property="Background" Value="{DynamicResource AccentBrush}"/>
-        <Setter Property="BorderBrush" Value="{DynamicResource GlassBorderGradientCrystal}"/>
-        <Setter Property="Foreground" Value="{DynamicResource OnAccentForegroundBrush}"/>
+        <Setter Property="Background" Value="{DynamicResource ThemeNavigationSelectedBrush}"/>
+        <Setter Property="BorderBrush" Value="{DynamicResource ThemeNavigationBorderBrush}"/>
+        <Setter Property="Foreground" Value="{DynamicResource ThemeNavigationSelectedForegroundBrush}"/>
     </Style>
 
     <!-- Inactive tab — transparent glass, secondary text -->
     <Style x:Key="LiquidGlassTabInactive" TargetType="Button" BasedOn="{StaticResource ModuleTabButtonStyle}">
         <Setter Property="Background" Value="Transparent"/>
         <Setter Property="BorderBrush" Value="Transparent"/>
-        <Setter Property="Foreground" Value="{DynamicResource SecondaryForegroundBrush}"/>
+        <Setter Property="Foreground" Value="{DynamicResource ThemeNavigationHoverForegroundBrush}"/>
     </Style>
 
     <!-- Tab container (glass pill strip) -->
@@ -289,7 +289,7 @@
     <!-- Individual pill tab item — rounded border, accent when selected -->
     <Style x:Key="PillTabItemStyle" TargetType="TabItem">
         <Setter Property="Background" Value="Transparent"/>
-        <Setter Property="Foreground" Value="{DynamicResource SecondaryForegroundBrush}"/>
+        <Setter Property="Foreground" Value="{DynamicResource ThemeNavigationHoverForegroundBrush}"/>
         <Setter Property="FontSize" Value="{StaticResource TextCaption}"/>
         <Setter Property="FontWeight" Value="SemiBold"/>
         <Setter Property="Padding" Value="18,9"/>
@@ -317,17 +317,17 @@
                     </Border>
                     <ControlTemplate.Triggers>
                         <Trigger Property="IsSelected" Value="True">
-                            <Setter TargetName="TabBorder" Property="Background" Value="{DynamicResource AccentBrush}"/>
-                            <Setter TargetName="TabBorder" Property="BorderBrush" Value="{DynamicResource AccentBrush}"/>
-                            <Setter Property="Foreground" Value="{DynamicResource OnAccentForegroundBrush}"/>
+                            <Setter TargetName="TabBorder" Property="Background" Value="{DynamicResource ThemeNavigationSelectedBrush}"/>
+                            <Setter TargetName="TabBorder" Property="BorderBrush" Value="{DynamicResource ThemeNavigationFocusBrush}"/>
+                            <Setter Property="Foreground" Value="{DynamicResource ThemeNavigationSelectedForegroundBrush}"/>
                         </Trigger>
                         <MultiTrigger>
                             <MultiTrigger.Conditions>
                                 <Condition Property="IsMouseOver" Value="True"/>
                                 <Condition Property="IsSelected" Value="False"/>
                             </MultiTrigger.Conditions>
-                            <Setter TargetName="TabBorder" Property="Background" Value="{DynamicResource SurfaceTertiaryBrush}"/>
-                            <Setter Property="Foreground" Value="{DynamicResource TextPrimaryBrush}"/>
+                            <Setter TargetName="TabBorder" Property="Background" Value="{DynamicResource ThemeNavigationHoverBrush}"/>
+                            <Setter Property="Foreground" Value="{DynamicResource ThemeNavigationHoverForegroundBrush}"/>
                         </MultiTrigger>
                     </ControlTemplate.Triggers>
                 </ControlTemplate>

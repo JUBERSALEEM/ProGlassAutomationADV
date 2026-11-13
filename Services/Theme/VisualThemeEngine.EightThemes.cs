@@ -217,10 +217,10 @@ namespace ProGlassAutomation.Services.Theme
             resources["ThemeNavigationSelectedBrush"] = navSelected;
             resources["ThemeNavigationSelectedForegroundBrush"] = Solid(navSelectedText);
             resources["ThemeNavigationHoverBrush"] = Alpha(palette.Accent, (byte)(dark ? 0x48 : 0x24));
-            resources["ThemeNavigationHoverForegroundBrush"] = Solid(palette.Text);
+            resources["ThemeNavigationHoverForegroundBrush"] = Solid(palette.Ink);
             resources["ThemeNavigationFocusBrush"] = Solid(palette.Accent);
             resources["ThemeNavigationBorderBrush"] = Alpha(palette.Edge, (byte)(dark ? 0xE0 : 0xFF));
-            resources["ThemeNavigationMutedBrush"] = Solid(palette.TextMuted);
+            resources["ThemeNavigationMutedBrush"] = Solid(palette.MutedInk);
             resources["ThemeFamilyId"] = family;
             resources["ThemeMaterialProfile"] = family switch
             {

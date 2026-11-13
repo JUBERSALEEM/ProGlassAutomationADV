@@ -164,3 +164,12 @@ Theme-specific styling must be token-driven and use dynamic resource resolution 
 - Compilation then found three `FontWnine` typos in the same theme-picker specimen area. Corrected them to WPF `FontWeight`.
 - Strengthened the picker regression guard to reject any remaining malformed `nine=` property suffix in that XAML file, rather than checking only the first typo spelling.
 - This push triggers another Windows Release build and test attempt; verification remains pending until CI finishes.
+
+
+### Shared shell controls — navigation, module tabs, and context menus
+- Added family-aware navigation materials to the Professional shell and mapped the selected, hover, focus, border, and muted states to the active nine-theme palette.
+- Migrated module tab strips, active/inactive tab states, God View headers, and pill TabItems to the runtime family material resources.
+- Migrated shared context-menu surfaces, submenus, item hover/selection states, keylines, and separators to the same semantic family resources.
+- Corrected two palette member references caught by the Windows compiler: the palette exposes `Ink` and `MutedInk`, not `Text` and `TextMuted`.
+- Added source regression coverage for tab and context-menu theme-resource consumption.
+- Windows verification of this correction is pending; the preceding run failed during WPF compilation before tests could execute.

@@ -19,10 +19,10 @@
 
     <!-- ── ContextMenu ─────────────────────────────────────────────────── -->
     <Style x:Key="ModernContextMenuStyle" TargetType="ContextMenu">
-        <Setter Property="Background" Value="{DynamicResource ModuleBackgroundBrush}"/>
-        <Setter Property="BorderBrush" Value="{DynamicResource OutlineBrush}"/>
+        <Setter Property="Background" Value="{DynamicResource ThemeCardFaceBrush}"/>
+        <Setter Property="BorderBrush" Value="{DynamicResource ThemeNavigationBorderBrush}"/>
         <Setter Property="BorderThickness" Value="1"/>
-        <Setter Property="Foreground" Value="{DynamicResource PrimaryForegroundBrush}"/>
+        <Setter Property="Foreground" Value="{DynamicResource ThemeNavigationHoverForegroundBrush}"/>
         <Setter Property="FontFamily" Value="{DynamicResource AppFontFamily}"/>
         <Setter Property="FontSize" Value="{StaticResource TextBodyLarge}"/>
         <Setter Property="SnapsToDevicePixels" Value="True"/>
@@ -51,7 +51,7 @@
 
     <!-- ── MenuItem (root + sub) ───────────────────────────────────────── -->
     <Style x:Key="ModernMenuItemStyle" TargetType="MenuItem">
-        <Setter Property="Foreground" Value="{DynamicResource PrimaryForegroundBrush}"/>
+        <Setter Property="Foreground" Value="{DynamicResource ThemeNavigationHoverForegroundBrush}"/>
         <Setter Property="FontFamily" Value="{DynamicResource AppFontFamily}"/>
         <Setter Property="FontSize" Value="{StaticResource TextBodyLarge}"/>
         <Setter Property="Padding" Value="12,9"/>
@@ -69,7 +69,7 @@
                                 VerticalAlignment="Stretch"
                                 Margin="0,4"
                                 CornerRadius="{DynamicResource Radius.XSmall}"
-                                Background="{DynamicResource AccentBrush}"
+                                Background="{DynamicResource ThemeNavigationFocusBrush}"
                                 Opacity="0"/>
                         <!-- Item chrome -->
                         <Border x:Name="Bg"
@@ -96,7 +96,7 @@
                                            FontSize="{DynamicResource FontSize.Caption}"
                                            Margin="16,0,4,0"
                                            VerticalAlignment="Center"
-                                           Foreground="{DynamicResource MutedForegroundBrush}"
+                                           Foreground="{DynamicResource ThemeNavigationMutedBrush}"
                                            Visibility="Collapsed"/>
                             </Grid>
                         </Border>
@@ -107,8 +107,8 @@
                                AllowsTransparency="True"
                                Focusable="False"
                                PopupAnimation="Fade">
-                            <Border Background="{DynamicResource PopupSurfaceBrush}"
-                                    BorderBrush="{DynamicResource OutlineBrush}"
+                            <Border Background="{DynamicResource ThemeCardFaceBrush}"
+                                    BorderBrush="{DynamicResource ThemeNavigationBorderBrush}"
                                     BorderThickness="{DynamicResource Border.HairlineThickness}"
                                     CornerRadius="{DynamicResource CardCornerRadius}"
                                     Padding="6"
@@ -128,12 +128,12 @@
                             <Setter TargetName="SubChevron" Property="Visibility" Value="Visible"/>
                         </Trigger>
                         <Trigger Property="IsHighlighted" Value="True">
-                            <Setter TargetName="Bg" Property="Background" Value="{DynamicResource MenuHoverBrush}"/>
+                            <Setter TargetName="Bg" Property="Background" Value="{DynamicResource ThemeNavigationHoverBrush}"/>
                             <Setter TargetName="Keyline" Property="Opacity" Value="1"/>
-                            <Setter Property="Foreground" Value="{DynamicResource PrimaryForegroundBrush}"/>
+                            <Setter Property="Foreground" Value="{DynamicResource ThemeNavigationHoverForegroundBrush}"/>
                         </Trigger>
                         <Trigger Property="IsSubmenuOpen" Value="True">
-                            <Setter TargetName="Bg" Property="Background" Value="{DynamicResource MenuHoverBrush}"/>
+                            <Setter TargetName="Bg" Property="Background" Value="{DynamicResource ThemeNavigationHoverBrush}"/>
                             <Setter TargetName="Keyline" Property="Opacity" Value="1"/>
                         </Trigger>
                         <Trigger Property="IsEnabled" Value="False">
@@ -160,7 +160,7 @@
                                 VerticalAlignment="Stretch"
                                 Margin="0,4"
                                 CornerRadius="{DynamicResource Radius.XSmall}"
-                                Background="{DynamicResource AccentBrush}"
+                                Background="{DynamicResource ThemeNavigationFocusBrush}"
                                 Opacity="0"/>
                         <Border x:Name="Bg"
                                 Background="Transparent"
@@ -183,7 +183,7 @@
                                            Width="18"
                                            Margin="0,0,6,0"
                                            VerticalAlignment="Center"
-                                           Foreground="{DynamicResource AccentBrush}"
+                                           Foreground="{DynamicResource ThemeNavigationFocusBrush}"
                                            Visibility="Hidden"/>
                                 <ContentPresenter x:Name="Content"
                                                   Grid.Column="1"
@@ -197,7 +197,7 @@
                                            FontSize="{DynamicResource FontSize.Caption}"
                                            Margin="16,0,4,0"
                                            VerticalAlignment="Center"
-                                           Foreground="{DynamicResource MutedForegroundBrush}"
+                                           Foreground="{DynamicResource ThemeNavigationMutedBrush}"
                                            Visibility="Collapsed"/>
                             </Grid>
                         </Border>
@@ -208,8 +208,8 @@
                                AllowsTransparency="True"
                                Focusable="False"
                                PopupAnimation="Fade">
-                            <Border Background="{DynamicResource PopupSurfaceBrush}"
-                                    BorderBrush="{DynamicResource OutlineBrush}"
+                            <Border Background="{DynamicResource ThemeCardFaceBrush}"
+                                    BorderBrush="{DynamicResource ThemeNavigationBorderBrush}"
                                     BorderThickness="{DynamicResource Border.HairlineThickness}"
                                     CornerRadius="{DynamicResource CardCornerRadius}"
                                     Padding="6"
@@ -230,14 +230,14 @@
                         </Trigger>
                         <Trigger Property="IsChecked" Value="True">
                             <Setter TargetName="Check" Property="Visibility" Value="Visible"/>
-                            <Setter TargetName="Bg" Property="Background" Value="{DynamicResource TintIndigoBrush}"/>
+                            <Setter TargetName="Bg" Property="Background" Value="{DynamicResource ThemeTableSelectionBrush}"/>
                         </Trigger>
                         <Trigger Property="IsHighlighted" Value="True">
-                            <Setter TargetName="Bg" Property="Background" Value="{DynamicResource MenuHoverBrush}"/>
+                            <Setter TargetName="Bg" Property="Background" Value="{DynamicResource ThemeNavigationHoverBrush}"/>
                             <Setter TargetName="Keyline" Property="Opacity" Value="1"/>
                         </Trigger>
                         <Trigger Property="IsSubmenuOpen" Value="True">
-                            <Setter TargetName="Bg" Property="Background" Value="{DynamicResource MenuHoverBrush}"/>
+                            <Setter TargetName="Bg" Property="Background" Value="{DynamicResource ThemeNavigationHoverBrush}"/>
                         </Trigger>
                         <Trigger Property="IsEnabled" Value="False">
                             <Setter TargetName="Content" Property="Opacity" Value="0.45"/>
@@ -258,7 +258,7 @@
                 <ControlTemplate TargetType="Separator">
                     <Border Height="1"
                             Margin="10,5"
-                            Background="{DynamicResource OutlineBrush}"/>
+                            Background="{DynamicResource ThemeNavigationBorderBrush}"/>
                 </ControlTemplate>
             </Setter.Value>
         </Setter>

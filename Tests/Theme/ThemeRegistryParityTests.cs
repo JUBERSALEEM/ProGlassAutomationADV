@@ -598,6 +598,39 @@ namespace ProGlassAutomation.Tests.Theme
                 labels.Distinct(StringComparer.Ordinal).Count());
         }
 
+        [Fact]
+        public void Module_tabs_and_context_menus_use_nine_family_materials()
+        {
+            string engine = Read("Services/Theme/VisualThemeEngine.EightThemes.cs");
+            string shell = Read("Themes/Professional/ProfessionalShell.xaml");
+            string tabs = Read("Themes/Styles/ModuleTabStyles.xaml");
+            string menus = Read("Styles/ContextMenuStyles.xaml");
+
+            foreach (string key in new[]
+            {
+                "ThemeNavigationSelectedBrush",
+                "ThemeNavigationSelectedForegroundBrush",
+                "ThemeNavigationHoverBrush",
+                "ThemeNavigationHoverForegroundBrush",
+                "ThemeNavigationFocusBrush",
+                "ThemeNavigationBorderBrush",
+                "ThemeNavigationMutedBrush"
+            })
+            {
+                Assert.Contains(key, engine, StringComparison.Ordinal);
+                Assert.Contains(key, shell, StringComparison.Ordinal);
+            }
+
+            Assert.Contains("DynamicResource ThemeNavigationSelectedBrush", tabs, StringComparison.Ordinal);
+            Assert.Contains("DynamicResource ThemeNavigationHoverBrush", tabs, StringComparison.Ordinal);
+            Assert.Contains("DynamicResource ThemeNavigationBorderBrush", tabs, StringComparison.Ordinal);
+            Assert.Contains("DynamicResource ThemeNavigationSelectedBrush", menus, StringComparison.Ordinal);
+            Assert.Contains("DynamicResource ThemeNavigationHoverBrush", menus, StringComparison.Ordinal);
+            Assert.Contains("DynamicResource ThemeCardFaceBrush", menus, StringComparison.Ordinal);
+            Assert.DoesNotContain("DynamicResource AccentBrush", tabs, StringComparison.Ordinal);
+            Assert.DoesNotContain("DynamicResource MenuHoverBrush", menus, StringComparison.Ordinal);
+        }
+
         private static string ConstValue(string name)
         {
             var field = typeof(VisualThemeEngine).GetField(
