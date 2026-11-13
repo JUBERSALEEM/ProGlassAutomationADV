@@ -23,6 +23,10 @@ internal static class RuntimeChecks
             // Seed resources in a merged host dictionary, matching the ERP's
             // real App.xaml layout. The bridge must find these keys through the
             // resource graph (not just direct entries on Application.Resources).
+            var hostTextBoxStyle = new Style(typeof(TextBox));
+            var hostComboBoxStyle = new Style(typeof(ComboBox));
+            var hostDataGridStyle = new Style(typeof(DataGrid));
+            var hostGridHeaderStyle = new Style(typeof(DataGridColumnHeader));
             var hostTokens = new ResourceDictionary
             {
                 ["AccentBrush"] = Brushes.Purple,
@@ -37,7 +41,16 @@ internal static class RuntimeChecks
                 ["PgCardRadius"] = new CornerRadius(2),
                 ["PgFontBody"] = 10d,
                 ["PrimaryButtonStyle"] = new Style(typeof(Button)),
-                ["Button.Primary"] = new Style(typeof(Button))
+                ["Button.Primary"] = new Style(typeof(Button)),
+                ["TextBoxStyle"] = hostTextBoxStyle,
+                ["Input.TextBox"] = new Style(typeof(TextBox)),
+                ["SurfaceTextBox"] = new Style(typeof(TextBox)),
+                ["Step4InputStyle"] = new Style(typeof(TextBox)),
+                ["ComboBoxStyle"] = hostComboBoxStyle,
+                ["ModernComboBoxStyle"] = new Style(typeof(ComboBox)),
+                ["Step4ComboStyle"] = new Style(typeof(ComboBox)),
+                ["SurfaceDataGrid"] = hostDataGridStyle,
+                ["GridHeaderCell"] = hostGridHeaderStyle
             };
             app.Resources.MergedDictionaries.Add(hostTokens);
             ContractChecks.Run();
@@ -74,6 +87,18 @@ internal static class RuntimeChecks
             Check(app.TryFindResource("PrimaryButtonStyle") is Style primaryStyle &&
                   ReferenceEquals(primaryStyle, ImportedThemeRuntime.Engine.GetResource("PrimaryButton")),
                 "host primary-button style resolves to the active imported family style");
+            Check(app.TryFindResource("TextBoxStyle") is Style themedTextBox &&
+                  ReferenceEquals(themedTextBox.BasedOn, hostTextBoxStyle) && themedTextBox.Setters.Count > 0,
+                "explicit ERP text-box style keeps its base contract and receives package presentation setters");
+            Check(app.TryFindResource("ComboBoxStyle") is Style themedComboBox &&
+                  ReferenceEquals(themedComboBox.BasedOn, hostComboBoxStyle) && themedComboBox.Setters.Count > 0,
+                "explicit ERP combo-box style keeps its base contract and receives package presentation setters");
+            Check(app.TryFindResource("SurfaceDataGrid") is Style themedGrid &&
+                  ReferenceEquals(themedGrid.BasedOn, hostDataGridStyle) && themedGrid.Setters.Count > 0,
+                "explicit ERP data-grid style keeps its base contract and receives package presentation setters");
+            Check(app.TryFindResource("GridHeaderCell") is Style themedGridHeader &&
+                  ReferenceEquals(themedGridHeader.BasedOn, hostGridHeaderStyle) && themedGridHeader.Setters.Count > 0,
+                "explicit ERP data-grid header style keeps its base contract and receives package presentation setters");
             int slotCount = app.Resources.MergedDictionaries.Count;
             var families = new[]
             {
@@ -92,6 +117,15 @@ internal static class RuntimeChecks
                 Check(ImportedThemeRuntime.Engine.ActiveAppearance == (dark ? Appearance.Dark : Appearance.Light), family + " mode active");
                 Check(ReferenceEquals(app.TryFindResource("PrimaryButtonStyle"),
                     ImportedThemeRuntime.Engine.GetResource("PrimaryButton")), family + " explicit button style active");
+                Check(app.TryFindResource("TextBoxStyle") is Style switchedTextBox &&
+                      ReferenceEquals(switchedTextBox.BasedOn, hostTextBoxStyle) && switchedTextBox.Setters.Count > 0,
+                    family + " explicit TextBox style follows the active package without replacing its ERP base");
+                Check(app.TryFindResource("ComboBoxStyle") is Style switchedCombo &&
+                      ReferenceEquals(switchedCombo.BasedOn, hostComboBoxStyle) && switchedCombo.Setters.Count > 0,
+                    family + " explicit ComboBox style follows the active package without replacing its ERP base");
+                Check(app.TryFindResource("SurfaceDataGrid") is Style switchedGrid &&
+                      ReferenceEquals(switchedGrid.BasedOn, hostDataGridStyle) && switchedGrid.Setters.Count > 0,
+                    family + " explicit DataGrid style follows the active package without replacing its ERP base");
                 Check(app.TryFindResource("PgAccentBrush") is Brush activeShellAccent &&
                       activeShellAccent == ImportedThemeRuntime.Engine.GetToken("AccentPrimary"),
                     family + " palette reaches the visible shell");

@@ -25,6 +25,7 @@ public static class ImportedThemeRuntime
     private static bool applyingFromHost;
     private static bool syncingStudio;
     private static bool persistenceEnabled = true;
+    private static readonly Dictionary<string, Style> hostBaseStyles = new(StringComparer.Ordinal);
 
     public static ProGlassAutomation.Theming.ThemeService Engine => engine;
     public static bool IsInitialized => initialized;
@@ -266,23 +267,68 @@ public static class ImportedThemeRuntime
     /// </summary>
     private static void PublishHostStyleAliases(ResourceDictionary resources)
     {
-        (string HostKey, object PackageKey)[] aliases =
+        // Explicit host styles opt controls out of WPF's implicit style lookup.
+        // Preserve each ERP style as the BasedOn contract, then overlay only
+        // presentation properties from the active package's type styles. This
+        // intentionally leaves templates, bindings, validation, selection,
+        // editing and command behavior owned by the ERP.
+        (string HostKey, object PackageKey, bool FullPackageStyle)[] aliases =
         [
-            ("PrimaryButtonStyle", "PrimaryButton"),
-            ("ModuleToolbarPrimaryButtonStyle", "PrimaryButton"),
-            ("Button.Primary", "PrimaryButton"),
-            ("SecondaryButtonStyle", typeof(Button)),
-            ("Button.Secondary", typeof(Button))
+            ("PrimaryButtonStyle", "PrimaryButton", true),
+            ("ModuleToolbarPrimaryButtonStyle", "PrimaryButton", true),
+            ("Button.Primary", "PrimaryButton", true),
+            ("SecondaryButtonStyle", typeof(Button), true),
+            ("Button.Secondary", typeof(Button), true),
+            ("TextBoxStyle", typeof(TextBox), false),
+            ("Input.TextBox", typeof(TextBox), false),
+            ("SurfaceTextBox", typeof(TextBox), false),
+            ("Step4InputStyle", typeof(TextBox), false),
+            ("ComboBoxStyle", typeof(ComboBox), false),
+            ("ModernComboBoxStyle", typeof(ComboBox), false),
+            ("Step4ComboStyle", typeof(ComboBox), false),
+            ("SurfaceDataGrid", typeof(DataGrid), false),
+            ("GridHeaderCell", typeof(DataGridColumnHeader), false)
         ];
 
-        foreach ((string hostKey, object packageKey) in aliases)
+        foreach ((string hostKey, object packageKey, bool fullPackageStyle) in aliases)
         {
-            if (Application.Current?.TryFindResource(hostKey) is not Style hostStyle) continue;
+            if (Application.Current?.TryFindResource(hostKey) is not Style currentHostStyle)
+                continue;
+            if (!hostBaseStyles.TryGetValue(hostKey, out Style? baseStyle))
+                hostBaseStyles[hostKey] = baseStyle = currentHostStyle;
             if (engine.GetResource(packageKey) is not Style packageStyle ||
-                packageStyle.TargetType != hostStyle.TargetType) continue;
-            resources[hostKey] = packageStyle;
+                packageStyle.TargetType != baseStyle.TargetType)
+                continue;
+
+            if (fullPackageStyle)
+            {
+                resources[hostKey] = packageStyle;
+                continue;
+            }
+
+            var adapted = new Style(baseStyle.TargetType, baseStyle);
+            foreach (SetterBase setterBase in packageStyle.Setters)
+            {
+                if (setterBase is not Setter setter || !IsSafeThemeSetter(setter.Property))
+                    continue;
+                adapted.Setters.Add(new Setter(setter.Property, setter.Value));
+            }
+            resources[hostKey] = adapted;
         }
     }
+
+    private static bool IsSafeThemeSetter(DependencyProperty property) =>
+        property == Control.BackgroundProperty ||
+        property == Control.ForegroundProperty ||
+        property == Control.BorderBrushProperty ||
+        property == Control.BorderThicknessProperty ||
+        property == Control.FontFamilyProperty ||
+        property == Control.FontSizeProperty ||
+        property == Control.FontWeightProperty ||
+        property == Control.MinHeightProperty ||
+        property == Control.PaddingProperty ||
+        property == Control.HorizontalContentAlignmentProperty ||
+        property == Control.VerticalContentAlignmentProperty;
 
     private static bool HasHostResource(string key) =>
         Application.Current?.TryFindResource(key) is not null;
