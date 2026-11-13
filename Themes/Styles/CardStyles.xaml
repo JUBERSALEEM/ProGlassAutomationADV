@@ -25,23 +25,36 @@
     -->
 
     <Style x:Key="BaseCardStyle" TargetType="Border" BasedOn="{StaticResource SurfacePrimaryStyle}">
+        <!-- Bind the actual ERP card chrome to the active family's material package.
+             SurfacePrimaryStyle remains the semantic fallback; these live keys
+             provide the family-specific face/edge instead of a palette-only swap. -->
+        <Setter Property="Background"      Value="{DynamicResource ThemeCardFaceBrush}"/>
+        <Setter Property="BorderBrush"     Value="{DynamicResource ThemeCardEdgeBrush}"/>
+        <Setter Property="BorderThickness" Value="{DynamicResource CardEdgeThickness}"/>
+        <Setter Property="Effect"          Value="{DynamicResource ShadowSoft}"/>
         <Setter Property="Margin"          Value="8"/>
     </Style>
 
     <Style x:Key="ElevatedCardStyle" TargetType="Border"
            BasedOn="{StaticResource BaseCardStyle}">
-        <Setter Property="Effect" Value="{StaticResource ShadowSoft}"/>
+        <Setter Property="Effect" Value="{DynamicResource ShadowElevated}"/>
     </Style>
 
     
 
     <Style x:Key="StatCardStyle" TargetType="Border"
            BasedOn="{StaticResource SurfaceSecondaryStyle}">
+        <Setter Property="Background"      Value="{DynamicResource ThemeControlFaceBrush}"/>
+        <Setter Property="BorderBrush"     Value="{DynamicResource ThemeControlEdgeBrush}"/>
+        <Setter Property="BorderThickness" Value="{DynamicResource CardEdgeThickness}"/>
         <Setter Property="Padding" Value="{DynamicResource CardEdgePaddingStat}"/>
         <Setter Property="Margin"  Value="6"/>
     </Style>
 
     <Style x:Key="TaskCardStyle" TargetType="Border" BasedOn="{StaticResource SurfaceSecondaryStyle}">
+        <Setter Property="Background"      Value="{DynamicResource ThemeControlFaceBrush}"/>
+        <Setter Property="BorderBrush"     Value="{DynamicResource ThemeControlEdgeBrush}"/>
+        <Setter Property="BorderThickness" Value="{DynamicResource CardEdgeThickness}"/>
         <Setter Property="Padding"         Value="{DynamicResource CardEdgePaddingTask}"/>
         <Setter Property="Margin"          Value="0,0,0,10"/>
         <Style.Triggers>
@@ -66,6 +79,9 @@
     </Style>
 
     <Style x:Key="ListRowCardStyle" TargetType="Border" BasedOn="{StaticResource SurfaceDetailStyle}">
+        <Setter Property="Background"      Value="{DynamicResource ThemeControlFaceBrush}"/>
+        <Setter Property="BorderBrush"     Value="{DynamicResource ThemeControlEdgeBrush}"/>
+        <Setter Property="BorderThickness" Value="{DynamicResource CardBorderThickness}"/>
         <Setter Property="Padding"         Value="{DynamicResource CardEdgePaddingList}"/>
         <Setter Property="Margin"          Value="0,0,0,6"/>
         <Style.Triggers>
