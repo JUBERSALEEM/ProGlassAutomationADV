@@ -792,6 +792,31 @@ namespace ProGlassAutomation.Tests.Theme
             Assert.Contains("DynamicResource SurfaceWorkspaceBrush", list, StringComparison.Ordinal);
         }
 
+        [Fact]
+        public void Report_workspaces_and_generator_progress_follow_active_theme_materials()
+        {
+            string[] reports =
+            {
+                "Views/Reports/ProfitabilityReport/ProfitabilityReportView.xaml",
+                "Views/Reports/ExecutiveReport/ExecutiveReportView.xaml",
+                "Views/Reports/CompanyReport/CompanyReportView.xaml",
+                "Views/Reports/CustomerReport/CustomerReportView.xaml",
+                "Views/Reports/JoReport/JoReportView.xaml"
+            };
+            foreach (string path in reports)
+            {
+                string xaml = Read(path);
+                Assert.Contains("DynamicResource SurfaceWorkspaceBrush", xaml, StringComparison.Ordinal);
+                Assert.Contains("DynamicResource TextPrimaryBrush", xaml, StringComparison.Ordinal);
+                Assert.DoesNotContain("DynamicResource Ov.Canvas", xaml, StringComparison.Ordinal);
+                Assert.DoesNotContain("DynamicResource Ov.Ink", xaml, StringComparison.Ordinal);
+            }
+            string generator = Read("Views/Reports/Shared/GeneratorStudio.xaml");
+            Assert.Contains("DynamicResource AccentBrush", generator, StringComparison.Ordinal);
+            Assert.Contains("DynamicResource ThemeCardHighlightBrush", generator, StringComparison.Ordinal);
+            Assert.DoesNotContain("Ov.", generator, StringComparison.Ordinal);
+        }
+
         private static string ConstValue(string name)
         {
             var field = typeof(VisualThemeEngine).GetField(

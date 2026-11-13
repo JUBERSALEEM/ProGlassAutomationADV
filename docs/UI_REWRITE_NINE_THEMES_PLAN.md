@@ -245,3 +245,9 @@ Theme-specific styling must be token-driven and use dynamic resource resolution 
 - Job Order cards and inset panels now inherit the nine-family rewrite card materials; form controls and line-item headers use family-owned control surfaces and edges.
 - Job Order list/detail workspace roots now use the live theme workspace surface. Status and semantic text colors resolve through the application's active theme resources.
 - Added regression coverage for the Job Order style and workspace resource contract.
+
+
+### Reporting workspace and generator migration
+- Profitability, executive, company, customer, and job-order report workspaces now use the live family workspace surface and active primary text brush.
+- Shared report-generator progress indicators now use the theme accent and family card highlight instead of fixed Indigo dashboard tokens.
+- Report calculations, filters, exports, and report ViewModels are unchanged; regression checks cover the shared visual resource contract.

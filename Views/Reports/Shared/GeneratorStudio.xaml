@@ -16,8 +16,8 @@
         <Setter Property="Height" Value="8"/>
         <Setter Property="Minimum" Value="0"/>
         <Setter Property="Maximum" Value="100"/>
-        <Setter Property="Foreground" Value="{DynamicResource Ov.Accent}"/>
-        <Setter Property="Background" Value="{DynamicResource Ov.Soft}"/>
+        <Setter Property="Foreground" Value="{DynamicResource AccentBrush}"/>
+        <Setter Property="Background" Value="{DynamicResource ThemeCardHighlightBrush}"/>
         <Setter Property="BorderThickness" Value="0"/>
     </Style>
 </ResourceDictionary>

@@ -9,8 +9,8 @@
              TextOptions.TextRenderingMode="ClearType"
              UseLayoutRounding="True"
              SnapsToDevicePixels="True"
-             Background="{DynamicResource Ov.Canvas}"
-             Foreground="{DynamicResource Ov.Ink}">
+             Background="{DynamicResource SurfaceWorkspaceBrush}"
+             Foreground="{DynamicResource TextPrimaryBrush}">
 
     <UserControl.Resources>
         <ResourceDictionary>
