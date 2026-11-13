@@ -29,12 +29,7 @@
             </ResourceDictionary.MergedDictionaries>
             <!-- Saw channel is darker than the piece fill so a kerf gap
                  reads as a cut, not as two pieces sharing one edge. -->
-            <SolidColorBrush x:Key="OptCutBed" Color="#D6D3D1"/>
-            <SolidColorBrush x:Key="OptCutInk" Color="#1F2937"/>
-            <SolidColorBrush x:Key="OptPieceFill" Color="#F8FAFC"/>
-            <SolidColorBrush x:Key="OptTrimInk" Color="#0F766E"/>
-            <SolidColorBrush x:Key="OptBreakoutInk" Color="#B45309"/>
-        </ResourceDictionary>
+                                                                    </ResourceDictionary>
     </UserControl.Resources>
 
     <Grid>
@@ -70,7 +65,7 @@
                                         <Style.Triggers>
                                             <DataTrigger Binding="{Binding IsSingleSheetMode}" Value="True">
                                                 <Setter Property="Background" Value="{DynamicResource AccentBrush}"/>
-                                                <Setter Property="Foreground" Value="#FFFFFF"/>
+                                                <Setter Property="Foreground" Value="{DynamicResource OnAccentForegroundBrush}"/>
                                             </DataTrigger>
                                         </Style.Triggers>
                                     </Style>
@@ -98,7 +93,7 @@
                                         <Style.Triggers>
                                             <DataTrigger Binding="{Binding IsGalleryMode}" Value="True">
                                                 <Setter Property="Background" Value="{DynamicResource AccentBrush}"/>
-                                                <Setter Property="Foreground" Value="#FFFFFF"/>
+                                                <Setter Property="Foreground" Value="{DynamicResource OnAccentForegroundBrush}"/>
                                             </DataTrigger>
                                         </Style.Triggers>
                                     </Style>
@@ -249,7 +244,7 @@
                                     <ItemsControl.ItemTemplate>
                                         <DataTemplate>
                                             <Border Width="{Binding Width}" Height="{Binding Height}"
-                                                    BorderThickness="0.8" BorderBrush="{StaticResource OptCutInk}">
+                                                    BorderThickness="0.8" BorderBrush="{DynamicResource TextPrimaryBrush}">
                                                 <Border.Style>
                                                     <Style TargetType="Border">
                                                         <Setter Property="Background" Value="{DynamicResource AccentBrush}"/>
@@ -346,21 +341,21 @@
                                 </Border>
 
                                 <!-- Plate Canvas -->
-                                <Border Grid.Column="1" BorderBrush="{StaticResource OptTrimInk}" BorderThickness="2"
-                                        CornerRadius="4" Background="{StaticResource OptCutBed}" SnapsToDevicePixels="True">
+                                <Border Grid.Column="1" BorderBrush="{DynamicResource AccentBrush}" BorderThickness="2"
+                                        CornerRadius="4" Background="{DynamicResource SurfacePrimaryBrush}" SnapsToDevicePixels="True">
                                     <Canvas Width="{Binding RenderWidth}" Height="{Binding RenderHeight}">
 
                                         <!-- Trim boundary — the usable rectangle inside edge trims. -->
                                         <Rectangle Canvas.Left="{Binding UsableX}" Canvas.Top="{Binding UsableY}"
                                                    Width="{Binding UsableW}" Height="{Binding UsableH}"
-                                                   Stroke="{StaticResource OptTrimInk}" StrokeThickness="2.25"
+                                                   Stroke="{DynamicResource AccentBrush}" StrokeThickness="2.25"
                                                    StrokeDashArray="7,3" Fill="Transparent" IsHitTestVisible="False"/>
 
                                         <!-- Minimum-breakout band — inset from the trim, amber so it
                                              does not disappear into the saw lines. -->
                                         <Rectangle Canvas.Left="{Binding BreakoutX}" Canvas.Top="{Binding BreakoutY}"
                                                    Width="{Binding BreakoutW}" Height="{Binding BreakoutH}"
-                                                   Stroke="{StaticResource OptBreakoutInk}" StrokeThickness="2"
+                                                   Stroke="{DynamicResource TintAmberBrush}" StrokeThickness="2"
                                                    StrokeDashArray="2,2" Fill="Transparent" IsHitTestVisible="False"/>
 
                                         <!-- Reusable Offcut Remnants -->
@@ -379,8 +374,8 @@
                                             <ItemsControl.ItemTemplate>
                                                 <DataTemplate>
                                                     <Border Width="{Binding Width}" Height="{Binding Height}"
-                                                            Background="{StaticResource OptOffcutBg}"
-                                                            BorderBrush="{StaticResource OptOffcutBorder}"
+                                                            Background="{DynamicResource TintPurpleBrush}"
+                                                            BorderBrush="{DynamicResource ThemeCardEdgeBrush}"
                                                             BorderThickness="1.5"
                                                             Padding="4">
                                                         <StackPanel HorizontalAlignment="Center" VerticalAlignment="Center">
@@ -413,15 +408,15 @@
                                             <ItemsControl.ItemTemplate>
                                                 <DataTemplate>
                                                     <Border Width="{Binding Width}" Height="{Binding Height}"
-                                                            BorderThickness="1.75" BorderBrush="{StaticResource OptCutInk}"
+                                                            BorderThickness="1.75" BorderBrush="{DynamicResource TextPrimaryBrush}"
                                                             CornerRadius="1" SnapsToDevicePixels="True">
                                                         <Border.Style>
                                                             <Style TargetType="Border">
-                                                                <Setter Property="Background" Value="{StaticResource OptPieceFill}"/>
+                                                                <Setter Property="Background" Value="{DynamicResource SurfaceSecondaryBrush}"/>
                                                                 <Style.Triggers>
                                                                     <!-- Rotated 90°: Light Sky Blue Tint -->
                                                                     <DataTrigger Binding="{Binding Rotated}" Value="True">
-                                                                        <Setter Property="Background" Value="#F0F9FF"/>
+                                                                        <Setter Property="Background" Value="{DynamicResource TintBlueBrush}"/>
                                                                     </DataTrigger>
                                                                 </Style.Triggers>
                                                             </Style>
@@ -432,12 +427,12 @@
                                                             <Border HorizontalAlignment="Left" VerticalAlignment="Top"
                                                                     Background="{DynamicResource AccentBrush}" CornerRadius="3" Padding="4,1"
                                                                     Visibility="{Binding ShowSequence, Converter={StaticResource BoolToVisibilityConverter}}">
-                                                                <TextBlock Text="{Binding CutTag}" FontSize="9" FontWeight="Bold" Foreground="#FFFFFF"/>
+                                                                <TextBlock Text="{Binding CutTag}" FontSize="9" FontWeight="Bold" Foreground="{DynamicResource OnAccentForegroundBrush}"/>
                                                             </Border>
 
                                                             <!-- Rotation Tag (Top-Right) -->
                                                             <Border HorizontalAlignment="Right" VerticalAlignment="Top"
-                                                                    Background="{StaticResource OptInfoBg}" BorderBrush="{StaticResource OptInfoBorder}"
+                                                                    Background="{DynamicResource TintBlueBrush}" BorderBrush="{DynamicResource ThemeCardEdgeBrush}"
                                                                     BorderThickness="1" CornerRadius="3" Padding="4,1"
                                                                     Visibility="{Binding Rotated, Converter={StaticResource BoolToVisibilityConverter}}">
                                                                 <TextBlock Text="90° ⟳" FontSize="9" FontWeight="Bold" Foreground="{StaticResource OptInfoInk}"/>
@@ -605,8 +600,8 @@
                                                 </Grid>
 
                                                 <!-- Miniature Sheet Vector Canvas -->
-                                                <Border BorderBrush="{StaticResource OptTrimInk}" BorderThickness="1.5"
-                                                        CornerRadius="4" Background="{StaticResource OptCutBed}" Padding="2" Margin="0,0,0,8"
+                                                <Border BorderBrush="{DynamicResource AccentBrush}" BorderThickness="1.5"
+                                                        CornerRadius="4" Background="{DynamicResource SurfacePrimaryBrush}" Padding="2" Margin="0,0,0,8"
                                                         HorizontalAlignment="Center">
                                                     <Canvas Width="{Binding CanvasWidth}" Height="{Binding CanvasHeight}">
                                                         <ItemsControl ItemsSource="{Binding Pieces}">
@@ -624,8 +619,8 @@
                                                             <ItemsControl.ItemTemplate>
                                                                 <DataTemplate>
                                                                     <Border Width="{Binding Width}" Height="{Binding Height}"
-                                                                            BorderThickness="1" BorderBrush="{StaticResource OptCutInk}"
-                                                                            Background="{StaticResource OptPieceFill}">
+                                                                            BorderThickness="1" BorderBrush="{DynamicResource TextPrimaryBrush}"
+                                                                            Background="{DynamicResource SurfaceSecondaryBrush}">
                                                                         <TextBlock Text="{Binding CutNumber}" FontSize="8" FontWeight="Bold"
                                                                                    Foreground="{DynamicResource PrimaryForegroundBrush}" HorizontalAlignment="Center"
                                                                                    VerticalAlignment="Center"
@@ -675,38 +670,38 @@
                     <!-- Studio Bento CAD Legend -->
                     <WrapPanel VerticalAlignment="Center">
                         <!-- Margin Zone -->
-                        <Border Width="12" Height="12" Background="Transparent" BorderBrush="{StaticResource OptTrimInk}"
+                        <Border Width="12" Height="12" Background="Transparent" BorderBrush="{DynamicResource AccentBrush}"
                                 BorderThickness="2" CornerRadius="2" Margin="0,0,5,0"/>
                         <TextBlock Text="Trim" FontSize="11" Foreground="{DynamicResource TextTertiaryBrush}"
                                    VerticalAlignment="Center" Margin="0,0,14,0"/>
 
                         <!-- Breakout allowance -->
-                        <Border Width="12" Height="12" Background="Transparent" BorderBrush="{StaticResource OptBreakoutInk}"
+                        <Border Width="12" Height="12" Background="Transparent" BorderBrush="{DynamicResource TintAmberBrush}"
                                 BorderThickness="2" CornerRadius="2" Margin="0,0,5,0"/>
                         <TextBlock Text="Breakout" FontSize="11" Foreground="{DynamicResource TextTertiaryBrush}"
                                    VerticalAlignment="Center" Margin="0,0,14,0"/>
 
                         <!-- Saw cut between pieces -->
-                        <Border Width="12" Height="12" Background="{StaticResource OptCutBed}" BorderBrush="{StaticResource OptCutInk}"
+                        <Border Width="12" Height="12" Background="{DynamicResource SurfacePrimaryBrush}" BorderBrush="{DynamicResource TextPrimaryBrush}"
                                 BorderThickness="1.75" CornerRadius="2" Margin="0,0,5,0"/>
                         <TextBlock Text="Saw cut" FontSize="11" Foreground="{DynamicResource TextTertiaryBrush}"
                                    VerticalAlignment="Center" Margin="0,0,14,0"/>
 
                         <!-- Standard Cut Piece -->
-                        <Border Width="12" Height="12" Background="{StaticResource OptPieceFill}" BorderBrush="{StaticResource OptCutInk}"
+                        <Border Width="12" Height="12" Background="{DynamicResource SurfaceSecondaryBrush}" BorderBrush="{DynamicResource TextPrimaryBrush}"
                                 BorderThickness="1.75" CornerRadius="2" Margin="0,0,5,0"/>
                         <TextBlock Text="Piece" FontSize="11" Foreground="{DynamicResource TextTertiaryBrush}"
                                    VerticalAlignment="Center" Margin="0,0,14,0"/>
 
                         <!-- Rotated Cut Piece -->
-                        <Border Width="12" Height="12" Background="#F0F9FF" BorderBrush="{DynamicResource AccentBrush}"
+                        <Border Width="12" Height="12" Background="{DynamicResource TintBlueBrush}" BorderBrush="{DynamicResource AccentBrush}"
                                 BorderThickness="1" CornerRadius="2" Margin="0,0,5,0"/>
                         <TextBlock Text="Rotated 90° ⟳" FontSize="11" Foreground="{DynamicResource TextTertiaryBrush}"
                                    VerticalAlignment="Center" Margin="0,0,14,0"/>
 
                         <!-- Reusable Offcut -->
-                        <Border Width="12" Height="12" Background="{StaticResource OptOffcutBg}"
-                                BorderBrush="{StaticResource OptOffcutBorder}" BorderThickness="1" CornerRadius="2" Margin="0,0,5,0"/>
+                        <Border Width="12" Height="12" Background="{DynamicResource TintPurpleBrush}"
+                                BorderBrush="{DynamicResource ThemeCardEdgeBrush}" BorderThickness="1" CornerRadius="2" Margin="0,0,5,0"/>
                         <TextBlock Text="Reusable Offcut" FontSize="11" Foreground="{DynamicResource TextTertiaryBrush}"
                                    VerticalAlignment="Center"/>
                     </WrapPanel>

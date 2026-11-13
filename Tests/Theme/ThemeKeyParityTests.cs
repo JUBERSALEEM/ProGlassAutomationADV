@@ -12,8 +12,8 @@
 // screen renders in the wrong palette, usually with the dark theme's colour,
 // and only when the operator happens to be on light.
 //
-// Measured 2026-09-09, that had not happened: DarkTheme.xaml and
-// LightTheme.xaml each declare exactly 225 keys and the two sets are identical.
+// Measured 2026-11-13, DarkTheme.xaml and
+// LightTheme.xaml each declare 303 keys and the two sets are identical.
 // Scanning all 43 theme XAML files also found ZERO keys declared twice inside
 // the same file, so nothing is being silently shadowed either.
 //
@@ -62,7 +62,7 @@ namespace ProGlassAutomation.Tests.Theme
         /// to BOTH columns, which is the only intended way for this number to
         /// move; a key in one column only is the bug this test exists to catch.
         /// </summary>
-        private const int BaselineTokenCount = 275;
+        private const int BaselineTokenCount = 303;
 
         private static readonly Regex KeyAttr =
             new("x:Key=\"([^\"]+)\"", RegexOptions.Compiled);

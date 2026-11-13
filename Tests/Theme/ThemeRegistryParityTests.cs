@@ -87,7 +87,7 @@ namespace ProGlassAutomation.Tests.Theme
             Assert.Contains("x:Key=\"ProGlassRewriteToolbarStyle\"", styles, StringComparison.Ordinal);
             Assert.Contains("x:Key=\"ProGlassRewritePageHeaderStyle\"", styles, StringComparison.Ordinal);
             Assert.Contains("DynamicResource SurfaceWorkspaceBrush", styles, StringComparison.Ordinal);
-            Assert.Contains("DynamicResource SurfaceCardBrush", styles, StringComparison.Ordinal);
+            Assert.Contains("DynamicResource ThemeCardFaceBrush", styles, StringComparison.Ordinal);
             Assert.Contains("DynamicResource RadiusCard", styles, StringComparison.Ordinal);
             Assert.Contains("DynamicResource RadiusControl", styles, StringComparison.Ordinal);
         }
@@ -257,7 +257,8 @@ namespace ProGlassAutomation.Tests.Theme
             Assert.Contains("ThemeManager.CurrentTheme == AppTheme.Dark", overlay, StringComparison.Ordinal);
             Assert.Contains("ApplyEightThemeMaterial(resources, Current)", Read("Services/Theme/VisualThemeEngine.Part1.cs"), StringComparison.Ordinal);
             string painter = Read("Services/Theme/VisualThemeEngine.Part1.cs");
-            Assert.Contains("case LiquidGlass:\\n                        ApplyCrystalFluid(resources);", painter, StringComparison.Ordinal);
+            Assert.Contains("case LiquidGlass:", painter, StringComparison.Ordinal);
+            Assert.Contains("ApplyCrystalFluid(resources);", painter, StringComparison.Ordinal);
             Assert.Contains("case Claymorphism:", painter, StringComparison.Ordinal);
             Assert.Contains("case Glassmorphism:", painter, StringComparison.Ordinal);
             Assert.Contains("case SpatialImmersive:", painter, StringComparison.Ordinal);
@@ -318,8 +319,8 @@ namespace ProGlassAutomation.Tests.Theme
             Assert.Contains("SetBrushResource(resources, \"Surface.Secondary.BackgroundBrush\", secondaryKey", semanticPublisher, StringComparison.Ordinal);
 
             string globalStyles = Read("Themes/Styles/GlobalDesignSystem.xaml");
-            Assert.Contains("DynamicResource Surface.Primary.BackgroundBrush", globalStyles, StringComparison.Ordinal);
-            Assert.Contains("DynamicResource Surface.Secondary.BackgroundBrush", globalStyles, StringComparison.Ordinal);
+            Assert.Contains("DynamicResource SurfacePrimaryBrush", globalStyles, StringComparison.Ordinal);
+            Assert.Contains("DynamicResource SurfaceSecondaryBrush", globalStyles, StringComparison.Ordinal);
         }
 
 
@@ -403,7 +404,7 @@ namespace ProGlassAutomation.Tests.Theme
         {
             string shell = Read("Themes/Professional/ProfessionalShell.xaml");
             Assert.Contains("DynamicResource ThemeCardFaceBrush", shell, StringComparison.Ordinal);
-            Assert.Contains("DynamicResource ThemeCardEdgeBrush", shell, StringComparison.Ordinal);
+            Assert.Contains("DynamicResource ThemeNavigationBorderBrush", shell, StringComparison.Ordinal);
             Assert.Contains("DynamicResource ThemeControlFaceBrush", shell, StringComparison.Ordinal);
             Assert.Contains("DynamicResource ThemeControlEdgeBrush", shell, StringComparison.Ordinal);
             Assert.Contains("DynamicResource ThemeNavigationSelectedBrush", shell, StringComparison.Ordinal);
@@ -624,7 +625,7 @@ namespace ProGlassAutomation.Tests.Theme
             Assert.Contains("DynamicResource ThemeNavigationSelectedBrush", tabs, StringComparison.Ordinal);
             Assert.Contains("DynamicResource ThemeNavigationHoverBrush", tabs, StringComparison.Ordinal);
             Assert.Contains("DynamicResource ThemeNavigationBorderBrush", tabs, StringComparison.Ordinal);
-            Assert.Contains("DynamicResource ThemeNavigationSelectedBrush", menus, StringComparison.Ordinal);
+            Assert.Contains("DynamicResource ThemeNavigationFocusBrush", menus, StringComparison.Ordinal);
             Assert.Contains("DynamicResource ThemeNavigationHoverBrush", menus, StringComparison.Ordinal);
             Assert.Contains("DynamicResource ThemeCardFaceBrush", menus, StringComparison.Ordinal);
             Assert.DoesNotContain("DynamicResource AccentBrush", tabs, StringComparison.Ordinal);
@@ -692,6 +693,21 @@ namespace ProGlassAutomation.Tests.Theme
             string styles = Read("Themes/Styles/OptimizationStyles.xaml");
             Assert.Contains("DynamicResource ThemeCardEdgeBrush", styles, StringComparison.Ordinal);
             Assert.Contains("DynamicResource ThemeCardHighlightBrush", styles, StringComparison.Ordinal);
+        }
+
+        [Fact]
+        public void Optimization_cut_visualization_uses_runtime_theme_materials()
+        {
+            string xaml = Read("Views/Optimization/Tabs/TwoDViewTabView.xaml");
+            Assert.Contains("DynamicResource SurfacePrimaryBrush", xaml, StringComparison.Ordinal);
+            Assert.Contains("DynamicResource SurfaceSecondaryBrush", xaml, StringComparison.Ordinal);
+            Assert.Contains("DynamicResource TextPrimaryBrush", xaml, StringComparison.Ordinal);
+            Assert.Contains("DynamicResource AccentBrush", xaml, StringComparison.Ordinal);
+            Assert.Contains("DynamicResource TintAmberBrush", xaml, StringComparison.Ordinal);
+            Assert.Contains("DynamicResource TintPurpleBrush", xaml, StringComparison.Ordinal);
+            Assert.Contains("DynamicResource OnAccentForegroundBrush", xaml, StringComparison.Ordinal);
+            Assert.DoesNotContain("#D6D3D1", xaml, StringComparison.OrdinalIgnoreCase);
+            Assert.DoesNotContain("#0F766E", xaml, StringComparison.OrdinalIgnoreCase);
         }
 
         private static string ConstValue(string name)

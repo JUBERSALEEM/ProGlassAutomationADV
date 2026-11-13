@@ -205,3 +205,10 @@ Theme-specific styling must be token-driven and use dynamic resource resolution 
 - Unselected optimization rail items now use the family-owned card edge; hover uses the family card highlight.
 - The multi-sheet gallery card now uses the family-owned card edge rather than the fixed Indigo outline.
 - Selected navigation and primary action Indigo accents remain intentional brand accents.
+
+
+### Optimization 2D cut visualization theme pass
+- Removed fixed light-only canvas, piece, trim, breakout, offcut, and information colors from the 2D cutting visualization.
+- The cutting bed and piece fills now follow the active workspace surfaces; trim and breakout overlays use the live accent and amber tint; offcut and info states use live family-aware tints.
+- Cut labels use the active on-accent foreground, preserving contrast when the family accent changes.
+- Added regression coverage for the visualization's dynamic resource contract.

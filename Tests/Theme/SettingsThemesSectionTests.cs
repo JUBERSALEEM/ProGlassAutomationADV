@@ -73,8 +73,10 @@ namespace ProGlassAutomation.Tests.Theme
         public void SettingsView_hosts_the_themes_section_for_the_themes_page()
         {
             string shell = Read("Views/Settings/SettingsView.xaml");
-            Assert.Contains("sections:SettingsThemesSection", shell, StringComparison.Ordinal);
-            Assert.Contains("ConverterParameter=Themes", shell, StringComparison.Ordinal);
+            string templates = Read("Views/Settings/SettingsPageTemplates.xaml");
+            Assert.Contains("SettingsPageTemplates.xaml", shell, StringComparison.Ordinal);
+            Assert.Contains("DataTemplate x:Key=\"SettingsPage.Themes\"", templates, StringComparison.Ordinal);
+            Assert.Contains("sections:SettingsThemesSection", templates, StringComparison.Ordinal);
         }
 
         // ── 2. VM SURFACE: six live axes, named presets, per-family reset ─
@@ -145,7 +147,7 @@ namespace ProGlassAutomation.Tests.Theme
         [Fact]
         public void Section_surfaces_only_the_six_live_axes()
         {
-            string xaml = Read("Views/Settings/Sections/SettingsThemesSection.xaml");
+            string xaml = Read("Views/Settings/Sections/Cards/ThemesCrystalMaterialCard.xaml");
             foreach (var axis in LiveAxes)
                 Assert.Contains($"AutomationProperties.AutomationId=\"Settings.{axis}\"",
                     xaml, StringComparison.Ordinal);
@@ -157,7 +159,7 @@ namespace ProGlassAutomation.Tests.Theme
         [Fact]
         public void Section_reuses_the_crystal_water_control_for_live_preview()
         {
-            string xaml = Read("Views/Settings/Sections/SettingsThemesSection.xaml");
+            string xaml = Read("Views/Settings/Sections/Cards/ThemesCrystalMaterialCard.xaml");
             Assert.Contains("crystal:CrystalWaterControl", xaml, StringComparison.Ordinal);
         }
 
