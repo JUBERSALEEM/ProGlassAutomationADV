@@ -77,8 +77,8 @@
     <!-- Indigo bento hero. Do not point this at a light surface: every consumer
          paints OptOnIndigo / OptOnIndigoMuted text. Summary yield uses OptKpiCard. -->
     <Style x:Key="OptHeroCard" TargetType="Border">
-        <Setter Property="Background" Value="{StaticResource OptBentoHeroBg}"/>
-        <Setter Property="BorderBrush" Value="{StaticResource OptBentoHeroBorder}"/>
+        <Setter Property="Background" Value="{DynamicResource ThemeNavigationSelectedBrush}"/>
+        <Setter Property="BorderBrush" Value="{DynamicResource ThemeNavigationFocusBrush}"/>
         <Setter Property="BorderThickness" Value="1.5"/>
         <Setter Property="CornerRadius" Value="18"/>
         <Setter Property="Padding" Value="20,18"/>
@@ -172,9 +172,9 @@
                         <Trigger Property="IsChecked" Value="True">
                             <Setter TargetName="Root" Property="Background" Value="{StaticResource OptIndigo}"/>
                             <Setter TargetName="Root" Property="BorderBrush" Value="{StaticResource OptIndigo}"/>
-                            <Setter Property="Foreground" Value="{StaticResource OptOnIndigo}"/>
-                            <Setter TargetName="Icon" Property="Foreground" Value="{StaticResource OptOnIndigo}"/>
-                            <Setter TargetName="Label" Property="TextElement.Foreground" Value="{StaticResource OptOnIndigo}"/>
+                            <Setter Property="Foreground" Value="{DynamicResource ThemeNavigationSelectedForegroundBrush}"/>
+                            <Setter TargetName="Icon" Property="Foreground" Value="{DynamicResource ThemeNavigationSelectedForegroundBrush}"/>
+                            <Setter TargetName="Label" Property="TextElement.Foreground" Value="{DynamicResource ThemeNavigationSelectedForegroundBrush}"/>
                             <Setter TargetName="Label" Property="TextElement.FontWeight" Value="Bold"/>
                         </Trigger>
                     </ControlTemplate.Triggers>
@@ -426,7 +426,7 @@
     <!-- ══ Studio Bento Buttons ══════════════════════════════════════ -->
     <Style x:Key="OptPrimaryButton" TargetType="Button">
         <Setter Property="Background" Value="{StaticResource OptIndigo}"/>
-        <Setter Property="Foreground" Value="{StaticResource OptOnIndigo}"/>
+        <Setter Property="Foreground" Value="{DynamicResource ThemeNavigationSelectedForegroundBrush}"/>
         <Setter Property="BorderBrush" Value="{StaticResource OptIndigo}"/>
         <Setter Property="BorderThickness" Value="1"/>
         <Setter Property="Height" Value="36"/>
@@ -523,7 +523,7 @@
 
     <!-- Uppercase identity chip beside the heading -->
     <Style x:Key="OptHeroChip" TargetType="Border">
-        <Setter Property="Background" Value="{StaticResource OptOnIndigoChip}"/>
+        <Setter Property="Background" Value="{DynamicResource ThemeNavigationHoverBrush}"/>
         <Setter Property="CornerRadius" Value="8"/>
         <Setter Property="Padding" Value="8,2"/>
         <Setter Property="VerticalAlignment" Value="Center"/>
@@ -543,13 +543,13 @@
     <Style x:Key="OptHeroStatLabel" TargetType="TextBlock">
         <Setter Property="FontSize" Value="9"/>
         <Setter Property="FontWeight" Value="Bold"/>
-        <Setter Property="Foreground" Value="{StaticResource OptOnIndigoMuted}"/>
+        <Setter Property="Foreground" Value="{DynamicResource ThemeNavigationSelectedForegroundBrush}"/>
     </Style>
 
     <Style x:Key="OptHeroStatValue" TargetType="TextBlock">
         <Setter Property="FontSize" Value="14"/>
         <Setter Property="FontWeight" Value="SemiBold"/>
-        <Setter Property="Foreground" Value="{StaticResource OptOnIndigo}"/>
+        <Setter Property="Foreground" Value="{DynamicResource ThemeNavigationSelectedForegroundBrush}"/>
         <Setter Property="TextTrimming" Value="CharacterEllipsis"/>
         <Setter Property="Typography.NumeralAlignment" Value="Tabular"/>
     </Style>
@@ -558,7 +558,7 @@
     <Style x:Key="OptHeroFieldLabel" TargetType="TextBlock">
         <Setter Property="FontSize" Value="9"/>
         <Setter Property="FontWeight" Value="Bold"/>
-        <Setter Property="Foreground" Value="{StaticResource OptOnIndigoMuted}"/>
+        <Setter Property="Foreground" Value="{DynamicResource ThemeNavigationSelectedForegroundBrush}"/>
         <Setter Property="Margin" Value="0,0,0,4"/>
     </Style>
 
@@ -572,7 +572,7 @@
         <Setter Property="Background" Value="#26FFFFFF"/>
         <Setter Property="BorderBrush" Value="#4DFFFFFF"/>
         <Setter Property="BorderThickness" Value="1"/>
-        <Setter Property="Foreground" Value="{StaticResource OptOnIndigo}"/>
+        <Setter Property="Foreground" Value="{DynamicResource ThemeNavigationSelectedForegroundBrush}"/>
         <Setter Property="FontSize" Value="12"/>
         <Setter Property="Cursor" Value="Hand"/>
         <Setter Property="ItemContainerStyle" Value="{StaticResource OptComboItem}"/>
@@ -596,7 +596,7 @@
                                                 <ColumnDefinition Width="Auto"/>
                                             </Grid.ColumnDefinitions>
                                             <TextBlock Grid.Column="1" Text="&#xE70D;" FontFamily="Segoe MDL2 Assets"
-                                                       FontSize="10" Foreground="{StaticResource OptOnIndigoMuted}"
+                                                       FontSize="10" Foreground="{DynamicResource ThemeNavigationSelectedForegroundBrush}"
                                                        VerticalAlignment="Center" Margin="0,0,10,0"/>
                                         </Grid>
                                     </Border>
@@ -613,7 +613,7 @@
                                           ContentTemplate="{TemplateBinding SelectionBoxItemTemplate}"
                                           ContentTemplateSelector="{TemplateBinding ItemTemplateSelector}"
                                           Margin="12,0,30,0" VerticalAlignment="Center" HorizontalAlignment="Stretch"
-                                          TextElement.Foreground="{StaticResource OptOnIndigo}"/>
+                                          TextElement.Foreground="{DynamicResource ThemeNavigationSelectedForegroundBrush}"/>
                         <Popup x:Name="Popup" Placement="Bottom" IsOpen="{TemplateBinding IsDropDownOpen}"
                                AllowsTransparency="True" Focusable="False" PopupAnimation="Slide">
                             <Border x:Name="DropDownBorder" MinWidth="{TemplateBinding ActualWidth}"
@@ -642,9 +642,9 @@
 
     <!-- ROW 3 · the one primary action — solid white pill, indigo text -->
     <Style x:Key="OptHeroPillButton" TargetType="Button">
-        <Setter Property="Background" Value="{StaticResource OptOnIndigo}"/>
+        <Setter Property="Background" Value="{DynamicResource ThemeNavigationSelectedForegroundBrush}"/>
         <Setter Property="Foreground" Value="{StaticResource OptIndigo}"/>
-        <Setter Property="BorderBrush" Value="{StaticResource OptOnIndigo}"/>
+        <Setter Property="BorderBrush" Value="{DynamicResource ThemeNavigationSelectedForegroundBrush}"/>
         <Setter Property="BorderThickness" Value="1"/>
         <Setter Property="Height" Value="36"/>
         <Setter Property="Padding" Value="18,0"/>
@@ -679,7 +679,7 @@
     <!-- ROW 3 · outline ghost action on indigo -->
     <Style x:Key="OptHeroGhostButton" TargetType="Button">
         <Setter Property="Background" Value="Transparent"/>
-        <Setter Property="Foreground" Value="{StaticResource OptOnIndigo}"/>
+        <Setter Property="Foreground" Value="{DynamicResource ThemeNavigationSelectedForegroundBrush}"/>
         <Setter Property="BorderBrush" Value="#66FFFFFF"/>
         <Setter Property="BorderThickness" Value="1"/>
         <Setter Property="Height" Value="36"/>
@@ -699,7 +699,7 @@
                     <ControlTemplate.Triggers>
                         <Trigger Property="IsMouseOver" Value="True">
                             <Setter TargetName="bd" Property="Background" Value="#26FFFFFF"/>
-                            <Setter TargetName="bd" Property="BorderBrush" Value="{StaticResource OptOnIndigo}"/>
+                            <Setter TargetName="bd" Property="BorderBrush" Value="{DynamicResource ThemeNavigationSelectedForegroundBrush}"/>
                         </Trigger>
                         <Trigger Property="IsPressed" Value="True">
                             <Setter TargetName="bd" Property="Opacity" Value="0.85"/>
