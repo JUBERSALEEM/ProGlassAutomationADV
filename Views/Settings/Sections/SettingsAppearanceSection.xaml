@@ -52,11 +52,11 @@
 
                     <StackPanel Grid.Column="1" Margin="{StaticResource SettingsIconTextMargin}" VerticalAlignment="Center">
                         <TextBlock Text="Appearance &amp; Studio Workspace" Style="{StaticResource SettingsHeroTitleStyle}"/>
-                        <TextBlock Text="Full Light Studio Bento visual system, typography ladder, and color accents" Style="{StaticResource SettingsHeroNoteStyle}"/>
+                        <TextBlock Text="Nine-family visual system, materials, typography, and color accents" Style="{StaticResource SettingsHeroNoteStyle}"/>
                     </StackPanel>
 
                     <Border Grid.Column="2" Style="{StaticResource SettingsHeroBadgeStyle}">
-                        <TextBlock Text="Active Studio" Style="{StaticResource SettingsHeroBadgeTextStyle}"/>
+                        <TextBlock Text="ACTIVE THEME" Style="{StaticResource SettingsHeroBadgeTextStyle}"/>
                     </Border>
                 </Grid>
             </Border>
