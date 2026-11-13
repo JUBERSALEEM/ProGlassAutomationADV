@@ -10,7 +10,7 @@ namespace ProGlassAutomation.Services.Theme.Engine
     /// this engine then fills the TokenStore and dual-writes compatibility
     /// keys so the rest of the app has one vocabulary.
     /// </summary>
-    public static class ProGlassThemeEngine
+    public static partial class ProGlassThemeEngine
     {
         public static ProGlassThemeFamily Family { get; private set; } = ProGlassThemeFamily.LiquidGlass;
         public static ProGlassThemeMode Mode { get; private set; } = ProGlassThemeMode.Light;
@@ -123,6 +123,7 @@ namespace ProGlassAutomation.Services.Theme.Engine
                 resources["ProGlass.Density"] = Density.ToString();
 
                 ApplyMaterialTokens(resources);
+                PublishGlassBlushAliases(resources);
                 DualWriteLegacy(resources);
 
                 bool reduced = appearance?.ReducedMotion == true;
