@@ -2,8 +2,8 @@
                     xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
                     xmlns:behaviors="clr-namespace:ProGlassAutomation.Behaviors"
                     xmlns:local="clr-namespace:ProGlassAutomation.Views.Dashboard.Overview">
-    <!-- Indigo Studio: intentionally page-scoped. No app theme or other module's
-         card/button templates are replaced. No design-time/sample data ships here. -->
+    <!-- Legacy dashboard components remain page-scoped; their Ov.* palette is
+         supplied by ProGlassThemeEngine so every family/mode can retint them. -->
     <local:EmptyDeliverySnapshotConverter x:Key="Ov.EmptyDelivery"/>
     <!-- Ov.* palette brushes are published by ProGlassThemeEngine before
          any module view is constructed. This dictionary owns only the legacy
@@ -45,9 +45,7 @@
         <Setter Property="VerticalAlignment" Value="Center"/>
         <Setter Property="HorizontalAlignment" Value="Center"/>
     </Style>
-    <!-- Face and edge follow Appearance. A plate used to miss these cards
-         because Ov.Surface is a fixed studio white, and aliased snapping
-         dropped the corner arc of the edge colour. -->
+    <!-- Family-owned card face and edge; all dashboard cards retint live. -->
     <Style x:Key="Ov.Card" TargetType="Border">
         <Setter Property="Background" Value="{DynamicResource ThemeCardFaceBrush}"/>
         <Setter Property="BorderBrush" Value="{DynamicResource ThemeCardEdgeBrush}"/>

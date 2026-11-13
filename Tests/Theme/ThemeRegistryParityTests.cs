@@ -1006,6 +1006,22 @@ namespace ProGlassAutomation.Tests.Theme
             }
         }
 
+        [Fact]
+        public void Legacy_indigo_component_palette_is_published_by_the_nine_family_engine()
+        {
+            string engine = Read("Services/Theme/Engine/ProGlassThemeEngine.cs");
+            string bridge = Read("Services/Theme/Engine/ProGlassThemeEngine.Indigo.cs");
+            string components = Read("Views/Dashboard/Overview/IndigoStudioResources.xaml");
+            Assert.Contains("PublishIndigoAliases(resources)", engine, StringComparison.Ordinal);
+            Assert.Contains("CopyBrush(resources, \"Ov.Canvas\", \"SurfaceWorkspaceBrush\"", bridge, StringComparison.Ordinal);
+            Assert.Contains("CopyBrush(resources, \"Ov.Surface\", \"ThemeCardFaceBrush\"", bridge, StringComparison.Ordinal);
+            Assert.Contains("CopyBrush(resources, \"Ov.Accent\", \"AccentBrush\"", bridge, StringComparison.Ordinal);
+            Assert.Contains("CopyBrush(resources, \"Ov.SuccessSoft\", \"TintGreenBrush\"", bridge, StringComparison.Ordinal);
+            Assert.DoesNotContain("x:Key=\"Ov.Canvas\"", components, StringComparison.Ordinal);
+            Assert.DoesNotContain("x:Key=\"Ov.Accent\"", components, StringComparison.Ordinal);
+            Assert.DoesNotContain("#F3F0FA", components, StringComparison.Ordinal);
+        }
+
         private static string ConstValue(string name)
         {
             var field = typeof(VisualThemeEngine).GetField(

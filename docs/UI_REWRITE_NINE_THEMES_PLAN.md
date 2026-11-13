@@ -324,3 +324,10 @@ Theme-specific styling must be token-driven and use dynamic resource resolution 
 - The Personal shell and all 12 Personal module views now use the GlassBlush resource contract that ProGlassThemeEngine republishes from the selected nine-family Light/Dark palette.
 - Removed the Indigo dashboard dictionary dependency and replaced fixed Indigo canvas references with the live GlassBlush workspace brush.
 - Existing Personal component templates, view models, navigation, module workflows, and GlassBlush composition are preserved; added a 13-view regression guard.
+
+
+### Indigo dashboard compatibility bridge
+- The legacy Indigo/Ov component dictionary now owns only its reusable templates, styles, and converters; its fixed palette definitions have been removed.
+- ProGlassThemeEngine now publishes the complete Ov.* brush contract from the active family resources before module views are constructed.
+- Existing Overview, dashboard, report, and other legacy XAML consumers retain their resource keys while automatically following nine-family Light/Dark surfaces, text, accents, borders, and status tints.
+- Dashboard cards use family-owned card face/edge materials; regression coverage guards the engine publisher and palette-free component dictionary.
