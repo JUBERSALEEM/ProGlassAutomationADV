@@ -46,6 +46,17 @@ namespace ProGlassAutomation.Tests.Theme
             Assert.Contains("SelectedValue=\"{Binding SelectedVisualTheme, Mode=TwoWay}\"", layout, StringComparison.Ordinal);
             Assert.Contains("LIVE FAMILY PREVIEW", layout, StringComparison.Ordinal);
             Assert.Contains("Text=\"{Binding SelectedVisualTheme}\"", layout, StringComparison.Ordinal);
+            foreach (var automationId in new[]
+            {
+                "Settings.Appearance.LiveFamilyPreview",
+                "Settings.Appearance.PreviewControlSurface",
+                "Settings.Appearance.PreviewHighlightSurface",
+                "Settings.Appearance.PreviewNavigationSelected",
+                "Settings.Appearance.PreviewNavigationHover",
+                "Settings.Appearance.PreviewTableSurface"
+            })
+                Assert.Contains($"AutomationProperties.AutomationId=\"{automationId}\"",
+                    layout, StringComparison.Ordinal);
         }
 
         [Fact]
