@@ -10,7 +10,7 @@
              TextOptions.TextRenderingMode="ClearType"
              UseLayoutRounding="True"
              SnapsToDevicePixels="True"
-             Background="{DynamicResource Ov.Canvas}">
+             Background="{DynamicResource GlassBlush.Background}">
 
     <!-- ═══════════════════════════════════════════════════════════════
          GB-P9 — GLASS BLUSH DELIVERY NOTE (glass-06 reference)
@@ -32,10 +32,7 @@
 
     <UserControl.Resources>
         <ResourceDictionary>
-            <ResourceDictionary.MergedDictionaries>
-                <ResourceDictionary Source="../Dashboard/Overview/IndigoStudioResources.xaml"/>
-            </ResourceDictionary.MergedDictionaries>
-        <!-- Host the Professional detail view inside the glass card -->
+<!-- Host the Professional detail view inside the glass card -->
         <DataTemplate DataType="{x:Type detailVm:DeliveryNoteDetailViewModel}">
             <detail:DeliveryNoteDetailView/>
         </DataTemplate>

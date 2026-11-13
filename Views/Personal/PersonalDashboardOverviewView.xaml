@@ -9,7 +9,7 @@
              TextOptions.TextRenderingMode="ClearType"
              UseLayoutRounding="True"
              SnapsToDevicePixels="True"
-             Background="{DynamicResource Ov.Canvas}">
+             Background="{DynamicResource GlassBlush.Background}">
 
     <!-- ═══════════════════════════════════════════════════════════════
          GB-P4 (2026-09-18, split out 2026-09-19 for GB-P10) —
@@ -26,10 +26,7 @@
 
     <UserControl.Resources>
         <ResourceDictionary>
-            <ResourceDictionary.MergedDictionaries>
-                <ResourceDictionary Source="../Dashboard/Overview/IndigoStudioResources.xaml"/>
-            </ResourceDictionary.MergedDictionaries>
-        <!-- skeleton block (loading state, glass) -->
+<!-- skeleton block (loading state, glass) -->
         <Style x:Key="GbSkeletonBlock" TargetType="Border">
             <Setter Property="Background" Value="{DynamicResource GlassBlush.SurfaceFaint}"/>
             <Setter Property="CornerRadius" Value="10"/>

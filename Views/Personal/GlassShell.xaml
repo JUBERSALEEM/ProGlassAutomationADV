@@ -15,7 +15,7 @@
     xmlns:viewsShared="clr-namespace:ProGlassAutomation.Views.Shared"
     xmlns:agentUi="clr-namespace:ProGlassAutomation.Agent.UI"
     xmlns:pv="clr-namespace:ProGlassAutomation.Views.Personal"
-             Background="{DynamicResource Ov.Canvas}">
+             Background="{DynamicResource GlassBlush.Background}">
 
     <!-- ═══ PERSONAL VIEW ROUTING (GB-P4…) ═════════════════════════════
          The Personal shell hosts the SAME MainViewModel / module VMs as
@@ -28,10 +28,7 @@
          Each new Personal screen (GB-P4…P13) adds exactly one template. -->
     <UserControl.Resources>
         <ResourceDictionary>
-            <ResourceDictionary.MergedDictionaries>
-                <ResourceDictionary Source="../Dashboard/Overview/IndigoStudioResources.xaml"/>
-            </ResourceDictionary.MergedDictionaries>
-        <!-- 2026-09-19 (GB-P10 fix): the routed module VM is
+<!-- 2026-09-19 (GB-P10 fix): the routed module VM is
              DashboardViewModel (it hosts OverviewVM/TaxInvoiceVM/… as
              tabs). The template previously targeted OverviewDashboardViewModel,
              which CurrentViewModel never IS — WPF implicit templates match
