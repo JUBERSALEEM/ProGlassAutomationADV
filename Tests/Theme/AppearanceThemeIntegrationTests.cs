@@ -173,6 +173,30 @@ namespace ProGlassAutomation.Tests.Theme
         }
 
         [Fact]
+        public void Appearance_workspace_and_all_primary_cards_are_well_formed_xaml()
+        {
+            foreach (var relative in new[]
+            {
+                "Views/Settings/Sections/SettingsAppearanceSection.xaml",
+                "Views/Settings/Sections/Cards/AppearanceModeCard.xaml",
+                "Views/Settings/Sections/Cards/AppearanceDensityCard.xaml",
+                "Views/Settings/Sections/Cards/AppearanceSplashCard.xaml",
+                "Views/Settings/Sections/Cards/AppearanceThemeLayoutCard.xaml",
+                "Views/Settings/SettingsCardStyles.xaml",
+                "Views/Settings/SettingsSectionStyles.xaml"
+            })
+            {
+                var document = new XmlDocument();
+                document.LoadXml(Read(relative));
+            }
+
+            string appearance = Read("Views/Settings/Sections/SettingsAppearanceSection.xaml");
+            Assert.Contains("Nine-family visual system", appearance, StringComparison.Ordinal);
+            Assert.Contains("ACTIVE THEME", appearance, StringComparison.Ordinal);
+            Assert.DoesNotContain("Full Light Studio Bento visual system", appearance, StringComparison.Ordinal);
+        }
+
+        [Fact]
         public void Appearance_light_dark_chip_uses_selected_family_tokens()
         {
             string viewModel = Read("ViewModels/Settings/SettingsViewModel.Appearance.AccentsDensity.cs");
