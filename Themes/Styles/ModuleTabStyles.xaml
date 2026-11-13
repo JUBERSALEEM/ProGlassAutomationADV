@@ -43,7 +43,7 @@
          Inactive = transparent glass pill, Active = accent glass pill. -->
     <Style x:Key="ModuleTabButtonStyle" TargetType="Button">
         <Setter Property="Cursor" Value="Hand"/>
-        <Setter Property="FontSize" Value="{StaticResource TextBodyLarge}"/>
+        <Setter Property="FontSize" Value="{DynamicResource TextBodyLarge}"/>
         <Setter Property="FontWeight" Value="SemiBold"/>
         <Setter Property="Padding" Value="20,10"/>
         <Setter Property="BorderThickness" Value="1"/>
@@ -192,7 +192,7 @@
                 Value="{DynamicResource ThemeNavigationHoverBrush}"/>
         <Setter Property="Foreground"
                 Value="{DynamicResource ThemeNavigationHoverForegroundBrush}"/>
-        <Setter Property="FontSize" Value="{StaticResource TextBody}"/>
+        <Setter Property="FontSize" Value="{DynamicResource TextBody}"/>
         <Setter Property="RowHeight" Value="{DynamicResource DensityRowHeight}"/>
         <Setter Property="SelectionMode" Value="Single"/>
         <Setter Property="CanUserAddRows" Value="False"/>
@@ -207,7 +207,7 @@
                 Value="{DynamicResource ThemeNavigationFocusBrush}"/>
         <Setter Property="Foreground"
                 Value="{DynamicResource ThemeNavigationSelectedForegroundBrush}"/>
-        <Setter Property="FontSize" Value="{StaticResource TextBody}"/>
+        <Setter Property="FontSize" Value="{DynamicResource TextBody}"/>
         <Setter Property="FontWeight" Value="Bold"/>
         <Setter Property="Padding" Value="12,10"/>
         <Setter Property="BorderBrush"
@@ -290,7 +290,7 @@
     <Style x:Key="PillTabItemStyle" TargetType="TabItem">
         <Setter Property="Background" Value="Transparent"/>
         <Setter Property="Foreground" Value="{DynamicResource ThemeNavigationHoverForegroundBrush}"/>
-        <Setter Property="FontSize" Value="{StaticResource TextCaption}"/>
+        <Setter Property="FontSize" Value="{DynamicResource TextCaption}"/>
         <Setter Property="FontWeight" Value="SemiBold"/>
         <Setter Property="Padding" Value="18,9"/>
         <Setter Property="Margin" Value="0,0,6,0"/>
