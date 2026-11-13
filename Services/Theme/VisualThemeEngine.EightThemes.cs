@@ -80,6 +80,7 @@ namespace ProGlassAutomation.Services.Theme
                 HolographicIridescent => 0.16,
                 LiquidGlass => 0.13,
                 Glassmorphism => 0.12,
+                FluentAcrylic => 0.07,
                 _ => 0.09
             };
             double shadowBlur = family switch
@@ -92,6 +93,7 @@ namespace ProGlassAutomation.Services.Theme
                 HolographicIridescent => 18,
                 LiquidGlass => 20,
                 Glassmorphism => 18,
+                FluentAcrylic => 10,
                 _ => 12
             };
             double shadowDepth = family switch
@@ -104,6 +106,7 @@ namespace ProGlassAutomation.Services.Theme
                 HolographicIridescent => 5,
                 LiquidGlass => 7,
                 Glassmorphism => 6,
+                FluentAcrylic => 3,
                 _ => 4
             };
             resources["ShadowSoft"] = CreateThemeShadow(shadowColor, shadowOpacity * 0.65, shadowBlur * 0.7, shadowDepth * 0.65);
@@ -297,7 +300,8 @@ namespace ProGlassAutomation.Services.Theme
             if (family != BentoGrid && family != SpatialImmersive &&
                 family != SwissInternational && family != HolographicIridescent &&
                 family != Neumorphism && family != Claymorphism &&
-                family != LiquidGlass && family != Glassmorphism)
+                family != LiquidGlass && family != Glassmorphism &&
+                family != FluentAcrylic)
                 return null;
 
             return family switch
@@ -326,6 +330,9 @@ namespace ProGlassAutomation.Services.Theme
                 Glassmorphism => dark
                     ? new(Rgb(8, 18, 34), Rgb(15, 30, 50), Rgb(23, 43, 66), Rgb(10, 23, 40), Rgb(244, 250, 255), Rgb(177, 201, 221), Rgb(72, 169, 232), Rgb(65, 109, 145), Rgb(139, 111, 241), Rgb(39, 69, 97), 22, 15, true, true)
                     : new(Rgb(231, 241, 250), Rgb(249, 252, 255), Rgb(235, 245, 252), Rgb(222, 237, 248), Rgb(15, 41, 64), Rgb(66, 95, 117), Rgb(29, 107, 166), Rgb(148, 190, 216), Rgb(139, 111, 241), Rgb(207, 228, 242), 22, 15, true, true),
+                FluentAcrylic => dark
+                    ? new(Rgb(16, 24, 32), Rgb(27, 38, 51), Rgb(36, 51, 67), Rgb(20, 30, 41), Rgb(244, 247, 251), Rgb(182, 195, 210), Rgb(96, 165, 250), Rgb(82, 101, 121), Rgb(14, 165, 233), Rgb(11, 18, 26), 12, 8, false, true)
+                    : new(Rgb(242, 245, 249), Rgb(255, 255, 255), Rgb(247, 250, 253), Rgb(234, 240, 246), Rgb(24, 36, 51), Rgb(83, 100, 119), Rgb(37, 99, 235), Rgb(197, 208, 220), Rgb(14, 165, 233), Rgb(231, 237, 244), 12, 8, false, true),
                 _ => null
             };
         }
