@@ -461,6 +461,26 @@ namespace ProGlassAutomation.Tests.Theme
                 Assert.Contains($"resources[\"{token}\"]", overlay, StringComparison.Ordinal);
         }
 
+        [Fact]
+        public void Nine_family_engine_is_wired_from_settings_through_pipeline_to_publisher()
+        {
+            string settings = Read("ViewModels/Settings/SettingsViewModel.ThemeWallpaper.cs");
+            string pipeline = Read("Services/Theme/ThemePipeline.cs");
+            string themeManager = Read("Services/ThemeManager.Part2.cs");
+            string publisher = Read("Services/Theme/Engine/ProGlassThemeEngine.cs");
+
+            Assert.Contains("ProGlassThemeEngine.ParseFamily(raw)", settings, StringComparison.Ordinal);
+            Assert.Contains("ProGlassThemeEngine.PersistFamily(", settings, StringComparison.Ordinal);
+            Assert.Contains("VisualThemeEngine.ApplyModule(", pipeline, StringComparison.Ordinal);
+            Assert.Contains("ThemeManager.PublishProGlassDesignSystem()", pipeline, StringComparison.Ordinal);
+            Assert.Contains("ProGlassThemeEngine.Publish();", themeManager, StringComparison.Ordinal);
+            Assert.Contains("Family = ParseFamily(appearance?.VisualTheme);", publisher, StringComparison.Ordinal);
+            Assert.Contains("Mode = ThemeManager.CurrentTheme == AppTheme.Dark", publisher, StringComparison.Ordinal);
+            Assert.Contains("ApplyMaterialTokens(resources);", publisher, StringComparison.Ordinal);
+            Assert.Contains("DualWriteSemanticAliases(resources);", publisher, StringComparison.Ordinal);
+            Assert.Contains("DualWriteLegacy(resources);", publisher, StringComparison.Ordinal);
+        }
+
         [Theory]
         [InlineData(ProGlassAutomation.Services.Theme.Engine.ProGlassThemeFamily.BentoGrid)]
         [InlineData(ProGlassAutomation.Services.Theme.Engine.ProGlassThemeFamily.SpatialImmersive)]
