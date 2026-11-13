@@ -951,7 +951,8 @@ namespace ProGlassAutomation.Services
                 RestoreThemeBrush(resources, "SurfacePrimaryBrush");
                 RestoreThemeBrush(resources, "SurfaceSecondaryBrush");
                 RestoreThemeBrush(resources, "SurfaceTertiaryBrush");
-                PublishStudioColor(resources, "Appearance.StudioFaceColor", "Appearance.StudioFace", StudioFaceRest);
+                Color familyFace = SampleBrushColor(LiveBrush(resources, "ThemeCardFaceBrush")) ?? StudioFaceRest;
+                PublishStudioColor(resources, "Appearance.StudioFaceColor", "Appearance.StudioFace", familyFace);
             }
 
             PublishSurfaceShadow(resources, appearance?.UsePrimarySurfaceElevation == true);
@@ -1021,9 +1022,10 @@ namespace ProGlassAutomation.Services
             FreezeAndSet(resources, "Surface.Primary.BorderBrush", stroke);
             FreezeAndSet(resources, "Surface.Secondary.BorderBrush", stroke);
             FreezeAndSet(resources, "Surface.Detail.BorderBrush", stroke);
+            Color? familyEdge = SampleBrushColor(LiveBrush(resources, "ThemeCardEdgeBrush"));
             Color studioEdge = _definedOutline && _publishedEdgeColor is Color defined
                 ? defined
-                : StudioEdgeRest;
+                : familyEdge ?? StudioEdgeRest;
             PublishStudioColor(resources, "Appearance.StudioEdgeColor", "Appearance.StudioEdge", studioEdge);
         }
 
