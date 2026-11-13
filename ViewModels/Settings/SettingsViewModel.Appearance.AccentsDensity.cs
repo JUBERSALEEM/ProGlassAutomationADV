@@ -173,11 +173,11 @@ namespace ProGlassAutomation.ViewModels.Settings
         /// (no colour literal ever reaches a view).
         /// </summary>
         public string ThemeModeChipBackgroundKey =>
-            IsDarkTheme ? "Ios26AccentSoftBrush" : "Ios26ValuePillBrush";
+            "ThemeModeChipBackgroundBrush";
 
         /// <summary>Brush key for the mode chip's text — the muted twin.</summary>
         public string ThemeModeChipForegroundKey =>
-            IsDarkTheme ? "Ios26AccentSoftTextBrush" : "Ios26TextMutedBrush";
+            "ThemeModeChipForegroundBrush";
 
 
         // ══════════════════════════════════════════════════════════════
