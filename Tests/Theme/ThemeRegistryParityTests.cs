@@ -397,6 +397,21 @@ namespace ProGlassAutomation.Tests.Theme
             Assert.DoesNotContain("StaticResource PgSelectedRowBrush", navStyles, StringComparison.Ordinal);
         }
 
+
+        [Fact]
+        public void Professional_drawer_search_and_subitems_follow_runtime_theme_materials()
+        {
+            string shell = Read("Themes/Professional/ProfessionalShell.xaml");
+            Assert.Contains("DynamicResource ThemeCardFaceBrush", shell, StringComparison.Ordinal);
+            Assert.Contains("DynamicResource ThemeCardEdgeBrush", shell, StringComparison.Ordinal);
+            Assert.Contains("DynamicResource ThemeControlFaceBrush", shell, StringComparison.Ordinal);
+            Assert.Contains("DynamicResource ThemeControlEdgeBrush", shell, StringComparison.Ordinal);
+            Assert.Contains("DynamicResource ThemeNavigationSelectedBrush", shell, StringComparison.Ordinal);
+            Assert.Contains("DynamicResource ThemeNavigationHoverBrush", shell, StringComparison.Ordinal);
+            Assert.DoesNotContain("StaticResource PgSelectedRowBrush", shell, StringComparison.Ordinal);
+            Assert.DoesNotContain("StaticResource PgLavenderRibbonBrush", shell, StringComparison.Ordinal);
+        }
+
         [Fact]
         public void Every_approved_family_has_separate_light_and_dark_palette_recipes()
         {
