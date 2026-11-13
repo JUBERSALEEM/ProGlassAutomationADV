@@ -1,0 +1,89 @@
+# Nine-theme WPF UI rewrite
+
+## Status
+Implementation branch: `ui-rewrite/nine-themes`
+Base: `v2.0.15`
+Scope: presentation layer only. This document is the implementation contract for the branch.
+
+## Owner requirements
+- Rebuild the WPF user interface as a coherent application-wide experience; do not treat this as a sequence of isolated cosmetic patches.
+- Provide nine selectable visual design systems, each with Light and Dark modes.
+- Use Bento Grid / Modular as the proposed default because it suits dense ERP workflows; the other eight remain selectable.
+- Preserve all business logic, calculations, ViewModels, services, repositories, SQLite schemas/data, permissions, licensing, integrations, and existing navigation/workflows.
+- Keep all work on this branch. Do not modify `v2.0.15` or the separate theme-reference repository.
+
+## Nine design systems
+1. **Bento Grid / Modular** — structured workspace, modular cards, clear KPI hierarchy. Proposed default.
+2. **Claymorphism** — soft dimensional surfaces, restrained depth, tactile controls.
+3. **Fluent / Acrylic** — Windows-native hierarchy, acrylic used selectively, strong keyboard focus.
+4. **Neumorphism** — low-contrast embossed controls with accessible contrast safeguards.
+5. **Liquid Glass** — translucent layered surfaces and restrained specular highlights.
+6. **Glassmorphism** — translucent cards over controlled backgrounds, legibility first.
+7. **Spatial / Immersive** — depth and spatial grouping without compromising dense data entry.
+8. **Swiss International** — editorial grid, typography-led hierarchy, minimal ornament.
+9. **Holographic / Iridescent** — controlled iridescent accents; never apply effects that obscure tables or form fields.
+
+Every design system must expose both Light and Dark modes. Mode is independent of design-system selection.
+
+## Verified baseline observations
+- The application is WPF on .NET 8 with nullable reference types, analyzers, and warnings-as-errors policy.
+- `MainWindow.xaml` hosts 31 ViewModel-to-View DataTemplates. These are navigation/content contracts and must be preserved.
+- `App.xaml` merges a large ordered set of dictionaries. Several dictionaries depend on earlier dictionaries through `StaticResource`; merge order is build/runtime-sensitive.
+- `Themes/Styles/DesignTokens.xaml` already defines semantic surface primitives (Primary, Secondary, Detail) and shared styles.
+- The current appearance pipeline includes `ThemePipeline`, `VisualThemeEngine`, `ThemeManager`, `ProGlassThemeEngine`, and `ThemeCompatibilityHub`.
+- Legacy brush keys are still dual-written for existing consumers. The compatibility hub and legacy dictionaries are not safe to remove merely because a static scan reports low usage.
+- Existing project documentation explicitly warns against removing `VisualThemeEngine` or CrystalFluid resources until reverse references have been proven zero.
+- The repository has a large XAML surface (the existing census documents 264 XAML files). A full rewrite therefore requires staged migration and automated checks.
+
+## Architecture decision
+Do not introduce a competing theme publisher. The nine design systems must ultimately resolve through the existing semantic token publication path, preserving legacy aliases until a complete reference audit proves they can be retired.
+
+The design-system choice and Light/Dark mode are separate settings:
+- Design system: one of the nine stable IDs above.
+- Appearance mode: Light or Dark.
+- Accent, density, font, wallpaper, and material preferences remain orthogonal settings unless a specific view demonstrates a genuine conflict.
+
+Theme-specific styling must be token-driven and use dynamic resource resolution where runtime switching is required. Do not duplicate business-facing views for each theme. One ViewModel and one view must render under all nine design systems.
+
+## Migration sequence and exit criteria
+
+### Phase 0 — baseline and dependency map
+- Inventory shell regions, navigation contracts, resource dictionaries, theme settings persistence, and module XAML.
+- Identify runtime-published keys and compatibility aliases.
+- Record existing validation scripts/tests and the available CI build matrix.
+- No production logic or schema changes.
+
+### Phase 1 — theme contract and previewable foundation
+- Define stable theme IDs, Light/Dark variants, semantic token requirements, and fallback behavior.
+- Build a small representative shell + component showcase before migrating modules.
+- Confirm the selected theme and mode survive restart without changing existing config compatibility.
+- Add source-level tests for theme IDs, token completeness, fallback, and preservation of old config values.
+
+### Phase 2 — shell rewrite
+- Rebuild the application shell (header, navigation, module workspace, utility overlays) using the new shared components.
+- Preserve the existing DataTemplates, commands, popup contracts, keyboard behavior, RTL support, and access visibility.
+- Validate all nine systems in both modes.
+
+### Phase 3 — shared component system
+- Standardize page headers, toolbars, cards, buttons, inputs, tables, filters, dialogs, empty/loading/error states, and status indicators.
+- Preserve print/PDF resources separately from interactive UI resources.
+- Add accessibility checks for contrast, focus visibility, scaling, and keyboard navigation.
+
+### Phase 4 — module migration
+- Migrate modules in small groups, starting with low-risk read-only pages, then lists/forms, then complex PI and production workflows.
+- Preserve bindings, commands, validation, calculations, and view-model ownership.
+- Do not change formulas, pricing, VAT, document numbering, persistence, or permissions as part of visual work.
+
+### Phase 5 — verification and release readiness
+- Run the Windows .NET build, unit tests, XAML/resource validation, and existing regression scripts.
+- Verify all nine themes × Light/Dark, language/RTL behavior, high-DPI scaling, dialogs, printing, and module navigation.
+- Compare before/after workflows and record any known gaps.
+- Do not merge to the production branch until build/test evidence and owner review are complete.
+
+## Non-negotiable safeguards
+- No database migration or schema change for visual redesign.
+- No edits to ViewModels/services/repositories unless a minimal presentation integration is essential and separately reviewed.
+- No deletion of old theme resources, compatibility aliases, or theme engines without reverse-reference proof and tests.
+- No rewriting of print/PDF document appearance as a side effect of screen theming.
+- No claim of runtime verification unless a Windows build and application run were actually performed.
+- Keep commits scoped and reversible; all commits target `ui-rewrite/nine-themes`.
