@@ -90,6 +90,14 @@ Theme-specific styling must be token-driven and use dynamic resource resolution 
 - Static source checks confirm all nine IDs are present across normalization, painting, persistence, picker, and wallpaper catalogue.
 - **Not yet verified:** Windows compilation, unit-test execution, actual rendered Light/Dark screenshots, and live theme switching. No GitHub Actions run was available for this branch at the time of this update.
 
+### Architecture findings that shape the full rewrite
+- The existing eight selectable families are currently painted through one shared `ApplyIndustrial` base plus `ApplyEightThemeMaterial`; Liquid Glass retains its separate crystal painter. This gives distinct palettes/material values, but it does **not yet** make each family a complete, independently authored control system.
+- The newly registered Fluent / Acrylic family currently has its own palette and scene, but it does **not yet** have a Fluent-specific `FluentSurface` control/template or a true acrylic transient-chrome layer. Those belong in the shared component migration, not as an unsupported claim about the current palette.
+- The current `MainWindow.xaml` contains 31 ViewModel DataTemplates, the shell navigation tree, seven Popup declarations, and named elements referenced by `MainWindow.xaml.cs`. These contracts must be carried into the shell rewrite.
+- The existing shell currently uses one 260-DIP navigation drawer and a 56-DIP top bar. The module workspace is hosted through `ProfessionalContent`; preserve that content contract while redesigning shell composition.
+- The reference V3 repository has separate theme component packages, including a FluentSurface material control. Treat those as design/implementation references only; do not transplant their separate theme engine or assume their app-specific resources exist in ADV.
+
+
 ### Default-theme decision
 - Existing config default remains **Liquid Glass** for compatibility.
 - **Bento Grid / Modular** remains the recommended new default, but it has not been switched in config because that would change the startup appearance for existing and new installations. Confirm before changing this persisted default.
