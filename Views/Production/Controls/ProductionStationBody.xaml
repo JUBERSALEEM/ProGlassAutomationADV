@@ -6,7 +6,7 @@
              FontFamily="{DynamicResource AppFontFamily}"
              UseLayoutRounding="True"
              SnapsToDevicePixels="True"
-             Background="{DynamicResource Ov.Canvas}">
+             Background="{DynamicResource SurfaceWorkspaceBrush}">
     <!-- 2026-09-14: STANDARDIZED COLUMN ALIGNMENT for every station grid.
          Rule (app-wide): header content alignment always matches cell
          content alignment — counts center, free text left, both

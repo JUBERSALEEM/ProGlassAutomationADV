@@ -736,6 +736,23 @@ namespace ProGlassAutomation.Tests.Theme
             Assert.Contains("TgtCardStyle", sheetProfitability, StringComparison.Ordinal);
         }
 
+        [Fact]
+        public void Production_workspaces_use_theme_workspace_and_card_edges()
+        {
+            string filter = Read("Views/Production/Controls/ProductionFilterBar.xaml");
+            string release = Read("Views/Production/Controls/ProductionReleaseBar.xaml");
+            string station = Read("Views/Production/Controls/ProductionStationBody.xaml");
+            string controlCenter = Read("Views/Production/ProductionControlCenterView.xaml");
+            string cutting = Read("Views/Production/CuttingWorkCenterView.xaml");
+            Assert.Contains("DynamicResource SurfaceWorkspaceBrush", filter, StringComparison.Ordinal);
+            Assert.Contains("DynamicResource SurfaceWorkspaceBrush", release, StringComparison.Ordinal);
+            Assert.Contains("DynamicResource SurfaceWorkspaceBrush", station, StringComparison.Ordinal);
+            Assert.Contains("DynamicResource ThemeCardEdgeBrush", controlCenter, StringComparison.Ordinal);
+            Assert.Contains("DynamicResource ThemeCardEdgeBrush", cutting, StringComparison.Ordinal);
+            Assert.DoesNotContain("DynamicResource Ov.Canvas", filter, StringComparison.Ordinal);
+            Assert.DoesNotContain("DynamicResource Ov.Canvas", release, StringComparison.Ordinal);
+        }
+
         private static string ConstValue(string name)
         {
             var field = typeof(VisualThemeEngine).GetField(

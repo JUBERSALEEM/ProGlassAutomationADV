@@ -4,7 +4,7 @@
              FontFamily="{DynamicResource AppFontFamily}"
              UseLayoutRounding="True"
              SnapsToDevicePixels="True"
-             Background="{DynamicResource Ov.Canvas}">
+             Background="{DynamicResource SurfaceWorkspaceBrush}">
 
     <UserControl.Resources>
         <ResourceDictionary>

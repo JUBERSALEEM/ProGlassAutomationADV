@@ -128,7 +128,7 @@
 
                 <!-- 1. TOTAL SCHEDULED -->
                 <Border Grid.Column="0" Background="{DynamicResource SurfaceSecondaryBrush}"
-                        BorderBrush="{StaticResource OptIndigo}" BorderThickness="1.5"
+                        BorderBrush="{DynamicResource ThemeCardEdgeBrush}" BorderThickness="1.5"
                         CornerRadius="{DynamicResource CardCornerRadiusLarge}" Padding="16,12" Margin="0,0,10,0">
                     <Grid>
                         <Grid.ColumnDefinitions>

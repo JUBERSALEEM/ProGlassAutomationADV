@@ -225,3 +225,10 @@ Theme-specific styling must be token-driven and use dynamic resource resolution 
 - The Proforma Invoice Step 9 profitability card aliases now inherit the nine-family rewrite card and inset styles instead of the generic legacy surface styles.
 - This updates the P&L, service profitability, and sheet profitability cards through their shared aliases without changing calculations, ViewModels, or financial data.
 - Added regression coverage for the shared profitability style contract.
+
+
+### Production workspace and work-center surfaces
+- Production filter, release, and station workspaces now use the active family workspace surface instead of the fixed Indigo Studio canvas.
+- Production control-center KPI cards and the cutting work-center KPI panel use the active family card edge for their outlines.
+- Selected stage navigation and intentional hero branding remain unchanged; workflow data and production behavior are untouched.
+- Added regression coverage for the production workspace and card-edge resources.
