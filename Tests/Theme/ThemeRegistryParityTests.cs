@@ -655,6 +655,16 @@ namespace ProGlassAutomation.Tests.Theme
             Assert.DoesNotContain("#991B1B", summary, StringComparison.OrdinalIgnoreCase);
         }
 
+        [Fact]
+        public void Optimization_shared_cards_inputs_and_navigation_use_family_materials()
+        {
+            string styles = Read("Themes/Styles/OptimizationStyles.xaml");
+            Assert.Contains("DynamicResource ThemeCardEdgeBrush", styles, StringComparison.Ordinal);
+            Assert.Contains("DynamicResource ThemeControlFaceBrush", styles, StringComparison.Ordinal);
+            Assert.Contains("DynamicResource ThemeControlEdgeBrush", styles, StringComparison.Ordinal);
+            Assert.Contains("DynamicResource SurfacePrimaryBrush", styles, StringComparison.Ordinal);
+        }
+
         private static string ConstValue(string name)
         {
             var field = typeof(VisualThemeEngine).GetField(

@@ -57,7 +57,7 @@
     <!-- ══ Panel Card — Bento Porcelain Frost Surface ═══════════════ -->
     <Style x:Key="OptPanelCard" TargetType="Border">
         <Setter Property="Background" Value="{DynamicResource SurfacePrimaryBrush}"/>
-        <Setter Property="BorderBrush" Value="{StaticResource OptIndigo}"/>
+        <Setter Property="BorderBrush" Value="{DynamicResource ThemeCardEdgeBrush}"/>
         <Setter Property="BorderThickness" Value="1.5"/>
         <Setter Property="CornerRadius" Value="18"/>
         <Setter Property="Padding" Value="18,16"/>
@@ -66,8 +66,8 @@
 
     <!-- ══ Inner Card (Sub-sections, items, nested surfaces) ════════ -->
     <Style x:Key="OptInnerCard" TargetType="Border">
-        <Setter Property="Background" Value="{DynamicResource SurfaceSecondaryBrush}"/>
-        <Setter Property="BorderBrush" Value="{StaticResource OptIndigo}"/>
+        <Setter Property="Background" Value="{DynamicResource ThemeControlFaceBrush}"/>
+        <Setter Property="BorderBrush" Value="{DynamicResource ThemeCardEdgeBrush}"/>
         <Setter Property="BorderThickness" Value="1.5"/>
         <Setter Property="CornerRadius" Value="12"/>
         <Setter Property="Padding" Value="14,12"/>
@@ -93,7 +93,7 @@
     <!-- ══ KPI Metric Card ══════════════════════════════════════════ -->
     <Style x:Key="OptKpiCard" TargetType="Border">
         <Setter Property="Background" Value="{DynamicResource SurfacePrimaryBrush}"/>
-        <Setter Property="BorderBrush" Value="{StaticResource OptIndigo}"/>
+        <Setter Property="BorderBrush" Value="{DynamicResource ThemeCardEdgeBrush}"/>
         <Setter Property="BorderThickness" Value="1.5"/>
         <Setter Property="CornerRadius" Value="18"/>
         <Setter Property="Padding" Value="16,14"/>
@@ -185,10 +185,10 @@
 
     <!-- ══ Inputs ═════════════════════════════════════════════════ -->
     <Style x:Key="OptIntInput" TargetType="TextBox">
-        <Setter Property="Background" Value="{DynamicResource ModuleBackgroundBrush}"/>
+        <Setter Property="Background" Value="{DynamicResource ThemeControlFaceBrush}"/>
         <Setter Property="Foreground" Value="{DynamicResource PrimaryForegroundBrush}"/>
         <Setter Property="CaretBrush" Value="{DynamicResource AccentBrush}"/>
-        <Setter Property="BorderBrush" Value="{DynamicResource BorderBrush}"/>
+        <Setter Property="BorderBrush" Value="{DynamicResource ThemeControlEdgeBrush}"/>
         <Setter Property="BorderThickness" Value="1"/>
         <Setter Property="Height" Value="36"/>
         <Setter Property="MinHeight" Value="36"/>
@@ -248,9 +248,9 @@
     <Style x:Key="OptComboStyle" TargetType="ComboBox">
         <Setter Property="Height" Value="36"/>
         <Setter Property="MinHeight" Value="36"/>
-        <Setter Property="Background" Value="{DynamicResource ModuleBackgroundBrush}"/>
+        <Setter Property="Background" Value="{DynamicResource ThemeControlFaceBrush}"/>
         <Setter Property="Foreground" Value="{DynamicResource PrimaryForegroundBrush}"/>
-        <Setter Property="BorderBrush" Value="{DynamicResource BorderBrush}"/>
+        <Setter Property="BorderBrush" Value="{DynamicResource ThemeControlEdgeBrush}"/>
         <Setter Property="BorderThickness" Value="1"/>
         <Setter Property="FontSize" Value="{StaticResource TextBody}"/>
         <Setter Property="ItemContainerStyle" Value="{StaticResource OptComboItem}"/>

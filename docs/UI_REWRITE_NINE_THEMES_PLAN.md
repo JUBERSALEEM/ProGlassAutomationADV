@@ -186,3 +186,10 @@ Theme-specific styling must be token-driven and use dynamic resource resolution 
 - Removed hard-coded white and pale-red status colors from the optimization summary.
 - Optimal-state text now uses the semantic on-accent foreground; low-utilization state uses semantic danger tint and foreground resources.
 - Added source regression checks to prevent these fixed colors from returning.
+
+
+### Optimization shared component material pass
+- Optimization panel cards, nested cards, and KPI cards now use the family-owned card edge material instead of fixed Indigo borders.
+- Integer inputs and combo boxes now use the nine-family control face and edge materials.
+- Optimization navigation rail cards now inherit family card edges while retaining the selected Indigo identity accent.
+- Added source regression coverage for the shared optimization primitives. The branded hero and its on-brand text contrast are intentionally preserved.
