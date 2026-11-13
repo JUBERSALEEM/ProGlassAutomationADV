@@ -949,6 +949,18 @@ namespace ProGlassAutomation.Tests.Theme
             Assert.DoesNotContain("Ov.", ai, StringComparison.Ordinal);
         }
 
+        [Fact]
+        public void Main_dashboard_shell_uses_nine_family_workspace_and_semantic_controls()
+        {
+            string dashboard = Read("Views/Dashboard/DashboardView.xaml");
+            Assert.DoesNotContain("IndigoStudioResources.xaml", dashboard, StringComparison.Ordinal);
+            Assert.DoesNotContain("Ov.", dashboard, StringComparison.Ordinal);
+            Assert.Contains("DynamicResource SurfaceWorkspaceBrush", dashboard, StringComparison.Ordinal);
+            Assert.Contains("DynamicResource AccentBrush", dashboard, StringComparison.Ordinal);
+            Assert.Contains("DynamicResource ThemeCardEdgeBrush", dashboard, StringComparison.Ordinal);
+            Assert.Contains("StaticResource Typography.Caption", dashboard, StringComparison.Ordinal);
+        }
+
         private static string ConstValue(string name)
         {
             var field = typeof(VisualThemeEngine).GetField(

@@ -306,3 +306,9 @@ Theme-specific styling must be token-driven and use dynamic resource resolution 
 ### Document and Job Order palette dependency cleanup
 - Removed now-unused Indigo dashboard dictionary imports from Tax Invoice, Delivery Note, and Job Order list shells after their surfaces were migrated to the shared theme resources.
 - This removes an unnecessary legacy palette dependency without changing any document workflow or navigation.
+
+
+### Main dashboard shell theme migration
+- The main Dashboard shell no longer merges the Indigo-only palette or consumes Ov.* brushes/styles.
+- Module segment navigation, user badge, hidden header surfaces, separators, and typography now use the active nine-family semantic resources and shared typography/button styles.
+- All seven dashboard page DataTemplates, bindings, navigation commands, and page selection behavior are preserved; added regression coverage.

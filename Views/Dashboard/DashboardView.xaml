@@ -13,15 +13,12 @@
              xmlns:dn="clr-namespace:ProGlassAutomation.Views.Dashboard.DeliveryNote.DnDashboard"
              xmlns:ti="clr-namespace:ProGlassAutomation.Views.Dashboard.TaxInvoice.TiDashboard"
              xmlns:st="clr-namespace:ProGlassAutomation.Views.Dashboard.Statement"
-             FontFamily="Segoe UI" Background="{DynamicResource Ov.Canvas}"
+             FontFamily="Segoe UI" Background="{DynamicResource SurfaceWorkspaceBrush}"
              UseLayoutRounding="True" SnapsToDevicePixels="True"
              TextOptions.TextFormattingMode="Display" TextOptions.TextRenderingMode="ClearType" Loaded="OnLoaded" SizeChanged="OnDashboardSizeChanged">
     <UserControl.Resources>
         <ResourceDictionary>
-            <ResourceDictionary.MergedDictionaries>
-                <ResourceDictionary Source="Overview/IndigoStudioResources.xaml"/>
-            </ResourceDictionary.MergedDictionaries>
-            <!-- All seven original page mappings and the same navigation VM. -->
+<!-- All seven original page mappings and the same navigation VM. -->
             <DataTemplate DataType="{x:Type vm:OverviewDashboardViewModel}"><ov:OverviewDashboardView/></DataTemplate>
             <DataTemplate DataType="{x:Type vm:SheetStoreDashboardViewModel}"><ss:SheetStoreDashboardView/></DataTemplate>
             <DataTemplate DataType="{x:Type vm:PiDashboardViewModel}"><pi:PiDashboardView/></DataTemplate>
@@ -32,12 +29,12 @@
             <DataTemplate x:Key="ModuleSegmentTemplate">
                 <Button Command="{Binding DataContext.SelectTabCommand, RelativeSource={RelativeSource AncestorType=UserControl}}"
                         CommandParameter="{Binding}" ToolTip="{Binding TabSubtitle}" AutomationProperties.Name="{Binding TabTitle}"
-                        Style="{StaticResource Ov.Button}" Background="Transparent" BorderThickness="0" Padding="16,11" Margin="0,0,5,0">
+                        Style="{StaticResource Button.Ghost}" Background="Transparent" BorderThickness="0" Padding="16,11" Margin="0,0,5,0">
                     <Button.Template>
                         <ControlTemplate TargetType="Button">
                             <Border x:Name="Pill" Background="{TemplateBinding Background}" BorderBrush="Transparent"
                                     BorderThickness="0,0,0,2" CornerRadius="0" Padding="{TemplateBinding Padding}">
-                                <TextBlock x:Name="Label" Text="{Binding TabTitle}" Foreground="{DynamicResource Ov.Muted}"
+                                <TextBlock x:Name="Label" Text="{Binding TabTitle}" Foreground="{DynamicResource TextSecondaryBrush}"
                                            FontSize="13" FontWeight="SemiBold" VerticalAlignment="Center"/>
                             </Border>
                             <ControlTemplate.Triggers>
@@ -45,7 +42,7 @@
                                     <Setter TargetName="Label" Property="Text" Value="Proformas"/>
                                 </DataTrigger>
                                 <DataTrigger Binding="{Binding IsMouseOver, RelativeSource={RelativeSource Self}}" Value="True">
-                                    <Setter TargetName="Pill" Property="BorderBrush" Value="{DynamicResource Ov.Accent}"/>
+                                    <Setter TargetName="Pill" Property="BorderBrush" Value="{DynamicResource AccentBrush}"/>
                                 </DataTrigger>
                                 <DataTrigger Value="True">
                                     <DataTrigger.Binding>
@@ -54,11 +51,11 @@
                                             <Binding Path="."/>
                                         </MultiBinding>
                                     </DataTrigger.Binding>
-                                    <Setter TargetName="Pill" Property="BorderBrush" Value="{DynamicResource Ov.Accent}"/>
-                                    <Setter TargetName="Label" Property="Foreground" Value="{DynamicResource Ov.Ink}"/>
+                                    <Setter TargetName="Pill" Property="BorderBrush" Value="{DynamicResource AccentBrush}"/>
+                                    <Setter TargetName="Label" Property="Foreground" Value="{DynamicResource TextPrimaryBrush}"/>
                                     <Setter TargetName="Label" Property="FontWeight" Value="Bold"/>
                                 </DataTrigger>
-                                <Trigger Property="IsKeyboardFocused" Value="True"><Setter TargetName="Pill" Property="BorderBrush" Value="{DynamicResource Ov.Accent}"/></Trigger>
+                                <Trigger Property="IsKeyboardFocused" Value="True"><Setter TargetName="Pill" Property="BorderBrush" Value="{DynamicResource AccentBrush}"/></Trigger>
                                 <Trigger Property="IsPressed" Value="True"><Setter TargetName="Pill" Property="Opacity" Value="0.75"/></Trigger>
                                 <Trigger Property="IsEnabled" Value="False"><Setter TargetName="Pill" Property="Opacity" Value="0.45"/></Trigger>
                             </ControlTemplate.Triggers>
@@ -70,23 +67,23 @@
     </UserControl.Resources>
     <Grid>
         <Grid.RowDefinitions><RowDefinition Height="Auto"/><RowDefinition Height="Auto"/><RowDefinition Height="1"/><RowDefinition Height="*"/></Grid.RowDefinitions>
-        <Border Background="{DynamicResource Ov.Surface}" Padding="28,18" Visibility="Collapsed">
+        <Border Background="{DynamicResource ThemeCardFaceBrush}" Padding="28,18" Visibility="Collapsed">
             <Grid>
                 <Grid.ColumnDefinitions><ColumnDefinition Width="Auto"/><ColumnDefinition Width="*"/><ColumnDefinition Width="Auto"/></Grid.ColumnDefinitions>
                 <Grid.RowDefinitions><RowDefinition Height="Auto"/><RowDefinition Height="Auto"/></Grid.RowDefinitions>
                 <StackPanel x:Name="BrandIdentity" Orientation="Horizontal" VerticalAlignment="Center">
-                    <Border Width="34" Height="34" Background="{DynamicResource Ov.Accent}" CornerRadius="10" Margin="0,0,10,0">
-                        <TextBlock Text="&#xE81E;" Style="{StaticResource Ov.Glyph}" Foreground="{DynamicResource Ov.OnAccent}"/>
+                    <Border Width="34" Height="34" Background="{DynamicResource AccentBrush}" CornerRadius="10" Margin="0,0,10,0">
+                        <TextBlock Text="&#xE81E;" Style="{StaticResource Typography.Body}" Foreground="{DynamicResource OnAccentForegroundBrush}"/>
                     </Border>
-                    <TextBlock Text="ProGlass Automation" Style="{StaticResource Ov.CardTitle}" FontSize="21" VerticalAlignment="Center"/>
+                    <TextBlock Text="ProGlass Automation" Style="{StaticResource Typography.Title}" FontSize="21" VerticalAlignment="Center"/>
                 </StackPanel>
-                <TextBlock x:Name="PageSubtitle" Grid.Column="1" Text="{Binding ActivePage.TabSubtitle}" Style="{StaticResource Ov.Meta}"
+                <TextBlock x:Name="PageSubtitle" Grid.Column="1" Text="{Binding ActivePage.TabSubtitle}" Style="{StaticResource Typography.Caption}"
                            VerticalAlignment="Center" Margin="22,0,16,0" TextTrimming="CharacterEllipsis" TextWrapping="NoWrap"/>
-                <Border x:Name="UserBadge" Grid.Column="2" Background="{DynamicResource Ov.Soft}" CornerRadius="10" Padding="12,8" VerticalAlignment="Center">
+                <Border x:Name="UserBadge" Grid.Column="2" Background="{DynamicResource ThemeCardHighlightBrush}" CornerRadius="10" Padding="12,8" VerticalAlignment="Center">
                     <StackPanel Orientation="Horizontal">
-                        <TextBlock Text="&#xE77B;" Style="{StaticResource Ov.Glyph}" Margin="0,0,8,0" FontSize="14"/>
+                        <TextBlock Text="&#xE77B;" Style="{StaticResource Typography.Body}" Margin="0,0,8,0" FontSize="14"/>
                         <TextBlock Text="{Binding CurrentUserDisplay}" ToolTip="{Binding CurrentUserDisplay}"
-                                   Style="{StaticResource Ov.Text}" FontWeight="SemiBold" MaxWidth="160" TextWrapping="NoWrap" TextTrimming="CharacterEllipsis"/>
+                                   Style="{StaticResource Typography.Body}" FontWeight="SemiBold" MaxWidth="160" TextWrapping="NoWrap" TextTrimming="CharacterEllipsis"/>
                     </StackPanel>
                 </Border>
             </Grid>
@@ -99,9 +96,9 @@
                 </ItemsControl>
             </ScrollViewer>
             <TextBlock Grid.Column="1" Text="{Binding ActivePage.LastRefreshed}" ToolTip="{Binding ActivePage.LastRefreshed}"
-                       Style="{StaticResource Ov.Meta}" MaxWidth="170" Margin="18,0,0,0" VerticalAlignment="Center"/>
+                       Style="{StaticResource Typography.Caption}" MaxWidth="170" Margin="18,0,0,0" VerticalAlignment="Center"/>
         </Grid>
-        <Border Grid.Row="2" Background="{DynamicResource Ov.Line}"/>
+        <Border Grid.Row="2" Background="{DynamicResource ThemeCardEdgeBrush}"/>
         <ContentPresenter Grid.Row="3" Content="{Binding ActivePage}"/>
     </Grid>
 </UserControl>
