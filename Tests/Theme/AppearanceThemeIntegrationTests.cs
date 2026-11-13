@@ -69,6 +69,23 @@ namespace ProGlassAutomation.Tests.Theme
         }
 
         [Fact]
+        public void Every_selectable_family_runs_a_seed_painter_before_its_material_overlay()
+        {
+            string engine = Read("Services/Theme/VisualThemeEngine.Part1.cs");
+
+            foreach (var family in new[]
+            {
+                "BentoGrid", "SpatialImmersive", "SwissInternational",
+                "HolographicIridescent", "Neumorphism", "Claymorphism",
+                "LiquidGlass", "Glassmorphism", "FluentAcrylic"
+            })
+                Assert.Contains($"case {family}:", engine, StringComparison.Ordinal);
+
+            Assert.Contains("ApplyEightThemeMaterial(resources, Current);", engine,
+                StringComparison.Ordinal);
+        }
+
+        [Fact]
         public void Family_selection_persists_and_runs_the_canonical_family_pipeline()
         {
             string vm = Read("ViewModels/Settings/SettingsViewModel.ThemeWallpaper.cs");
