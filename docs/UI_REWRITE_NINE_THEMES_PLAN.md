@@ -109,3 +109,11 @@ Theme-specific styling must be token-driven and use dynamic resource resolution 
 - No rewriting of print/PDF document appearance as a side effect of screen theming.
 - No claim of runtime verification unless a Windows build and application run were actually performed.
 - Keep commits scoped and reversible; all commits target `ui-rewrite/nine-themes`.
+
+
+### Phase 2 — first shell token migration (source changes committed)
+- Replaced fixed corner radii on the shell reopen chip, suite badge, read-only banner, license overlay, AI agent surface, and More popup with the existing family-managed geometry tokens.
+- Replaced the license activation overlay's hard-coded white fill with the semantic primary surface brush so it follows Light/Dark and the selected family.
+- Added a source regression test pinning the shell's use of dynamic geometry and surface tokens.
+- This is a deliberately small first shell migration: it preserves all named controls, popup anchors, DataTemplates, commands, and code-behind contracts.
+- **Not yet verified:** Windows compilation, test execution, and rendered shell screenshots. The changes are source-level only until a Windows runner validates them.

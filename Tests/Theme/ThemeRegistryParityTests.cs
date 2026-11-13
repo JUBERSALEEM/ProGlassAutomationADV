@@ -59,6 +59,21 @@ namespace ProGlassAutomation.Tests.Theme
         }
 
         [Fact]
+        public void Main_shell_surfaces_use_family_managed_geometry_and_surface_tokens()
+        {
+            string shell = Read("MainWindow.xaml");
+
+            // Shell geometry follows the selected family instead of fixed pixel radii.
+            Assert.Contains("CornerRadius=\"{DynamicResource ControlCornerRadius}\"", shell, StringComparison.Ordinal);
+            Assert.Contains("CornerRadius=\"{DynamicResource CardCornerRadius}\"", shell, StringComparison.Ordinal);
+            Assert.Contains("CornerRadius=\"{DynamicResource CardCornerRadiusLarge}\"", shell, StringComparison.Ordinal);
+            Assert.Contains("CornerRadius=\"{DynamicResource RadiusCompact}\"", shell, StringComparison.Ordinal);
+
+            // License chrome follows the active Light/Dark semantic surface.
+            Assert.Contains("Background=\"{DynamicResource SurfacePrimaryBrush}\"", shell, StringComparison.Ordinal);
+        }
+
+        [Fact]
         public void ManagedKeys_ContainsEveryCrashCriticalBrush()
         {
             // ERR-50472F proved these must ALWAYS be family-managed:
