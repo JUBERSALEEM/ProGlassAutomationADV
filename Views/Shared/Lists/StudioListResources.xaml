@@ -234,7 +234,7 @@
                 </ResourceDictionary.MergedDictionaries>
             </ResourceDictionary>
         </Style.Resources>
-        <Setter Property="Foreground" Value="{StaticResource Ov.Ink}"/>
+        <Setter Property="Foreground" Value="{DynamicResource Ov.Ink}"/>
     </Style>
     <Style x:Key="Sl.CheckableMenuItem" TargetType="MenuItem" BasedOn="{StaticResource ModernCheckableMenuItemStyle}">
         <Style.Resources>
