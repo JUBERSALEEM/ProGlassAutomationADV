@@ -1,6 +1,10 @@
+using System.IO;
 using System.Windows;
 using System.Windows.Media;
 using ProGlassAutomation.Customization;
+using ProGlassAutomation.ThemeClaymorphism;
+using ProGlassAutomation.ThemeLiquidGlass;
+using ProGlassAutomation.ThemeNeumorphism;
 using ProGlassAutomation.Services.AI.AIConfig;
 using ProGlassAutomation.Theming;
 
