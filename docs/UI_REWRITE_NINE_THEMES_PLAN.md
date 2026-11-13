@@ -337,3 +337,9 @@ Theme-specific styling must be token-driven and use dynamic resource resolution 
 - The About module's legacy Ios26 palette names are now published by ProGlassThemeEngine from the active nine-family palette.
 - About text, accent, success/warning, tile, border, hover, orbital, and canvas brushes now follow the selected family and Light/Dark mode while its existing component styles and type scale remain intact.
 - Removed the About style dictionary's unused Indigo palette import and moved the About workspace root to the shared theme workspace brush; added regression coverage.
+
+
+### Statement and Order Report workspace migration
+- Statement and Order Report module shells no longer merge the Indigo dashboard dictionary or use its legacy canvas key.
+- Both workspace roots now bind directly to the shared family-aware workspace surface; report generation, filters, data, and navigation remain unchanged.
+- Added regression coverage for the two report shell resource boundaries.

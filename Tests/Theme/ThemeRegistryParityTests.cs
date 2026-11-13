@@ -1089,6 +1089,19 @@ namespace ProGlassAutomation.Tests.Theme
             Assert.Contains("DynamicResource SurfaceWorkspaceBrush", view, StringComparison.Ordinal);
         }
 
+        [Fact]
+        public void Statement_and_order_report_workspaces_use_shared_theme_canvas()
+        {
+            string statement = Read("Views/Reports/StatementModule/StatementModuleView.xaml");
+            string orderReport = Read("Views/Reports/OrderReport/OrderReportModuleView.xaml");
+            foreach (string xaml in new[] { statement, orderReport })
+            {
+                Assert.DoesNotContain("IndigoStudioResources.xaml", xaml, StringComparison.Ordinal);
+                Assert.DoesNotContain("Ov.Canvas", xaml, StringComparison.Ordinal);
+                Assert.Contains("DynamicResource SurfaceWorkspaceBrush", xaml, StringComparison.Ordinal);
+            }
+        }
+
         private static string ConstValue(string name)
         {
             var field = typeof(VisualThemeEngine).GetField(
