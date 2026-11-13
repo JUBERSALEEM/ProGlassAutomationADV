@@ -53,7 +53,7 @@
     <Style x:Key="ModernMenuItemStyle" TargetType="MenuItem">
         <Setter Property="Foreground" Value="{DynamicResource ThemeNavigationHoverForegroundBrush}"/>
         <Setter Property="FontFamily" Value="{DynamicResource AppFontFamily}"/>
-        <Setter Property="FontSize" Value="{StaticResource TextBodyLarge}"/>
+        <Setter Property="FontSize" Value="{DynamicResource TextBodyLarge}"/>
         <Setter Property="Padding" Value="12,9"/>
         <Setter Property="Margin" Value="2,1"/>
         <Setter Property="Cursor" Value="Hand"/>
