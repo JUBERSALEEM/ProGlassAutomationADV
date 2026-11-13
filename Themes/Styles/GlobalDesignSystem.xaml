@@ -506,7 +506,7 @@
         <Setter Property="Background" Value="{DynamicResource PopupSurfaceBrush}"/>
         <Setter Property="CornerRadius" Value="{DynamicResource Radius.Dialog}"/>
         <Setter Property="Padding" Value="{DynamicResource Space.Dialog}"/>
-        <Setter Property="Effect" Value="{StaticResource Shadow.Large}"/>
+        <Setter Property="Effect" Value="{DynamicResource Shadow.Large}"/>
     </Style>
     <Style x:Key="SurfaceKpiStyle" TargetType="Border" BasedOn="{StaticResource SurfacePrimaryStyle}">
         <Setter Property="Background" Value="{DynamicResource SurfacePrimaryBrush}"/>
