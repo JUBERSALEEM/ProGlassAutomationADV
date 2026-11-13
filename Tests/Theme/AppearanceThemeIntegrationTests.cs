@@ -33,6 +33,14 @@ namespace ProGlassAutomation.Tests.Theme
             File.ReadAllText(Path.Combine(Root(),
                 relative.Replace('/', Path.DirectorySeparatorChar)));
 
+        private static string BrushColorSignature(Brush brush) => brush switch
+        {
+            SolidColorBrush solid => solid.Color.ToString(),
+            LinearGradientBrush gradient => string.Join("|",
+                gradient.GradientStops.Select(stop => stop.Color.ToString())),
+            _ => brush.ToString() ?? string.Empty
+        };
+
         [Fact]
         public void Appearance_page_hosts_the_live_family_preview_and_real_theme_picker()
         {
@@ -266,12 +274,12 @@ namespace ProGlassAutomation.Tests.Theme
 
                 Assert.Equal(family, resources["ThemeFamilyId"]);
                 Brush familyFace = Assert.IsAssignableFrom<Brush>(resources["ThemeCardFaceBrush"]);
-                familyFaceSignatures[familyIndex++] = familyFace switch
-                {
-                    SolidColorBrush solid => solid.Color.ToString(),
-                    LinearGradientBrush gradient => gradient.GradientStops[0].Color.ToString(),
-                    _ => familyFace.ToString() ?? string.Empty
-                };
+                Brush navigation = Assert.IsAssignableFrom<Brush>(resources["ThemeNavigationSelectedBrush"]);
+                Brush controlFace = Assert.IsAssignableFrom<Brush>(resources["ThemeControlFaceBrush"]);
+                familyFaceSignatures[familyIndex++] =
+                    BrushColorSignature(familyFace) + "|" +
+                    BrushColorSignature(navigation) + "|" +
+                    BrushColorSignature(controlFace);
                 foreach (var key in new[]
                 {
                     "SettingsCardFaceBrush", "SettingsCardEdgeBrush",
