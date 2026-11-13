@@ -263,3 +263,9 @@ Theme-specific styling must be token-driven and use dynamic resource resolution 
 - Customer inquiry editor window now uses the active family workspace surface instead of the fixed Indigo canvas and no longer merges the dashboard-specific palette.
 - Existing inquiry fields, file-drop handlers, validation, save/discard commands, and window behavior remain untouched.
 - Added regression coverage for the inquiry editor theme boundary.
+
+
+### Sheet Store transaction and import dialog migration
+- Buy Stock, Use Stock, consumable Item Movement, and CSV Duplicate Resolution dialogs now use nine-family inset/control surfaces, typography, and semantic status tints instead of legacy Ov.* component tokens.
+- Stock quantity, valuation, audit, and import-resolution bindings and commands are unchanged.
+- Added regression coverage for all four dialog resource contracts.

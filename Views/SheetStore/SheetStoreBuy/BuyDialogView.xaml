@@ -15,10 +15,10 @@
 
     <StackPanel>
         <!-- Card 1: Current Sheet Status -->
-        <Border Style="{StaticResource Ov.CardCompact}" Margin="0,0,0,12">
+        <Border Style="{StaticResource ProGlassRewriteInsetStyle}" Margin="0,0,0,12">
             <StackPanel>
                 <TextBlock Text="{Binding Sheet.Category}"
-                           Style="{StaticResource Ov.CardTitle}"
+                           Style="{StaticResource ProGlassRewriteSectionTitleStyle}"
                            Foreground="{DynamicResource AccentBrush}"/>
                 <StackPanel Orientation="Horizontal" Margin="0,4,0,0">
                     <TextBlock Text="{Binding Sheet.ThicknessDisplay}" FontSize="{DynamicResource FontSize.Body}" FontWeight="{DynamicResource Weight.Bold}"
@@ -35,21 +35,21 @@
                         <ColumnDefinition Width="*"/>
                         <ColumnDefinition Width="*"/>
                     </Grid.ColumnDefinitions>
-                    <Border Grid.Column="0" Background="{DynamicResource Ov.Soft}" CornerRadius="{DynamicResource Radius.Medium}" Padding="8,6" Margin="0,0,4,0">
+                    <Border Grid.Column="0" Background="{DynamicResource ThemeControlFaceBrush}" CornerRadius="{DynamicResource Radius.Medium}" Padding="8,6" Margin="0,0,4,0">
                         <StackPanel>
-                            <TextBlock Text="{DynamicResource SheetStore.TotalStock}" Style="{StaticResource Ov.Meta}"/>
+                            <TextBlock Text="{DynamicResource SheetStore.TotalStock}" Style="{StaticResource ProGlassRewriteCaptionStyle}"/>
                             <TextBlock Text="{Binding Sheet.Stock}" FontSize="{DynamicResource FontSize.Body}" FontWeight="{DynamicResource Weight.Bold}" Foreground="{DynamicResource TextPrimaryBrush}"/>
                         </StackPanel>
                     </Border>
-                    <Border Grid.Column="1" Background="{DynamicResource Ov.DangerSoft}" CornerRadius="{DynamicResource Radius.Medium}" Padding="8,6" Margin="2,0">
+                    <Border Grid.Column="1" Background="{DynamicResource TintRedBrush}" CornerRadius="{DynamicResource Radius.Medium}" Padding="8,6" Margin="2,0">
                         <StackPanel>
-                            <TextBlock Text="{DynamicResource SheetStore.Used}" Style="{StaticResource Ov.Meta}" Foreground="{DynamicResource DangerBrush}"/>
+                            <TextBlock Text="{DynamicResource SheetStore.Used}" Style="{StaticResource ProGlassRewriteCaptionStyle}" Foreground="{DynamicResource DangerBrush}"/>
                             <TextBlock Text="{Binding Sheet.Used}" FontSize="{DynamicResource FontSize.Body}" FontWeight="{DynamicResource Weight.Bold}" Foreground="{DynamicResource DangerBrush}"/>
                         </StackPanel>
                     </Border>
-                    <Border Grid.Column="2" Background="{DynamicResource Ov.SuccessSoft}" CornerRadius="{DynamicResource Radius.Medium}" Padding="8,6" Margin="4,0,0,0">
+                    <Border Grid.Column="2" Background="{DynamicResource TintGreenBrush}" CornerRadius="{DynamicResource Radius.Medium}" Padding="8,6" Margin="4,0,0,0">
                         <StackPanel>
-                            <TextBlock Text="{DynamicResource SheetStore.Balance}" Style="{StaticResource Ov.Meta}" Foreground="{DynamicResource SuccessBrush}"/>
+                            <TextBlock Text="{DynamicResource SheetStore.Balance}" Style="{StaticResource ProGlassRewriteCaptionStyle}" Foreground="{DynamicResource SuccessBrush}"/>
                             <TextBlock Text="{Binding Sheet.Balance}" FontSize="{DynamicResource FontSize.Body}" FontWeight="{DynamicResource Weight.Bold}" Foreground="{DynamicResource SuccessBrush}"/>
                         </StackPanel>
                     </Border>
@@ -58,10 +58,10 @@
         </Border>
 
         <!-- Card 2: Quantity Selector -->
-        <Border Style="{StaticResource Ov.CardCompact}" Margin="0,0,0,12">
+        <Border Style="{StaticResource ProGlassRewriteInsetStyle}" Margin="0,0,0,12">
             <StackPanel>
                 <TextBlock Text="{DynamicResource SheetStore.QuantitySheets}"
-                           Style="{StaticResource Ov.Meta}" FontWeight="{DynamicResource Weight.Bold}"
+                           Style="{StaticResource ProGlassRewriteCaptionStyle}" FontWeight="{DynamicResource Weight.Bold}"
                            Margin="0,0,0,8"/>
                 <Grid>
                     <Grid.ColumnDefinitions>
@@ -79,7 +79,7 @@
                              behaviors:TextBoxBehaviors.AcceptIntegersOnly="True"
                              FontSize="{DynamicResource FontSize.Display}" FontWeight="{DynamicResource Weight.Bold}" TextAlignment="Center"
                              VerticalContentAlignment="Center" Height="40"
-                             Background="{DynamicResource Ov.Soft}"
+                             Background="{DynamicResource ThemeControlFaceBrush}"
                              Foreground="{DynamicResource TextPrimaryBrush}"
                              BorderThickness="0"
                              Margin="8,0">
@@ -112,37 +112,37 @@
         </Border>
 
         <!-- Card 3: Purchase Impact & Cost Preview -->
-        <Border Style="{StaticResource Ov.CardCompact}" Margin="0,0,0,6">
+        <Border Style="{StaticResource ProGlassRewriteInsetStyle}" Margin="0,0,0,6">
             <StackPanel>
                 <TextBlock Text="{DynamicResource SheetStore.PurchasePreview}"
-                           Style="{StaticResource Ov.Meta}" FontWeight="{DynamicResource Weight.Bold}"
+                           Style="{StaticResource ProGlassRewriteCaptionStyle}" FontWeight="{DynamicResource Weight.Bold}"
                            Margin="0,0,0,8"/>
                 <DockPanel Margin="0,0,0,4">
-                    <TextBlock Text="{DynamicResource DeliveryNote.TotalSQM}" Style="{StaticResource Ov.Meta}"/>
+                    <TextBlock Text="{DynamicResource DeliveryNote.TotalSQM}" Style="{StaticResource ProGlassRewriteCaptionStyle}"/>
                     <TextBlock Text="{Binding TotalSqm, Converter={StaticResource CurrencyConverter}, ConverterParameter=area}"
                                FontSize="{DynamicResource FontSize.Body}" FontWeight="{DynamicResource Weight.Bold}"
                                Foreground="{DynamicResource TextPrimaryBrush}" HorizontalAlignment="Right"/>
                 </DockPanel>
                 <DockPanel Margin="0,0,0,4">
-                    <TextBlock Text="{DynamicResource SheetStore.NewTotalStock}" Style="{StaticResource Ov.Meta}"/>
+                    <TextBlock Text="{DynamicResource SheetStore.NewTotalStock}" Style="{StaticResource ProGlassRewriteCaptionStyle}"/>
                     <TextBlock Text="{Binding NewStockAfterBuy}"
                                FontSize="{DynamicResource FontSize.Body}" FontWeight="{DynamicResource Weight.Bold}"
                                Foreground="{DynamicResource TextPrimaryBrush}" HorizontalAlignment="Right"/>
                 </DockPanel>
                 <DockPanel Margin="0,0,0,8">
-                    <TextBlock Text="{DynamicResource SheetStore.NewBalanceAvailable}" Style="{StaticResource Ov.Meta}"/>
+                    <TextBlock Text="{DynamicResource SheetStore.NewBalanceAvailable}" Style="{StaticResource ProGlassRewriteCaptionStyle}"/>
                     <TextBlock Text="{Binding NewBalanceAfterBuy}"
                                FontSize="{DynamicResource FontSize.Body}" FontWeight="{DynamicResource Weight.Bold}"
                                Foreground="{DynamicResource SuccessBrush}" HorizontalAlignment="Right"/>
                 </DockPanel>
-                <Border Height="1" Background="{DynamicResource Ov.Line}" Margin="0,2,0,8"/>
+                <Border Height="1" Background="{DynamicResource ThemeControlEdgeBrush}" Margin="0,2,0,8"/>
                 <DockPanel>
                     <TextBlock Text="{DynamicResource JobProfitability.TotalCOST}"
                                FontSize="{DynamicResource FontSize.Body}" FontWeight="{DynamicResource Weight.Bold}"
                                Foreground="{DynamicResource TextPrimaryBrush}" VerticalAlignment="Center"/>
                     <Viewbox MaxHeight="26" HorizontalAlignment="Right">
                         <TextBlock Text="{Binding TotalCost, Converter={StaticResource CurrencyConverter}, ConverterParameter=suffix}"
-                                   Style="{StaticResource Ov.Value}" Foreground="{DynamicResource DangerBrush}"/>
+                                   Style="{StaticResource ProGlassRewriteBodyTextStyle}" Foreground="{DynamicResource DangerBrush}"/>
                     </Viewbox>
                 </DockPanel>
             </StackPanel>

@@ -15,10 +15,10 @@
 
     <StackPanel>
         <!-- Card 1: Consumable Item Details -->
-        <Border Style="{StaticResource Ov.CardCompact}" Margin="0,0,0,10">
+        <Border Style="{StaticResource ProGlassRewriteInsetStyle}" Margin="0,0,0,10">
             <StackPanel>
                 <TextBlock Text="{Binding Item.CategoryDisplay}"
-                           Style="{StaticResource Ov.CardTitle}"
+                           Style="{StaticResource ProGlassRewriteSectionTitleStyle}"
                            Foreground="{DynamicResource AccentBrush}"/>
                 <TextBlock Text="{Binding ItemLabel}"
                            FontSize="{DynamicResource FontSize.Body}"
@@ -32,21 +32,21 @@
                         <ColumnDefinition Width="*"/>
                         <ColumnDefinition Width="*"/>
                     </Grid.ColumnDefinitions>
-                    <Border Grid.Column="0" Background="{DynamicResource Ov.Soft}" CornerRadius="{DynamicResource Radius.Medium}" Padding="8,6" Margin="0,0,4,0">
+                    <Border Grid.Column="0" Background="{DynamicResource ThemeControlFaceBrush}" CornerRadius="{DynamicResource Radius.Medium}" Padding="8,6" Margin="0,0,4,0">
                         <StackPanel>
-                            <TextBlock Text="Stock" Style="{StaticResource Ov.Meta}"/>
+                            <TextBlock Text="Stock" Style="{StaticResource ProGlassRewriteCaptionStyle}"/>
                             <TextBlock Text="{Binding Item.Stock, StringFormat={}{0:N2}}" FontSize="{DynamicResource FontSize.Body}" FontWeight="{DynamicResource Weight.Bold}" Foreground="{DynamicResource TextPrimaryBrush}"/>
                         </StackPanel>
                     </Border>
-                    <Border Grid.Column="1" Background="{DynamicResource Ov.DangerSoft}" CornerRadius="{DynamicResource Radius.Medium}" Padding="8,6" Margin="2,0">
+                    <Border Grid.Column="1" Background="{DynamicResource TintRedBrush}" CornerRadius="{DynamicResource Radius.Medium}" Padding="8,6" Margin="2,0">
                         <StackPanel>
-                            <TextBlock Text="Used" Style="{StaticResource Ov.Meta}" Foreground="{DynamicResource DangerBrush}"/>
+                            <TextBlock Text="Used" Style="{StaticResource ProGlassRewriteCaptionStyle}" Foreground="{DynamicResource DangerBrush}"/>
                             <TextBlock Text="{Binding Item.Used, StringFormat={}{0:N2}}" FontSize="{DynamicResource FontSize.Body}" FontWeight="{DynamicResource Weight.Bold}" Foreground="{DynamicResource DangerBrush}"/>
                         </StackPanel>
                     </Border>
-                    <Border Grid.Column="2" Background="{DynamicResource Ov.SuccessSoft}" CornerRadius="{DynamicResource Radius.Medium}" Padding="8,6" Margin="4,0,0,0">
+                    <Border Grid.Column="2" Background="{DynamicResource TintGreenBrush}" CornerRadius="{DynamicResource Radius.Medium}" Padding="8,6" Margin="4,0,0,0">
                         <StackPanel>
-                            <TextBlock Text="Balance" Style="{StaticResource Ov.Meta}" Foreground="{DynamicResource SuccessBrush}"/>
+                            <TextBlock Text="Balance" Style="{StaticResource ProGlassRewriteCaptionStyle}" Foreground="{DynamicResource SuccessBrush}"/>
                             <TextBlock Text="{Binding Item.BalanceDisplay}" FontSize="{DynamicResource FontSize.Body}" FontWeight="{DynamicResource Weight.Bold}" Foreground="{DynamicResource SuccessBrush}"/>
                         </StackPanel>
                     </Border>
@@ -55,11 +55,11 @@
         </Border>
 
         <!-- Card 2: Quantity Input -->
-        <Border Style="{StaticResource Ov.CardCompact}" Margin="0,0,0,10">
+        <Border Style="{StaticResource ProGlassRewriteInsetStyle}" Margin="0,0,0,10">
             <StackPanel>
                 <StackPanel Orientation="Horizontal" Margin="0,0,0,6">
-                    <TextBlock Text="QUANTITY" Style="{StaticResource Ov.Meta}" FontWeight="{DynamicResource Weight.Bold}"/>
-                    <TextBlock Text="{Binding UomLabel}" Style="{StaticResource Ov.Meta}" Margin="6,0,0,0"
+                    <TextBlock Text="QUANTITY" Style="{StaticResource ProGlassRewriteCaptionStyle}" FontWeight="{DynamicResource Weight.Bold}"/>
+                    <TextBlock Text="{Binding UomLabel}" Style="{StaticResource ProGlassRewriteCaptionStyle}" Margin="6,0,0,0"
                                Foreground="{DynamicResource AccentBrush}" FontWeight="{DynamicResource Weight.Bold}"/>
                 </StackPanel>
 
@@ -68,7 +68,7 @@
                          behaviors:TextBoxBehaviors.AcceptDecimals="True"
                          FontSize="{DynamicResource FontSize.Display}" FontWeight="{DynamicResource Weight.Bold}"
                          TextAlignment="Center" Height="40"
-                         Background="{DynamicResource Ov.Soft}"
+                         Background="{DynamicResource ThemeControlFaceBrush}"
                          Foreground="{DynamicResource TextPrimaryBrush}"
                          BorderThickness="0">
                     <TextBox.Style>
@@ -94,15 +94,15 @@
         </Border>
 
         <!-- Card 3: Unit Price (Receipts Only) -->
-        <Border Style="{StaticResource Ov.CardCompact}" Margin="0,0,0,10"
+        <Border Style="{StaticResource ProGlassRewriteInsetStyle}" Margin="0,0,0,10"
                 Visibility="{Binding ShowUnitPrice, Converter={StaticResource BoolToVisibilityConverter}}">
             <StackPanel>
-                <TextBlock Text="UNIT PRICE (AED)" Style="{StaticResource Ov.Meta}" FontWeight="{DynamicResource Weight.Bold}" Margin="0,0,0,6"/>
+                <TextBlock Text="UNIT PRICE (AED)" Style="{StaticResource ProGlassRewriteCaptionStyle}" FontWeight="{DynamicResource Weight.Bold}" Margin="0,0,0,6"/>
                 <TextBox Text="{Binding UnitPriceText, UpdateSourceTrigger=PropertyChanged}"
                          behaviors:TextBoxBehaviors.SelectAllOnFocus="True"
                          behaviors:TextBoxBehaviors.AcceptDecimals="True"
                          FontSize="{DynamicResource FontSize.Title}" FontWeight="{DynamicResource Weight.Bold}"
-                         Height="36" Background="{DynamicResource Ov.Soft}" BorderThickness="0" Padding="8,4">
+                         Height="36" Background="{DynamicResource ThemeControlFaceBrush}" BorderThickness="0" Padding="8,4">
                     <TextBox.Style>
                         <Style TargetType="TextBox">
                             <Setter Property="BorderThickness" Value="0"/>
@@ -125,17 +125,17 @@
         </Border>
 
         <!-- Card 4: Movement Preview -->
-        <Border Style="{StaticResource Ov.CardCompact}" Margin="0,0,0,10"
+        <Border Style="{StaticResource ProGlassRewriteInsetStyle}" Margin="0,0,0,10"
                 Visibility="{Binding ShowPreview, Converter={StaticResource BoolToVisibilityConverter}}">
             <StackPanel>
                 <DockPanel Margin="0,0,0,4">
-                    <TextBlock Text="Balance After" Style="{StaticResource Ov.Meta}"/>
+                    <TextBlock Text="Balance After" Style="{StaticResource ProGlassRewriteCaptionStyle}"/>
                     <TextBlock Text="{Binding BalanceAfterDisplay}"
                                FontSize="{DynamicResource FontSize.Body}" FontWeight="{DynamicResource Weight.Bold}"
                                Foreground="{DynamicResource TextPrimaryBrush}" HorizontalAlignment="Right"/>
                 </DockPanel>
                 <DockPanel>
-                    <TextBlock Text="Movement Value" Style="{StaticResource Ov.Meta}"/>
+                    <TextBlock Text="Movement Value" Style="{StaticResource ProGlassRewriteCaptionStyle}"/>
                     <TextBlock Text="{Binding MovementValue, StringFormat={}{0:N2} AED}"
                                FontSize="{DynamicResource FontSize.Body}" FontWeight="{DynamicResource Weight.Bold}"
                                Foreground="{DynamicResource AccentBrush}" HorizontalAlignment="Right"/>
@@ -144,7 +144,7 @@
         </Border>
 
         <!-- Reorder Warning -->
-        <Border Background="{DynamicResource Ov.WarningSoft}" BorderBrush="{DynamicResource WarningBrush}"
+        <Border Background="{DynamicResource TintAmberBrush}" BorderBrush="{DynamicResource WarningBrush}"
                 BorderThickness="1" CornerRadius="{DynamicResource Radius.Medium}" Padding="12,8" Margin="0,0,0,6"
                 Visibility="{Binding HasReorderWarning, Converter={StaticResource BoolToVisibilityConverter}}">
             <TextBlock Text="{Binding ReorderWarning}" TextWrapping="Wrap"

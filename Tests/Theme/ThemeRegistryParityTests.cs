@@ -842,6 +842,25 @@ namespace ProGlassAutomation.Tests.Theme
             Assert.DoesNotContain("Ov.Canvas", xaml, StringComparison.Ordinal);
         }
 
+        [Fact]
+        public void Sheet_store_stock_and_import_dialogs_use_nine_family_component_styles()
+        {
+            string[] dialogs =
+            {
+                "Views/SheetStore/SheetStoreBuy/BuyDialogView.xaml",
+                "Views/SheetStore/SheetStoreUse/UseDialogView.xaml",
+                "Views/SheetStore/SheetStoreItems/ItemMovementView.xaml",
+                "Views/SheetStore/SheetStoreCsv/DuplicateResolutionView.xaml"
+            };
+            foreach (string path in dialogs)
+            {
+                string xaml = Read(path);
+                Assert.DoesNotContain("Ov.", xaml, StringComparison.Ordinal);
+                Assert.Contains("ProGlassRewriteInsetStyle", xaml, StringComparison.Ordinal);
+                Assert.Contains("ProGlassRewriteCaptionStyle", xaml, StringComparison.Ordinal);
+            }
+        }
+
         private static string ConstValue(string name)
         {
             var field = typeof(VisualThemeEngine).GetField(

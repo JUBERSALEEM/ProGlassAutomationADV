@@ -21,21 +21,21 @@
 
     <StackPanel>
         <TextBlock Text="{Binding HeaderText}"
-                   Style="{StaticResource Ov.Meta}"
+                   Style="{StaticResource ProGlassRewriteCaptionStyle}"
                    FontWeight="{DynamicResource Weight.Bold}"
                    Foreground="{DynamicResource AccentBrush}"
                    TextWrapping="Wrap"
                    Margin="0,0,0,8"/>
 
         <!-- Sheet Identity Chip -->
-        <Border Style="{StaticResource Ov.CardMicro}" Padding="12,8" Margin="0,0,0,10">
+        <Border Style="{StaticResource ProGlassRewriteControlSurfaceStyle}" Padding="12,8" Margin="0,0,0,10">
             <TextBlock Text="{Binding SheetLabel}"
-                       Style="{StaticResource Ov.CardTitle}"
+                       Style="{StaticResource ProGlassRewriteSectionTitleStyle}"
                        FontSize="{DynamicResource FontSize.H3}"/>
         </Border>
 
         <!-- Bento Comparison Grid -->
-        <Border Style="{StaticResource Ov.CardCompact}" Padding="0" Margin="0,0,0,10">
+        <Border Style="{StaticResource ProGlassRewriteInsetStyle}" Padding="0" Margin="0,0,0,10">
             <Grid>
                 <Grid.RowDefinitions>
                     <RowDefinition Height="Auto"/>
@@ -53,9 +53,9 @@
 
                 <!-- Headers -->
                 <Border Grid.Row="0" Grid.Column="0"
-                        Background="{DynamicResource Ov.Soft}"
+                        Background="{DynamicResource ThemeControlFaceBrush}"
                         Padding="12,10">
-                    <TextBlock Text="{DynamicResource SheetStore.Field}" Style="{StaticResource Ov.Meta}" FontWeight="{DynamicResource Weight.Bold}"/>
+                    <TextBlock Text="{DynamicResource SheetStore.Field}" Style="{StaticResource ProGlassRewriteCaptionStyle}" FontWeight="{DynamicResource Weight.Bold}"/>
                 </Border>
                 <Border Grid.Row="0" Grid.Column="1"
                         Background="{DynamicResource AccentBrush}"
@@ -73,13 +73,13 @@
                 </Border>
 
                 <!-- Purchase Price -->
-                <Border Grid.Row="1" Grid.Column="0" BorderBrush="{DynamicResource Ov.Line}" BorderThickness="0,1,0,0" Padding="12,8">
-                    <TextBlock Text="{DynamicResource SheetStore.PurchaseSQM}" Style="{StaticResource Ov.Meta}"/>
+                <Border Grid.Row="1" Grid.Column="0" BorderBrush="{DynamicResource ThemeControlEdgeBrush}" BorderThickness="0,1,0,0" Padding="12,8">
+                    <TextBlock Text="{DynamicResource SheetStore.PurchaseSQM}" Style="{StaticResource ProGlassRewriteCaptionStyle}"/>
                 </Border>
-                <Border Grid.Row="1" Grid.Column="1" BorderBrush="{DynamicResource Ov.Line}" BorderThickness="0,1,0,0" Padding="12,8">
+                <Border Grid.Row="1" Grid.Column="1" BorderBrush="{DynamicResource ThemeControlEdgeBrush}" BorderThickness="0,1,0,0" Padding="12,8">
                     <TextBlock Text="{Binding Existing.PurchasePricePerSqm, StringFormat={}{0:0.##} AED}" FontSize="{DynamicResource FontSize.Body}" FontWeight="{DynamicResource Weight.SemiBold}"/>
                 </Border>
-                <Border Grid.Row="1" Grid.Column="2" BorderBrush="{DynamicResource Ov.Line}" BorderThickness="0,1,0,0" Padding="12,8">
+                <Border Grid.Row="1" Grid.Column="2" BorderBrush="{DynamicResource ThemeControlEdgeBrush}" BorderThickness="0,1,0,0" Padding="12,8">
                     <TextBlock Text="{Binding Incoming.PurchasePricePerSqm, StringFormat={}{0:0.##} AED}" FontSize="{DynamicResource FontSize.Body}">
                         <TextBlock.Style>
                             <Style TargetType="TextBlock">
@@ -95,13 +95,13 @@
                 </Border>
 
                 <!-- Sell Price -->
-                <Border Grid.Row="2" Grid.Column="0" BorderBrush="{DynamicResource Ov.Line}" BorderThickness="0,1,0,0" Padding="12,8">
-                    <TextBlock Text="{DynamicResource SheetStore.SELLSQM}" Style="{StaticResource Ov.Meta}"/>
+                <Border Grid.Row="2" Grid.Column="0" BorderBrush="{DynamicResource ThemeControlEdgeBrush}" BorderThickness="0,1,0,0" Padding="12,8">
+                    <TextBlock Text="{DynamicResource SheetStore.SELLSQM}" Style="{StaticResource ProGlassRewriteCaptionStyle}"/>
                 </Border>
-                <Border Grid.Row="2" Grid.Column="1" BorderBrush="{DynamicResource Ov.Line}" BorderThickness="0,1,0,0" Padding="12,8">
+                <Border Grid.Row="2" Grid.Column="1" BorderBrush="{DynamicResource ThemeControlEdgeBrush}" BorderThickness="0,1,0,0" Padding="12,8">
                     <TextBlock Text="{Binding Existing.SellPricePerSqm, StringFormat={}{0:0.##} AED}" FontSize="{DynamicResource FontSize.Body}" FontWeight="{DynamicResource Weight.SemiBold}"/>
                 </Border>
-                <Border Grid.Row="2" Grid.Column="2" BorderBrush="{DynamicResource Ov.Line}" BorderThickness="0,1,0,0" Padding="12,8">
+                <Border Grid.Row="2" Grid.Column="2" BorderBrush="{DynamicResource ThemeControlEdgeBrush}" BorderThickness="0,1,0,0" Padding="12,8">
                     <TextBlock Text="{Binding Incoming.SellPricePerSqm, StringFormat={}{0:0.##} AED}" FontSize="{DynamicResource FontSize.Body}">
                         <TextBlock.Style>
                             <Style TargetType="TextBlock">
@@ -117,13 +117,13 @@
                 </Border>
 
                 <!-- Stock -->
-                <Border Grid.Row="3" Grid.Column="0" BorderBrush="{DynamicResource Ov.Line}" BorderThickness="0,1,0,0" Padding="12,8">
-                    <TextBlock Text="{DynamicResource SheetStore.Stock}" Style="{StaticResource Ov.Meta}"/>
+                <Border Grid.Row="3" Grid.Column="0" BorderBrush="{DynamicResource ThemeControlEdgeBrush}" BorderThickness="0,1,0,0" Padding="12,8">
+                    <TextBlock Text="{DynamicResource SheetStore.Stock}" Style="{StaticResource ProGlassRewriteCaptionStyle}"/>
                 </Border>
-                <Border Grid.Row="3" Grid.Column="1" BorderBrush="{DynamicResource Ov.Line}" BorderThickness="0,1,0,0" Padding="12,8">
+                <Border Grid.Row="3" Grid.Column="1" BorderBrush="{DynamicResource ThemeControlEdgeBrush}" BorderThickness="0,1,0,0" Padding="12,8">
                     <TextBlock Text="{Binding Existing.Stock}" FontSize="{DynamicResource FontSize.Body}" FontWeight="{DynamicResource Weight.SemiBold}"/>
                 </Border>
-                <Border Grid.Row="3" Grid.Column="2" BorderBrush="{DynamicResource Ov.Line}" BorderThickness="0,1,0,0" Padding="12,8">
+                <Border Grid.Row="3" Grid.Column="2" BorderBrush="{DynamicResource ThemeControlEdgeBrush}" BorderThickness="0,1,0,0" Padding="12,8">
                     <TextBlock Text="{Binding Incoming.Stock}" FontSize="{DynamicResource FontSize.Body}">
                         <TextBlock.Style>
                             <Style TargetType="TextBlock">
@@ -139,24 +139,24 @@
                 </Border>
 
                 <!-- Used -->
-                <Border Grid.Row="4" Grid.Column="0" BorderBrush="{DynamicResource Ov.Line}" BorderThickness="0,1,0,0" Padding="12,8">
-                    <TextBlock Text="{DynamicResource SheetStore.USED}" Style="{StaticResource Ov.Meta}"/>
+                <Border Grid.Row="4" Grid.Column="0" BorderBrush="{DynamicResource ThemeControlEdgeBrush}" BorderThickness="0,1,0,0" Padding="12,8">
+                    <TextBlock Text="{DynamicResource SheetStore.USED}" Style="{StaticResource ProGlassRewriteCaptionStyle}"/>
                 </Border>
-                <Border Grid.Row="4" Grid.Column="1" BorderBrush="{DynamicResource Ov.Line}" BorderThickness="0,1,0,0" Padding="12,8">
+                <Border Grid.Row="4" Grid.Column="1" BorderBrush="{DynamicResource ThemeControlEdgeBrush}" BorderThickness="0,1,0,0" Padding="12,8">
                     <TextBlock Text="{Binding Existing.Used}" FontSize="{DynamicResource FontSize.Body}"/>
                 </Border>
-                <Border Grid.Row="4" Grid.Column="2" BorderBrush="{DynamicResource Ov.Line}" BorderThickness="0,1,0,0" Padding="12,8">
+                <Border Grid.Row="4" Grid.Column="2" BorderBrush="{DynamicResource ThemeControlEdgeBrush}" BorderThickness="0,1,0,0" Padding="12,8">
                     <TextBlock Text="{Binding Incoming.Used}" FontSize="{DynamicResource FontSize.Body}"/>
                 </Border>
 
                 <!-- Balance -->
-                <Border Grid.Row="5" Grid.Column="0" BorderBrush="{DynamicResource Ov.Line}" BorderThickness="0,1,0,0" Padding="12,8">
-                    <TextBlock Text="{DynamicResource Common.Balance}" Style="{StaticResource Ov.Meta}"/>
+                <Border Grid.Row="5" Grid.Column="0" BorderBrush="{DynamicResource ThemeControlEdgeBrush}" BorderThickness="0,1,0,0" Padding="12,8">
+                    <TextBlock Text="{DynamicResource Common.Balance}" Style="{StaticResource ProGlassRewriteCaptionStyle}"/>
                 </Border>
-                <Border Grid.Row="5" Grid.Column="1" BorderBrush="{DynamicResource Ov.Line}" BorderThickness="0,1,0,0" Padding="12,8">
+                <Border Grid.Row="5" Grid.Column="1" BorderBrush="{DynamicResource ThemeControlEdgeBrush}" BorderThickness="0,1,0,0" Padding="12,8">
                     <TextBlock Text="{Binding Existing.Balance}" FontSize="{DynamicResource FontSize.Body}" FontWeight="{DynamicResource Weight.Bold}" Foreground="{DynamicResource SuccessBrush}"/>
                 </Border>
-                <Border Grid.Row="5" Grid.Column="2" BorderBrush="{DynamicResource Ov.Line}" BorderThickness="0,1,0,0" Padding="12,8">
+                <Border Grid.Row="5" Grid.Column="2" BorderBrush="{DynamicResource ThemeControlEdgeBrush}" BorderThickness="0,1,0,0" Padding="12,8">
                     <TextBlock Text="{Binding Incoming.Balance}" FontSize="{DynamicResource FontSize.Body}" FontWeight="{DynamicResource Weight.Bold}"/>
                 </Border>
             </Grid>
