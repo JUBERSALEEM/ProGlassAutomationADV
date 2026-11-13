@@ -19,7 +19,7 @@
         Title="{DynamicResource Inquiry.InquiryWorkspace}"
         Width="1180" Height="790" MinWidth="980" MinHeight="640"
         WindowStartupLocation="CenterOwner"
-        Background="{DynamicResource Ov.Canvas}"
+        Background="{DynamicResource SurfaceWorkspaceBrush}"
         FontFamily="{DynamicResource AppFontFamily}"
         TextOptions.TextFormattingMode="Ideal"
         UseLayoutRounding="True" SnapsToDevicePixels="True"
@@ -28,10 +28,7 @@
 
     <Window.Resources>
         <ResourceDictionary>
-            <ResourceDictionary.MergedDictionaries>
-                <ResourceDictionary Source="../Dashboard/Overview/IndigoStudioResources.xaml"/>
-            </ResourceDictionary.MergedDictionaries>
-        </ResourceDictionary>
+            </ResourceDictionary>
     </Window.Resources>
 
 

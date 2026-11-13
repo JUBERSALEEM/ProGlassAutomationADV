@@ -257,3 +257,9 @@ Theme-specific styling must be token-driven and use dynamic resource resolution 
 - Sheet Store Add/Edit Sheet no longer imports the fixed Indigo dashboard dictionary; its icon, form cards, labels, and warning banner now use nine-family component styles and semantic tints.
 - Sheet Store History workspace and audit-status colors now use the live family workspace, text, and warning resources.
 - Sheet inventory and audit behavior are unchanged; added regression checks for both dialogs.
+
+
+### Inquiry editor workspace migration
+- Customer inquiry editor window now uses the active family workspace surface instead of the fixed Indigo canvas and no longer merges the dashboard-specific palette.
+- Existing inquiry fields, file-drop handlers, validation, save/discard commands, and window behavior remain untouched.
+- Added regression coverage for the inquiry editor theme boundary.

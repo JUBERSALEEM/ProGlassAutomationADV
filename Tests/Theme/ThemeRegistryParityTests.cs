@@ -833,6 +833,15 @@ namespace ProGlassAutomation.Tests.Theme
             Assert.DoesNotContain("Ov.", history, StringComparison.Ordinal);
         }
 
+        [Fact]
+        public void Inquiry_editor_uses_family_workspace_without_indigo_palette_merge()
+        {
+            string xaml = Read("Views/Inquiry/InquiryEditorWindow.xaml");
+            Assert.Contains("DynamicResource SurfaceWorkspaceBrush", xaml, StringComparison.Ordinal);
+            Assert.DoesNotContain("IndigoStudioResources.xaml", xaml, StringComparison.Ordinal);
+            Assert.DoesNotContain("Ov.Canvas", xaml, StringComparison.Ordinal);
+        }
+
         private static string ConstValue(string name)
         {
             var field = typeof(VisualThemeEngine).GetField(
