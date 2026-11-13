@@ -96,6 +96,8 @@ namespace ProGlassAutomation.Tests.Theme
             Assert.Contains("_config.Appearance.VisualTheme = value;", vm, StringComparison.Ordinal);
             Assert.Contains("ApplyVisualTheme();", vm, StringComparison.Ordinal);
             Assert.Contains("ThemePipeline.RebuildFamily(", vm, StringComparison.Ordinal);
+            Assert.Contains("OnPropertyChanged(nameof(ThemeModeChipBackgroundKey));", vm, StringComparison.Ordinal);
+            Assert.Contains("OnPropertyChanged(nameof(ThemeModeChipForegroundKey));", vm, StringComparison.Ordinal);
 
             int modulePass = pipeline.IndexOf("VisualThemeEngine.ApplyModule(", StringComparison.Ordinal);
             int designSystemPublish = pipeline.IndexOf("ThemeManager.PublishProGlassDesignSystem();", StringComparison.Ordinal);
