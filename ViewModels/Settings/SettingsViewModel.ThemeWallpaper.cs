@@ -38,7 +38,7 @@ namespace ProGlassAutomation.ViewModels.Settings
     public sealed partial class SettingsViewModel : ViewModelBase, IDisposable
     {
         // ══════════════════════════════════════════════════════════════
-        //  Theme Center exposes the eight approved visual families.
+        //  Theme Center exposes the nine approved visual families.
         //  Legacy Industrial, Monet, and Crystal identities are migration
         //  inputs only; the current picker never offers them as families.
         // ══════════════════════════════════════════════════════════════
@@ -75,6 +75,8 @@ namespace ProGlassAutomation.ViewModels.Settings
                         (Color.FromRgb(184, 166, 255), "Sculpted surfaces and soft depth"),
                     var k when k == ProGlassAutomation.Services.Theme.VisualThemeEngine.LiquidGlass =>
                         (Color.FromRgb(26, 197, 226), "Near-clear panes and liquid highlights"),
+                    var k when k == ProGlassAutomation.Services.Theme.VisualThemeEngine.FluentAcrylic =>
+                        (Color.FromRgb(37, 99, 235), "Windows-inspired acrylic surfaces and clear focus states"),
                     _ => (Color.FromRgb(72, 169, 232), "Frosted layers with restrained blur")
                 };
                 Description = description;
@@ -95,6 +97,7 @@ namespace ProGlassAutomation.ViewModels.Settings
             new(ProGlassAutomation.Services.Theme.VisualThemeEngine.Claymorphism),
             new(ProGlassAutomation.Services.Theme.VisualThemeEngine.LiquidGlass),
             new(ProGlassAutomation.Services.Theme.VisualThemeEngine.Glassmorphism),
+            new(ProGlassAutomation.Services.Theme.VisualThemeEngine.FluentAcrylic),
         };
         public string SelectedVisualTheme
         {
@@ -119,7 +122,7 @@ namespace ProGlassAutomation.ViewModels.Settings
                 _config.Appearance.VisualTheme = value;
                 SaveConfig();
 
-                // All eight approved families support both Light and Dark.
+                // All nine approved families support both Light and Dark.
                 // ModePairFor remains only as compatibility for a legacy
                 // light-only persisted family; canonical choices do not couple.
                 bool? modePair = ProGlassAutomation.Services.Theme
