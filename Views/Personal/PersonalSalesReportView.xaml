@@ -9,7 +9,7 @@
              TextOptions.TextRenderingMode="ClearType"
              UseLayoutRounding="True"
              SnapsToDevicePixels="True"
-             Background="{DynamicResource Ov.Canvas}">
+             Background="{DynamicResource GlassBlush.Background}">
 
     <!-- ═══════════════════════════════════════════════════════════════
          GB-P11 — GLASS BLUSH REPORTS HUB (glass-08 family)
@@ -32,10 +32,7 @@
 
     <UserControl.Resources>
         <ResourceDictionary>
-            <ResourceDictionary.MergedDictionaries>
-                <ResourceDictionary Source="../Dashboard/Overview/IndigoStudioResources.xaml"/>
-            </ResourceDictionary.MergedDictionaries>
-        <DataTemplate DataType="{x:Type vmExec:ExecutiveReportViewModel}">
+<DataTemplate DataType="{x:Type vmExec:ExecutiveReportViewModel}">
             <pv:PersonalExecutiveReportView/>
         </DataTemplate>
 

@@ -20,7 +20,7 @@
              TextOptions.TextRenderingMode="ClearType"
              UseLayoutRounding="True"
              SnapsToDevicePixels="True"
-             Background="{DynamicResource Ov.Canvas}">
+             Background="{DynamicResource GlassBlush.Background}">
 
     <!-- ═══════════════════════════════════════════════════════════════
          GB-P5 — GLASS BLUSH PROFORMA INVOICE (glass-02 reference)
@@ -38,10 +38,7 @@
 
     <UserControl.Resources>
         <ResourceDictionary>
-            <ResourceDictionary.MergedDictionaries>
-                <ResourceDictionary Source="../Dashboard/Overview/IndigoStudioResources.xaml"/>
-            </ResourceDictionary.MergedDictionaries>
-        <!-- glass wizard step (WizardStep: StationCode/RailLabel/IsCompleted/IsActive) -->
+<!-- glass wizard step (WizardStep: StationCode/RailLabel/IsCompleted/IsActive) -->
         <DataTemplate x:Key="GbPiStepTemplate">
             <Button Command="{Binding DataContext.GoToStepCommand,
                                   RelativeSource={RelativeSource AncestorType=UserControl}}"

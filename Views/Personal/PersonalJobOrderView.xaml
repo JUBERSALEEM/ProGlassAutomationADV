@@ -11,7 +11,7 @@
              TextOptions.TextRenderingMode="ClearType"
              UseLayoutRounding="True"
              SnapsToDevicePixels="True"
-             Background="{DynamicResource Ov.Canvas}">
+             Background="{DynamicResource GlassBlush.Background}">
 
     <!-- ═══════════════════════════════════════════════════════════════
          GB-P6 — GLASS BLUSH JOB ORDER (glass-03 reference)
@@ -30,10 +30,7 @@
 
     <UserControl.Resources>
         <ResourceDictionary>
-            <ResourceDictionary.MergedDictionaries>
-                <ResourceDictionary Source="../Dashboard/Overview/IndigoStudioResources.xaml"/>
-            </ResourceDictionary.MergedDictionaries>
-        <!-- glass status stage (string option; active when == SelectedStatus) -->
+<!-- glass status stage (string option; active when == SelectedStatus) -->
         <DataTemplate x:Key="GbJoStageTemplate">
             <ContentControl Margin="0,0,18,0" Width="150">
                 <ContentControl.Template>

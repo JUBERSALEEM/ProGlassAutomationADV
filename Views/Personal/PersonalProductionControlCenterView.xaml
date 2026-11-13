@@ -8,7 +8,7 @@
              TextOptions.TextRenderingMode="ClearType"
              UseLayoutRounding="True"
              SnapsToDevicePixels="True"
-             Background="{DynamicResource Ov.Canvas}">
+             Background="{DynamicResource GlassBlush.Background}">
 
     <!-- ═══════════════════════════════════════════════════════════════
          GB-P7 — GLASS BLUSH PRODUCTION CONTROL (glass-04 reference)
@@ -24,10 +24,7 @@
 
     <UserControl.Resources>
         <ResourceDictionary>
-            <ResourceDictionary.MergedDictionaries>
-                <ResourceDictionary Source="../Dashboard/Overview/IndigoStudioResources.xaml"/>
-            </ResourceDictionary.MergedDictionaries>
-        <BooleanToVisibilityConverter x:Key="GbBoolToVis"/>
+<BooleanToVisibilityConverter x:Key="GbBoolToVis"/>
 
         <!-- night card (measured tile #152B50 @25% + cyan-tinted border) -->
         <Style x:Key="GbNightCard" TargetType="ContentControl"
