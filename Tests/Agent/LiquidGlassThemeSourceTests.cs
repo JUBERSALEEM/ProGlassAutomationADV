@@ -72,9 +72,9 @@ namespace ProGlassAutomation.Tests.Agent
         // ══════════════════════════════════════════════════════════════
 
         [Fact]
-        public void Eight_families_are_selectable_and_LiquidGlass_is_the_default_family()
+        public void Nine_families_are_selectable_and_LiquidGlass_is_the_default_family()
         {
-            // The selectable contract is now the eight approved material
+            // The selectable contract is now the nine approved material
             // families. Old industrial, Monet, Crystal Fluid, and iOS 26
             // values are migrated once by ConfigService.
             string engine = Engine;
@@ -99,13 +99,9 @@ namespace ProGlassAutomation.Tests.Agent
             // 2026-09-17 CORRECTION (owner: "I could see only two" → then
             // "Ios and iphone 17 pro max theme is broken"): this block used to
             // pin Phase 8's THREE families and assert Crystal Fluid / iOS 26
-            // were absent from the picker. The picker now offers FOUR — the
-            // language files promise "Industrial, Monet, iOS 26 or iPhone 17
-            // Pro Max — restyles the whole app instantly" — so the two
-            // DoesNotContain asserts below were contradicting the shipped UI
-            // (and the theme-picker fix). They are inverted into Contains on
-            // purpose. The removed-family asserts above stay: those families
-            // are still gone.
+            // were absent from the picker. The picker now offers all NINE approved material families. These
+            // Contains assertions pin the full selectable catalogue; the
+            // removed-family assertions above keep retired identities out.
             string vm = Read(
                 "ViewModels/Settings/SettingsViewModel.ThemeWallpaper.cs");
             Assert.Contains("VisualThemeEngine.BentoGrid)", vm, StringComparison.Ordinal);
@@ -116,6 +112,7 @@ namespace ProGlassAutomation.Tests.Agent
             Assert.Contains("VisualThemeEngine.Claymorphism)", vm, StringComparison.Ordinal);
             Assert.Contains("VisualThemeEngine.LiquidGlass)", vm, StringComparison.Ordinal);
             Assert.Contains("VisualThemeEngine.Glassmorphism)", vm, StringComparison.Ordinal);
+            Assert.Contains("VisualThemeEngine.FluentAcrylic)", vm, StringComparison.Ordinal);
             Assert.DoesNotContain("VisualThemeEngine.Normal)", vm, StringComparison.Ordinal);
             Assert.DoesNotContain("VisualThemeEngine.Ocean", vm, StringComparison.Ordinal);
             Assert.DoesNotContain("VisualThemeEngine.Professional", vm, StringComparison.Ordinal);
@@ -149,14 +146,14 @@ namespace ProGlassAutomation.Tests.Agent
         }
 
         [Fact]
-        public void Eight_selectable_families_survive_normalization_and_are_dispatched()
+        public void Nine_selectable_families_survive_normalization_and_are_dispatched()
         {
             string part3 = Read("Services/Theme/VisualThemeEngine.Part3.cs");
             foreach (var family in new[]
             {
                 "BentoGrid", "SpatialImmersive", "SwissInternational",
                 "HolographicIridescent", "Neumorphism", "Claymorphism",
-                "LiquidGlass", "Glassmorphism"
+                "LiquidGlass", "Glassmorphism", "FluentAcrylic"
             })
                 Assert.Contains(family + " => " + family, part3, StringComparison.Ordinal);
 
